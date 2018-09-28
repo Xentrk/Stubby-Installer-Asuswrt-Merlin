@@ -137,7 +137,9 @@ remove_existing_installation () {
     printf 'Starting removal of Stubby. Removal process will not remove ca-certificates since the package is often used by other programs.\n'
 
     # Kill stubby process
-    kill $(ps | grep stubby | grep -v grep | cut -d' ' -f1) > /dev/null 2>&1
+    # Kill stubby process
+    $(pidof stubby) 1>/dev/null && $(kill pidof stubby) && printf 'Active Stubby process killed\n' || printf 'Found no active Stubby process found to kill\n' 
+
 
     # Remove the stubby package
     Chk_Entware stubby
@@ -501,7 +503,7 @@ Chk_Entware stubby
     if [ "$READY" -eq "0" ]; then
         printf "existing stubby package found\n"
         # Kill stubby process
-        kill $(ps | grep stubby | grep -v grep | cut -d' ' -f1) > /dev/null 2>&1
+        $(pidof stubby) 1>/dev/null && $(kill pidof stubby) && printf 'Active Stubby process killed\n' || printf 'Found no active Stubby process found to kill\n'
         opkg update stubby && printf "stubby successfully updated\n" || printf "An error occurred updating stubby\n" || exit 1
     else
         opkg install stubby && printf "stubby successfully installed\n" || printf "An error occurred installing stubby\n" || exit 1

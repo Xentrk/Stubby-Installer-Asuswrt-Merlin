@@ -137,14 +137,13 @@ remove_existing_installation () {
     printf 'Starting removal of Stubby. Removal process will not remove ca-certificates since the package is often used by other programs.\n'
 
     # Kill stubby process
-    PID=$(ps | grep stubby | grep -v grep | cut -d' ' -f1)
-    kill "$PID"
+    kill $(ps | grep stubby | grep -v grep | cut -d' ' -f1) > /dev/null 2>&1
 
     # Remove the stubby package
     Chk_Entware stubby
     if [ "$READY" -eq "0" ]; then
         printf "existing stubby package found\n"
-        opkg opkg remove stubby
+        opkg remove stubby
     fi
 
 
@@ -162,11 +161,11 @@ remove_existing_installation () {
     for DIR in /opt/var/cache/stubby /opt/etc/stubby
         do
             if [ -d "$DIR" ]; then
-                if ! rm "$DIR"/* ; then
+                if ! rm "$DIR"/* > /dev/null 2>&1; then
                 printf '\n'
                 printf 'No files found to remove in %b%s%b\n' "$COLOR_GREEN" "$DIR" "$COLOR_WHITE"
                 fi
-                if ! rmdir "$DIR" ; then
+                if ! rmdir "$DIR" > /dev/null 2>&1; then
                     printf '\n'
                     printf 'Error trying to remove %b%s%b\n' "$COLOR_GREEN" "$DIR" "$COLOR_WHITE"
                 else
@@ -277,6 +276,27 @@ Chk_Entware () {
             if [ ! -z "$("$ENTWARE" list-installed "$ENTWARE_UTILITY")" ];then
                 READY=0                                 # Specific Entware utility found
             else
+                # Xentrk revision needed to bypass false postive that stubby is installed if /opt/var/cache/stubby
+                # and /opt/etc/stubby exists. When stubby is removed via the command line, the entware directory
+                # is not deleted.
+
+                # check for stubby folders with no files
+                for DIR in /opt/var/cache/stubby /opt/etc/stubby
+                    do
+                        if [ -d "$DIR" ]; then
+                            is_dir_empty $DIR
+                            if [ "$?" -eq "0" ]; then
+                                if ! rmdir "$DIR" > /dev/null 2>&1; then
+                                    printf '\n'
+                                    printf 'Error trying to remove %b%s%b\n' "$COLOR_GREEN" "$DIR" "$COLOR_WHITE"
+                                else
+                                    printf '\n'
+                                    printf 'orphaned %b%s%b folder removed\n' "$COLOR_GREEN"  "$DIR" "$COLOR_WHITE"
+                                fi
+                            fi
+                        fi
+                    done
+
                 # Not all Entware utilities exists as a stand-alone package e.g. 'find' is in package 'findutils'
                 if [ -d /opt ] && [ ! -z "$(find /opt/ -name "$ENTWARE_UTILITY")" ];then
                   READY=0                               # Specific Entware utility found
@@ -293,6 +313,14 @@ Chk_Entware () {
    done
 
    return $READY
+}
+
+is_dir_empty () {
+    cd "$1"
+    set -- .[!.]* ; test -f "$1" && return 1
+    set -- ..?* ; test -f "$1" && return 1
+    set -- * ; test -f "$1" && return 1
+    return 0
 }
 
 check_dnsmasq_parms () {
@@ -395,7 +423,7 @@ check_dnsmasq_postconf () {
         printf '%s\n' "cp /jffs/configs/resolv.dnsmasq /tmp/resolv.dnsmasq" >> /jffs/scripts/dnsmasq.postconf
         chmod 755 /jffs/scripts/dnsmasq.postconf
     fi
-
+    cp /jffs/configs/resolv.dnsmasq /tmp/resolv.dnsmasq
 }
 
 check_openvpn_event() {
@@ -403,7 +431,7 @@ check_openvpn_event() {
     for OPENVPN_CLIENT in 1 2 3 4 5
         do
             if [ "$(nvram get vpn_client${OPENVPN_CLIENT}_state)" -eq "2" ]; then
-                COUNTER=$("$COUNTER" + 1)
+                COUNTER=$((COUNTER + 1))
             fi
         done
 
@@ -472,6 +500,8 @@ Chk_Entware
 Chk_Entware stubby
     if [ "$READY" -eq "0" ]; then
         printf "existing stubby package found\n"
+        # Kill stubby process
+        kill $(ps | grep stubby | grep -v grep | cut -d' ' -f1) > /dev/null 2>&1
         opkg update stubby && printf "stubby successfully updated\n" || printf "An error occurred updating stubby\n" || exit 1
     else
         opkg install stubby && printf "stubby successfully installed\n" || printf "An error occurred installing stubby\n" || exit 1
@@ -494,8 +524,8 @@ check_dnsmasq_postconf
 check_openvpn_event
 update_wan_dns_settings
 
-dnsmasq service_restart
-/opt/etc/init.d/S61stubby start
+service restart_dnsmasq
+/opt/etc/init.d/S61stubby restart
 }
 
 clear

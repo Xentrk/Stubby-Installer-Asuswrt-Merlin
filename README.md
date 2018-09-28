@@ -1,3 +1,5 @@
+# DO NOT USE TESTING IN PROGRESS!
+
 # Stubby-Installer-Asuswrt-Merlin
 Stubby DNS Privacy Daemon Install Script for Asuswrt-Merlin Firmware
 

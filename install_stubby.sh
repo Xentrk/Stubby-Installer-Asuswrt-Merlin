@@ -15,7 +15,7 @@
 logger -t "($(basename "$0"))" $$ Starting Script Execution
 
 # Uncomment the line below for debugging
-set -x
+# set -x
 
 Set_Color_Parms () {
     COLOR_RED='\033[0;31m'
@@ -48,10 +48,10 @@ welcome_message () {
     printf '##   3. Default to Cloudfare DNS 1.1.1.1. You can change to other supported DNS over TLS providers by      ##\n'
     printf '##      modifying /opt/var/stubby/stubby.yml and the DNS Settings on the WAN Menu.                         ##\n'
     printf '##                                                                                                         ##\n'
-    printf '## You can also use this script to uninstall Stubby to back out the changes made during the installation.   ##\n'
-    printf '## As an extra precaution, it is highly recommended to take a back-up of the jffs partition and the        ##\n'
-    printf '## firmware configuration before proceeding with the installation.                                         ##\n'
-    printf '##                                                                                                         ##\n'
+    printf '## You can also use this script to uninstall Stubby to back out the changes made during the installation.  ##\n'
+    printf '## As an extra precaution, it is highly recommended to take a back-up of the jffs partition, the firmware  ##\n'
+    printf '## configuration and USB before proceeding with the installation. See the project repository at            ##\n'
+    printf '## https://github.com/Xentrk/Stubby-Installer-Asuswrt-Merlin tips for helpful tips                         ##\n'
     printf '#############################################################################################################\n'
     printf '\n'
     printf '%b1%b = Begin Installation Process\n' "${COLOR_GREEN}" "${COLOR_WHITE}"
@@ -138,7 +138,7 @@ remove_existing_installation () {
 
     # Kill stubby process
     # Kill stubby process
-    $(pidof stubby) 1>/dev/null && $(kill pidof stubby) && printf 'Active Stubby process killed\n' || printf 'Found no active Stubby process found to kill\n' 
+    $(pidof stubby) 1>/dev/null && $(kill pidof stubby) && printf 'Active Stubby process killed\n' || printf 'Found no active Stubby process found to kill\n'
 
 
     # Remove the stubby package

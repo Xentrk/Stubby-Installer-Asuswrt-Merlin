@@ -26,20 +26,20 @@ Copy and paste the command below into an SSH session.
 /usr/sbin/curl --retry 3 "https://raw.githubusercontent.com/Xentrk/Stubby-Installer-Asuswrt-Merlin/master/install_stubby.sh" -o /jffs/scripts/install_stubby.sh && chmod 755 /jffs/scripts/install_stubby.sh && sh /jffs/scripts/install_stubby.sh
 ```
 ## Troubleshooting
-
 If you break out of the installation process before it can complete, you may loose internet connectivity.  To quickly resolve:
 
 1. Remove the lines below from the files **/jffs/scripts/dnsmasq.postconf**.  If you use one or more OpenVPN clients, remove the same line from **/jffs/scripts/openvpn-event**.
-```javascript
-cp /jffs/configs/resolv.dnsmasq /tmp/resolv.dnsmasq```   
+
+        cp /jffs/configs/resolv.dnsmasq /tmp/resolv.dnsmasq
+
 2. Remove the following lines from **/jffs/configs/dnsmasq.conf.add**:
-```javascript
-server=127.0.0.1#5453
-server=0::1#5453```
+
+        server=127.0.0.1#5453
+        server=0::1#5453
 
 3. Edit **/tmp/resolv.dnsmasq** and replace the existing entry with the line:
-```javascript
-server=1.1.1.1```
+
+        server=1.1.1.1
 
 4. Type the command **service restart_dnsmasq**
 
@@ -47,22 +47,18 @@ server=1.1.1.1```
 
 ## Validating that Stubby is Working
 Run the following commands from an SSH session to verify that stubby is working properly:
-```javascript
-ps | grep stubby | grep -v grep
-netstat -lnptu | grep stubby
-drill github.com (requires entware package drill)
-nslookup github.com
-echo | openssl s_client -connect '1.1.1.1:853'
-```
+
+    ps | grep stubby | grep -v grep
+    netstat -lnptu | grep stubby
+    drill github.com (requires entware package drill)
+    nslookup github.com
+    echo | openssl s_client -connect '1.1.1.1:853'
+
 Use the [Cloudfare Help Page](https://1.1.1.1/help) to validate you are connected to 1.1.1.1 and **DNS over TLS** is working.  If working properly, the page will display a **Yes** as seen in the example below:
 
     Connected to 1.1.1.1	Yes
-
     Using DNS over HTTPS (DoH)	No
-
     Using DNS over TLS (DoT)	Yes
-
-
 
 ## Starting, Stoppting and Killing Stubby
 To **(start|stop|restart|check|kill|reconfigure)** stubby, type the command below where **option** is one of the options listed in the parenthesis.

@@ -62,8 +62,8 @@ Use the [Cloudfare Help Page](https://1.1.1.1/help) to validate you are connecte
 
 ## Starting, Stoppting and Killing Stubby
 To **(start|stop|restart|check|kill|reconfigure)** stubby, type the command below where **option** is one of the options listed in the parenthesis.
-```javascript
-/opt/etc/init.d/S61stubby option```
+
+    /opt/etc/init.d/S61stubby option
 
 ## Collaborators
 

@@ -23,8 +23,8 @@ The Stubby installer script **stubby_installer.sh** will
 ## Installation
 Copy and paste the command below into an SSH session.
 ```javascript
-/usr/sbin/curl --retry 3 "https://raw.githubusercontent.com/Xentrk/Stubby-Installer-Asuswrt-Merlin/master/install_stubby.sh" -o /jffs/scripts/install_stubby.sh && chmod 755 /jffs/scripts/install_stubby.sh && sh /jffs/scripts/install_stubby.sh```
-
+/usr/sbin/curl --retry 3 "https://raw.githubusercontent.com/Xentrk/Stubby-Installer-Asuswrt-Merlin/master/install_stubby.sh" -o /jffs/scripts/install_stubby.sh && chmod 755 /jffs/scripts/install_stubby.sh && sh /jffs/scripts/install_stubby.sh
+```
 ## Troubleshooting
 
 If you break out of the installation process before it can complete, you may loose internet connectivity.  To quickly resolve:

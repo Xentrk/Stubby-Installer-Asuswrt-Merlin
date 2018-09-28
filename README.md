@@ -56,9 +56,9 @@ Run the following commands from an SSH session to verify that stubby is working 
 
 Use the [Cloudfare Help Page](https://1.1.1.1/help) to validate you are connected to 1.1.1.1 and **DNS over TLS** is working.  If working properly, the page will display a **Yes** as seen in the example below:
 
-    Connected to 1.1.1.1	       Yes
-    Using DNS over HTTPS (DoH)	 No
-    Using DNS over TLS (DoT)	   Yes
+    Connected to 1.1.1.1         Yes
+    Using DNS over HTTPS (DoH)   No
+    Using DNS over TLS (DoT)     Yes
 
 ## Starting, Stoppting and Killing Stubby
 To **(start|stop|restart|check|kill|reconfigure)** stubby, type the command below where **option** is one of the options listed in the parenthesis.

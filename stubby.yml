@@ -1,0 +1,32 @@
+# stubby.yml configuration file created by Xentrk
+# version 1.0.0
+tls_ca_file: "/opt/etc/ssl/certs/ca-certificates.crt"
+resolution_type: GETDNS_RESOLUTION_STUB
+dns_transport_list:
+  - GETDNS_TRANSPORT_TLS
+dnssec_return_status: GETDNS_EXTENSION_TRUE
+tls_authentication: GETDNS_AUTHENTICATION_REQUIRED
+tls_query_padding_blocksize: 128
+edns_client_subnet_private : 1
+round_robin_upstreams: 0
+idle_timeout: 2000
+tls_connection_retries: 5
+tls_backoff_time: 900
+appdata_dir: "/opt/var/cache/stubby"
+listen_addresses:
+  - 127.0.0.1@5453
+  - 0::1@5453
+
+upstream_recursive_servers:
+# Quad 9 Secure Primary
+#  - address_data: 9.9.9.9
+#    tls_auth_name: "dns.quad9.net"
+# Quad 9 Secure Primary
+#  - address_data: 2620:fe::fe
+#    tls_auth_name: "dns.quad9.net"
+# Cloudflare Primary IPv4
+  - address_data: 1.1.1.1
+    tls_auth_name: "cloudflare-dns.com"
+# Cloudflare Primary IPv6
+  - address_data: 2606:4700:4700::1111
+    tls_auth_name: "cloudflare-dns.com"

@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # DO NOT USE TESTING IN PROGRESS!
 
 # Stubby-Installer-Asuswrt-Merlin

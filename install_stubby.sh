@@ -15,7 +15,7 @@
 logger -t "($(basename "$0"))" $$ Starting Script Execution
 
 # Uncomment the line below for debugging
-# set -x
+set -x
 
 Set_Color_Parms () {
     COLOR_RED='\033[0;31m'
@@ -137,8 +137,9 @@ remove_existing_installation () {
     printf 'Starting removal of Stubby. Removal process will not remove ca-certificates since the package is often used by other programs.\n'
 
     # Kill stubby process
-    # Kill stubby process
-    $(pidof stubby) 1>/dev/null && $(kill pidof stubby) && printf 'Active Stubby process killed\n' || printf 'Found no active Stubby process found to kill\n'
+    case "$(pidof stubby | wc -w)" in
+        1)  kill $(pidof stubby) ;;
+    esac
 
 
     # Remove the stubby package
@@ -362,7 +363,7 @@ create_required_directories () {
 
 check_resolv_dnsmasq_override () {
     if [ -s /jffs/configs/resolv.dnsmasq ]; then  # file exists
-        for SERVER_PARM in "server=127.0.0.1"
+        for SERVER_PARM in server=127.0.0.1
             do
                if [ "$(grep -c "$SERVER_PARM" "/jffs/configs/resolv.dnsmasq")" = "0" ]; then  # see if line exists
                    printf '%s\n' "$SERVER_PARM" > /jffs/configs/resolv.dnsmasq
@@ -448,7 +449,7 @@ check_openvpn_event() {
         if [ -s /jffs/scripts/openvpn-event ]; then  # file exists
             if [ "$(grep -c "cp /jffs/configs/resolv.dnsmasq /tmp/resolv.dnsmasq" "/jffs/scripts/openvpn-event")" = "0" ]; then  # see if line exists
                 printf '%s\n' "cp /jffs/configs/resolv.dnsmasq /tmp/resolv.dnsmasq" >> /jffs/scripts/openvpn-event
-                printf '%s\n' "/jffs/scripts/openvpn-event"
+                printf '%s\n' "Updated /jffs/scripts/openvpn-event"
             else
                 printf '%s\n' "Required entry already exists in /jffs/scripts/openvpn-event. Skipping update of /jffs/scripts/openvpn-event"
             fi
@@ -503,7 +504,9 @@ Chk_Entware stubby
     if [ "$READY" -eq "0" ]; then
         printf "existing stubby package found\n"
         # Kill stubby process
-        $(pidof stubby) 1>/dev/null && $(kill pidof stubby) && printf 'Active Stubby process killed\n' || printf 'Found no active Stubby process found to kill\n'
+        case "$(pidof stubby | wc -w)" in
+            1)  kill $(pidof stubby) ;;
+        esac
         opkg update stubby && printf "stubby successfully updated\n" || printf "An error occurred updating stubby\n" || exit 1
     else
         opkg install stubby && printf "stubby successfully installed\n" || printf "An error occurred installing stubby\n" || exit 1

@@ -223,9 +223,9 @@ remove_existing_installation () {
             printf 'Manually remove %b/jffs/scripts/openvpn-event%b using the %brm%b command if the file is no longer required\n' "$COLOR_GREEN" "$COLOR_WHITE" "$COLOR_GREEN" "$COLOR_WHITE"
         fi
     fi
-
-    # restart dnsmasq to reflect changes
-    service restart_dnsmasq > /dev/null 2>&1
+    # restart dnsmasq and the WAN iface to reflect changes
+    service restart_dnsmasq
+    service restart_wan
 
     printf 'Uninstall of Stubby completed.\n'
     printf 'Please review the DNS settings on the WAN GUI and adjust if necessary.\n'

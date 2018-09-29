@@ -3,7 +3,7 @@
 ENABLED=yes
 PROCS=stubby
 ARGS="-g -v 5 -C /opt/etc/stubby/stubby.yml 2>/opt/var/log/stubby.log"
-PREARGS=""
+PREARGS="nohup"
 DESC=$PROCS
 PATH=/opt/sbin:/opt/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 

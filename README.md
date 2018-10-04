@@ -15,7 +15,7 @@ Stubby DNS Privacy Daemon Install Script for Asuswrt-Merlin Firmware
 The use of Stubby on Asuswrt-Merlin is experimental and not endorsed by the firmware developer. As an extra precaution, it is highly recommended to take a back-up of the jffs partition and the firmware configuration before proceeding with the installation. You can also use this script to uninstall Stubby and remove the changes made during the installation.   
 
 The Stubby installer script **stubby_installer.sh** will
-1. Install the entware packages **stubby** and **ca-certificates** on
+1. Install the entware packages **stubby** and **ca-certificates**
 2. Override how the firmware manages DNS  
 3. Default to Cloudfare DNS 1.1.1.1. You can change to other supported DNS over TLS providers by modifying /opt/var/stubby/stubby.yml and the DNS Settings on the WAN Menu.
 4. Provide the option to remove Stubby and the firmware DNS overrides.
@@ -60,7 +60,7 @@ Use the [Cloudfare Help Page](https://1.1.1.1/help) to validate you are connecte
     Using DNS over HTTPS (DoH)   No
     Using DNS over TLS (DoT)     Yes
 
-## Starting, Stoppting and Killing Stubby
+## Starting, Stopping and Killing Stubby
 To **(start|stop|restart|check|kill|reconfigure)** stubby, type the command below where **option** is one of the options listed in the parenthesis.
 
     /opt/etc/init.d/S61stubby option

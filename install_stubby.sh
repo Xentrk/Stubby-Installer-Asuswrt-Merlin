@@ -15,7 +15,7 @@
 logger -t "($(basename "$0"))" $$ Starting Script Execution
 
 # Uncomment the line below for debugging
-set -x
+#set -x
 
 Set_Color_Parms () {
     COLOR_RED='\033[0;31m'
@@ -44,8 +44,9 @@ welcome_message () {
     printf '##                                                                                                         ##\n'
     printf '## The use of Stubby on Asuswrt-Merlin is experimental. The install script will:                           ##\n'
     printf '##   1. Install the stubby and ca-certificates entware packages                                            ##\n'
-    printf '##   2. Override how the firmware manages DNS                                                              ##\n'
-    printf '##   3. Default to Cloudfare DNS 1.1.1.1. You can change to other supported DNS over TLS providers by      ##\n'
+    printf '##   2. Override how the firmware manages DNS.                                                             ##\n'
+    printf '##   3. Disable the firmware DNSSEC setting. Stubby has a separate DNSSEC setting in stubby.yml            ##\n'
+    printf '##   4. Default to Cloudfare DNS 1.1.1.1. You can change to other supported DNS over TLS providers by      ##\n'
     printf '##      modifying /opt/var/stubby/stubby.yml and the DNS Settings on the WAN Menu.                         ##\n'
     printf '##                                                                                                         ##\n'
     printf '## You can also use this script to uninstall Stubby to back out the changes made during the installation.  ##\n'
@@ -54,8 +55,8 @@ welcome_message () {
     printf '## https://github.com/Xentrk/Stubby-Installer-Asuswrt-Merlin tips for helpful tips                         ##\n'
     printf '#############################################################################################################\n'
     printf '\n'
-    printf '%b1%b = Begin Installation Process\n' "${COLOR_GREEN}" "${COLOR_WHITE}"
-    printf '%b2%b = Remove Existing Installation\n' "${COLOR_GREEN}" "${COLOR_WHITE}"
+    printf '%b1%b = Begin Stubby Installation Process\n' "${COLOR_GREEN}" "${COLOR_WHITE}"
+    printf '%b2%b = Remove Existing Stubby Installation\n' "${COLOR_GREEN}" "${COLOR_WHITE}"
     printf '%be%b = Exit Script\n' "${COLOR_GREEN}" "${COLOR_WHITE}"
     printf '\n'
     printf '%bOption ==>%b ' "${COLOR_GREEN}" "${COLOR_WHITE}"
@@ -215,18 +216,30 @@ remove_existing_installation () {
     fi
 
     # remove /jffs/scripts/dnsmasq.postconf
-    if [ -s /jffs/scripts/dnsmasq.postconf ]; then  # file exists
-    if [ "$(grep -c "cp /jffs/configs/resolv.dnsmasq /tmp/resolv.dnsmasq" "/jffs/scripts/dnsmasq.postconf")" != "0" ]; then  # see if line exists
-            sed -i '/resolv.dnsmasq/d' "/jffs/scripts/dnsmasq.postconf" > /dev/null 2>&1
-            printf '\n'
-            printf 'One line entry removed from %b/jffs/scripts/dnsmasq.postconf%b\n' "$COLOR_GREEN" "$COLOR_WHITE"
-            printf 'Skipping deletion of %b/jffs/scripts/dnsmasq.postconf%b as it may be used by other applications.\n' "$COLOR_GREEN" "$COLOR_WHITE"
-            printf 'Manually remove %b/jffs/scripts/openvpn-event%b using the %brm%b command if the file is no longer required\n' "$COLOR_GREEN" "$COLOR_WHITE" "$COLOR_GREEN" "$COLOR_WHITE"
-        fi
-    fi
+#    if [ -s /jffs/scripts/dnsmasq.postconf ]; then  # file exists
+#    if [ "$(grep -c "cp /jffs/configs/resolv.dnsmasq /tmp/resolv.dnsmasq" "/jffs/scripts/dnsmasq.postconf")" != "0" ]; then  # see if line exists
+#            sed -i '/resolv.dnsmasq/d' "/jffs/scripts/dnsmasq.postconf" > /dev/null 2>&1
+#            printf '\n'
+#            printf 'One line entry removed from %b/jffs/scripts/dnsmasq.postconf%b\n' "$COLOR_GREEN" "$COLOR_WHITE"
+#            printf 'Skipping deletion of %b/jffs/scripts/dnsmasq.postconf%b as it may be used by other applications.\n' "$COLOR_GREEN" "$COLOR_WHITE"
+#            printf 'Manually remove %b/jffs/scripts/openvpn-event%b using the %brm%b command if the file is no longer required\n' "$COLOR_GREEN" "$COLOR_WHITE" "$COLOR_GREEN" "$COLOR_WHITE"
+#        fi
+#    fi
+
+    # Default DNS1 to Cloudfare 1.1.1.1
+    DNS1=1.1.1.1
+    nvram set wan0_dns="$DNS1"
+    nvram set wan_dns="$DNS1"
+    nvram set wan_dns1_x="$DNS1"
+    nvram set wan0_xdns="$DNS1"
+    nvram set wan0_dns1_x="$DNS1"
+
     # restart dnsmasq and the WAN iface to reflect changes
-    service restart_dnsmasq
-    service restart_wan
+    service restart_dnsmasq > /dev/null 2>&1
+    printf 'dnsmasq restarted\n'
+
+    service restart_wan > /dev/null 2>&1
+    printf 'The WAN interface is being bounced to finalize the removal of Stubby. This will result in a brief internet outage.\n'
 
     printf 'Uninstall of Stubby completed.\n'
     printf 'Please review the DNS settings on the WAN GUI and adjust if necessary.\n'
@@ -362,8 +375,10 @@ create_required_directories () {
 }
 
 check_resolv_dnsmasq_override () {
+    DNS1="$(nvram get lan_ipaddr)"
     if [ -s /jffs/configs/resolv.dnsmasq ]; then  # file exists
-        for SERVER_PARM in server=127.0.0.1
+
+        for SERVER_PARM in server="$DNS1"
             do
                if [ "$(grep -c "$SERVER_PARM" "/jffs/configs/resolv.dnsmasq")" = "0" ]; then  # see if line exists
                    printf '%s\n' "$SERVER_PARM" > /jffs/configs/resolv.dnsmasq
@@ -372,7 +387,9 @@ check_resolv_dnsmasq_override () {
                fi
             done
     else
-       printf '%s\n' "$SERVER_PARM" > /jffs/configs/resolv.dnsmasq
+       printf 'server=%s\n' "$DNS1" > /jffs/configs/resolv.dnsmasq
+       printf 'server=%s\n' "$DNS1" > /tmp/resolv.dnsmasq
+       printf 'nameserver $s\n' "$DNS1" > /tmp/resolv.conf
     fi
 }
 
@@ -445,6 +462,9 @@ check_openvpn_event() {
               WORD=Client
         fi
 
+        # require override file if OpenVPN Clients are used
+        check_resolv_dnsmasq_override
+
         printf '%s\n' "$COUNTER active OpenVPN $WORD found"
         if [ -s /jffs/scripts/openvpn-event ]; then  # file exists
             if [ "$(grep -c "cp /jffs/configs/resolv.dnsmasq /tmp/resolv.dnsmasq" "/jffs/scripts/openvpn-event")" = "0" ]; then  # see if line exists
@@ -472,18 +492,23 @@ update_wan_dns_settings () {
     nvram set wan_dnsenable_x="0"
     nvram set wan0_dnsenable_x="0"
 
-# Set DNS1 to use 1.1.1.1
+# Set DNS1 to use the routers's IP address
 
-    nvram set wan0_dns=1.1.1.1
-    nvram set wan_dns=1.1.1.1
-    nvram set wan_dns1_x=1.1.1.1
-    nvram set wan0_xdns=1.1.1.1
-    nvram set wan0_dns1_x=1.1.1.1
+    LAN_IPADDR="$(nvram get lan_ipaddr)"
+    nvram set wan0_dns=$LAN_IPADDR
+    nvram set wan_dns=$LAN_IPADDR
+    nvram set wan_dns1_x=$LAN_IPADDR
+    nvram set wan0_xdns=$LAN_IPADDR
+    nvram set wan0_dns1_x=$LAN_IPADDR
 
 # Set DNS2 to null
 
   nvram set wan_dns2_x=""
   nvram set wan0_dns2_x=""
+
+# Turn off DNSSEC
+
+  nvram set dnssec_enable="0";
 
   nvram commit
 }
@@ -522,14 +547,14 @@ Chk_Entware ca-certificates
 
 check_dnsmasq_parms
 create_required_directories
-check_resolv_dnsmasq_override
+#check_resolv_dnsmasq_override
 stubby_yml_update
 S61stubby_update
-check_dnsmasq_postconf
+# check_dnsmasq_postconf
 check_openvpn_event
 update_wan_dns_settings
 
-service restart_dnsmasq
+service restart_dnsmasq > /dev/null 2>&1
 /opt/etc/init.d/S61stubby restart
 }
 

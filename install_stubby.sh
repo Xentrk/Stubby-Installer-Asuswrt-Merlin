@@ -540,9 +540,9 @@ Chk_Entware stubby
 Chk_Entware ca-certificates
     if [ "$READY" -eq "0" ]; then
         printf "existing ca-certificates package found\n"
-        opkg update ca-certifacates && printf "ca-certificates successfully updated\n" || printf "An error occurred updating ca-certificates\n" || exit 1
+        opkg update ca-certificates && printf "ca-certificates successfully updated\n" || printf "An error occurred updating ca-certificates\n" || exit 1
     else
-        opkg install ca-certifacates && printf "ca-certificates successfully installed\n" || printf "An error occurred installing ca-certificates\n" || exit 1
+        opkg install ca-certificates && printf "ca-certificates successfully installed\n" || printf "An error occurred installing ca-certificates\n" || exit 1
     fi
 
 check_dnsmasq_parms

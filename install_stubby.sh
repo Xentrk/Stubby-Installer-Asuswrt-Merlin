@@ -3,10 +3,10 @@
 # Script: install_stubby.sh
 # Version 1.0.0
 # Author: Xentrk
-# Date: 5-October-2018
+# Date: 6-October-2018
 #
 # Description:
-#  Install the stubby DNS over TLS resolver and the ca-certificates packages from entware on Asuswrt-Merlin firmware.
+#  Install the Stubby DNS over TLS resolver and the ca-certificates packages from entware on Asuswrt-Merlin firmware.
 #
 # Acknowledgement:
 #  Chk_Entware function provided by @Martineau at snbforums.com
@@ -72,7 +72,7 @@ welcome_message () {
 
 validate_removal () {
     printf '\n'
-    printf '%by%b = Are you sure you want to unsintall stubby?\n' "${COLOR_GREEN}" "${COLOR_WHITE}"
+    printf '%by%b = Are you sure you want to uninstall Stubby?\n' "${COLOR_GREEN}" "${COLOR_WHITE}"
     printf '%bn%b = Cancel\n' "${COLOR_GREEN}" "${COLOR_WHITE}"
     printf '%be%b = Exit Script\n' "${COLOR_GREEN}" "${COLOR_WHITE}"
     printf '\n'
@@ -146,7 +146,7 @@ remove_existing_installation () {
     # Remove the stubby package
     Chk_Entware stubby
     if [ "$READY" -eq "0" ]; then
-        printf "existing stubby package found\n"
+        printf "existing Stubby package found\n"
         opkg remove stubby
     fi
 
@@ -216,15 +216,15 @@ remove_existing_installation () {
     fi
 
     # remove /jffs/scripts/dnsmasq.postconf
-#    if [ -s /jffs/scripts/dnsmasq.postconf ]; then  # file exists
-#    if [ "$(grep -c "cp /jffs/configs/resolv.dnsmasq /tmp/resolv.dnsmasq" "/jffs/scripts/dnsmasq.postconf")" != "0" ]; then  # see if line exists
-#            sed -i '/resolv.dnsmasq/d' "/jffs/scripts/dnsmasq.postconf" > /dev/null 2>&1
-#            printf '\n'
-#            printf 'One line entry removed from %b/jffs/scripts/dnsmasq.postconf%b\n' "$COLOR_GREEN" "$COLOR_WHITE"
-#            printf 'Skipping deletion of %b/jffs/scripts/dnsmasq.postconf%b as it may be used by other applications.\n' "$COLOR_GREEN" "$COLOR_WHITE"
-#            printf 'Manually remove %b/jffs/scripts/openvpn-event%b using the %brm%b command if the file is no longer required\n' "$COLOR_GREEN" "$COLOR_WHITE" "$COLOR_GREEN" "$COLOR_WHITE"
-#        fi
-#    fi
+    if [ -s /jffs/scripts/dnsmasq.postconf ]; then  # file exists
+    if [ "$(grep -c "cp /jffs/configs/resolv.dnsmasq /tmp/resolv.dnsmasq" "/jffs/scripts/dnsmasq.postconf")" != "0" ]; then  # see if line exists
+            sed -i '/resolv.dnsmasq/d' "/jffs/scripts/dnsmasq.postconf" > /dev/null 2>&1
+            printf '\n'
+            printf 'One line entry removed from %b/jffs/scripts/dnsmasq.postconf%b\n' "$COLOR_GREEN" "$COLOR_WHITE"
+            printf 'Skipping deletion of %b/jffs/scripts/dnsmasq.postconf%b as it may be used by other applications.\n' "$COLOR_GREEN" "$COLOR_WHITE"
+            printf 'Manually remove %b/jffs/scripts/openvpn-event%b using the %brm%b command if the file is no longer required\n' "$COLOR_GREEN" "$COLOR_WHITE" "$COLOR_GREEN" "$COLOR_WHITE"
+        fi
+    fi
 
     # Default DNS1 to Cloudfare 1.1.1.1
     DNS1=1.1.1.1
@@ -239,10 +239,12 @@ remove_existing_installation () {
     printf 'dnsmasq restarted\n'
 
     service restart_wan > /dev/null 2>&1
-    printf 'The WAN interface is being bounced to finalize the removal of Stubby. This will result in a brief internet outage.\n'
-
     printf 'Uninstall of Stubby completed.\n'
     printf 'Please review the DNS settings on the WAN GUI and adjust if necessary.\n'
+    printf 'The WAN interface has been restarted to finalize the removal of Stubby. This will result in a brief internet outage.\n'
+    printf 'You can monitor progress on the Network Map Web GUI\n'
+
+
 }
 
 exit_message () {
@@ -389,7 +391,7 @@ check_resolv_dnsmasq_override () {
     else
        printf 'server=%s\n' "$DNS1" > /jffs/configs/resolv.dnsmasq
        printf 'server=%s\n' "$DNS1" > /tmp/resolv.dnsmasq
-       printf 'nameserver $s\n' "$DNS1" > /tmp/resolv.conf
+       printf 'nameserver %s\n' "$DNS1" > /tmp/resolv.conf
     fi
 }
 
@@ -443,7 +445,6 @@ check_dnsmasq_postconf () {
         printf '%s\n' "cp /jffs/configs/resolv.dnsmasq /tmp/resolv.dnsmasq" >> /jffs/scripts/dnsmasq.postconf
         chmod 755 /jffs/scripts/dnsmasq.postconf
     fi
-    cp /jffs/configs/resolv.dnsmasq /tmp/resolv.dnsmasq
 }
 
 check_openvpn_event() {
@@ -508,7 +509,7 @@ update_wan_dns_settings () {
 
 # Turn off DNSSEC
 
-  nvram set dnssec_enable="0";
+  nvram set dnssec_enable="0"
 
   nvram commit
 }
@@ -527,30 +528,30 @@ Chk_Entware
 
 Chk_Entware stubby
     if [ "$READY" -eq "0" ]; then
-        printf "existing stubby package found\n"
+        printf "existing Stubby package found\n"
         # Kill stubby process
         case "$(pidof stubby | wc -w)" in
             1)  kill $(pidof stubby) ;;
         esac
-        opkg update stubby && printf "stubby successfully updated\n" || printf "An error occurred updating stubby\n" || exit 1
+        opkg update stubby && printf "Stubby successfully updated\n" || printf "An error occurred updating Stubby\n" || exit 1
     else
-        opkg install stubby && printf "stubby successfully installed\n" || printf "An error occurred installing stubby\n" || exit 1
+        opkg install stubby && printf "Stubby successfully installed\n" || printf "An error occurred installing Stubby\n" || exit 1
     fi
 
 Chk_Entware ca-certificates
     if [ "$READY" -eq "0" ]; then
         printf "existing ca-certificates package found\n"
-        opkg update ca-certificates && printf "ca-certificates successfully updated\n" || printf "An error occurred updating ca-certificates\n" || exit 1
+        opkg update ca-certifacates && printf "ca-certificates successfully updated\n" || printf "An error occurred updating ca-certificates\n" || exit 1
     else
-        opkg install ca-certificates && printf "ca-certificates successfully installed\n" || printf "An error occurred installing ca-certificates\n" || exit 1
+        opkg install ca-certifacates && printf "ca-certificates successfully installed\n" || printf "An error occurred installing ca-certificates\n" || exit 1
     fi
 
 check_dnsmasq_parms
 create_required_directories
-#check_resolv_dnsmasq_override
+check_resolv_dnsmasq_override
 stubby_yml_update
 S61stubby_update
-# check_dnsmasq_postconf
+#check_dnsmasq_postconf
 check_openvpn_event
 update_wan_dns_settings
 

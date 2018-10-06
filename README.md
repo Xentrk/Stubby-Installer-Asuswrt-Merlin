@@ -28,18 +28,27 @@ Copy and paste the command below into an SSH session.
 ## Troubleshooting
 If you break out of the installation process before it can complete, you may loose internet connectivity.  To quickly resolve:
 
-1. Remove the lines below from the files **/jffs/scripts/dnsmasq.postconf**.  If you use one or more OpenVPN clients, remove the same line from **/jffs/scripts/openvpn-event**.
-
-        cp /jffs/configs/resolv.dnsmasq /tmp/resolv.dnsmasq
-
-2. Remove the following lines from **/jffs/configs/dnsmasq.conf.add**:
+1. Remove the following lines from **/jffs/configs/dnsmasq.conf.add**:
 
         server=127.0.0.1#5453
         server=0::1#5453
 
-3. Edit **/tmp/resolv.dnsmasq** and replace the existing entry with the line:
+2. Edit **/tmp/resolv.dnsmasq** and replace the server entry with the line:
 
         server=1.1.1.1
+
+3. Edit **/tmp/resolv.conf** and replace the nameserver entry with the line:
+
+        nameserver 1.1.1.1
+
+4. Copy and paste the following lines into an SSH session to set DNS1 to Cloudfare DNS 1.1.1.1:
+
+        nvram set wan0_dns="1.1.1.1"
+        nvram set wan_dns="1.1.1.1"
+        nvram set wan_dns1_x="1.1.1.1"
+        nvram set wan0_xdns="1.1.1.1"
+        nvram set wan0_dns1_x="1.1.1.1"
+        nvram commit
 
 4. Type the command **service restart_dnsmasq**
 

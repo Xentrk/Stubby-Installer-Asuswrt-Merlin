@@ -6,7 +6,7 @@
 # Date: 6-October-2018
 #
 # Description:
-#  Install the Stubby DNS over TLS resolver and the ca-certificates packages from entware on Asuswrt-Merlin firmware.
+#  Install the stubby DNS over TLS resolver and the ca-certificates packages from entware on Asuswrt-Merlin firmware.
 #
 # Acknowledgement:
 #  Chk_Entware function provided by @Martineau at snbforums.com
@@ -146,7 +146,7 @@ remove_existing_installation () {
     # Remove the stubby package
     Chk_Entware stubby
     if [ "$READY" -eq "0" ]; then
-        printf "existing Stubby package found\n"
+        printf "existing stubby package found\n"
         opkg remove stubby
     fi
 
@@ -233,6 +233,8 @@ remove_existing_installation () {
     nvram set wan_dns1_x="$DNS1"
     nvram set wan0_xdns="$DNS1"
     nvram set wan0_dns1_x="$DNS1"
+
+    nvram commit
 
     # restart dnsmasq and the WAN iface to reflect changes
     service restart_dnsmasq > /dev/null 2>&1
@@ -528,14 +530,14 @@ Chk_Entware
 
 Chk_Entware stubby
     if [ "$READY" -eq "0" ]; then
-        printf "existing Stubby package found\n"
+        printf "existing stubby package found\n"
         # Kill stubby process
         case "$(pidof stubby | wc -w)" in
             1)  kill $(pidof stubby) ;;
         esac
-        opkg update stubby && printf "Stubby successfully updated\n" || printf "An error occurred updating Stubby\n" || exit 1
+        opkg update stubby && printf "stubby successfully updated\n" || printf "An error occurred updating stubby\n" || exit 1
     else
-        opkg install stubby && printf "Stubby successfully installed\n" || printf "An error occurred installing Stubby\n" || exit 1
+        opkg install stubby && printf "stubby successfully installed\n" || printf "An error occurred installing stubby\n" || exit 1
     fi
 
 Chk_Entware ca-certificates

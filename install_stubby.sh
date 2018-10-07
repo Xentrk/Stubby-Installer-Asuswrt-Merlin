@@ -3,7 +3,7 @@
 # Script: install_stubby.sh
 # Version 1.0.0
 # Author: Xentrk
-# Date: 6-October-2018
+# Date: 7-October-2018
 #
 # Description:
 #  Install the stubby DNS over TLS resolver and the ca-certificates packages from entware on Asuswrt-Merlin firmware.
@@ -72,6 +72,7 @@ welcome_message () {
 
 validate_removal () {
     printf '\n'
+    printf 'IMPORTANT: %bThe router will need to reboot in order to complete the removal of Stubby%b.\n' "${COLOR_RED}" "${COLOR_WHITE}"
     printf '%by%b = Are you sure you want to uninstall Stubby?\n' "${COLOR_GREEN}" "${COLOR_WHITE}"
     printf '%bn%b = Cancel\n' "${COLOR_GREEN}" "${COLOR_WHITE}"
     printf '%be%b = Exit Script\n' "${COLOR_GREEN}" "${COLOR_WHITE}"
@@ -183,7 +184,7 @@ remove_existing_installation () {
         done
 
     # /opt/var/log/stubby log file
-    if [ -s /opt/var/log/stubby.log ]; then  # file exists
+    if [ -f /opt/var/log/stubby.log ]; then  # file exists
         rm /opt/var/log/stubby.log
     fi
 
@@ -195,12 +196,12 @@ remove_existing_installation () {
     fi
 
     # Remove /jffs/configs/resolv.dnsmasq
-    if [ -s /jffs/configs/resolv.dnsmasq ]; then  # file exists
+    if [ -f /jffs/configs/resolv.dnsmasq ]; then  # file exists
         rm /jffs/configs/resolv.dnsmasq
     fi
 
     # remove file /opt/etc/init.d/S61stubby
-    if [ -s /opt/etc/init.d/S61stubby ]; then  # file exists
+    if [ -f /opt/etc/init.d/S61stubby ]; then  # file exists
         rm //opt/etc/init.d/S61stubby
     fi
 
@@ -236,17 +237,11 @@ remove_existing_installation () {
 
     nvram commit
 
-    # restart dnsmasq and the WAN iface to reflect changes
-    service restart_dnsmasq > /dev/null 2>&1
-    printf 'dnsmasq restarted\n'
-
-    service restart_wan > /dev/null 2>&1
-    printf 'Uninstall of Stubby completed.\n'
-    printf 'Please review the DNS settings on the WAN GUI and adjust if necessary.\n'
-    printf 'The WAN interface has been restarted to finalize the removal of Stubby. This will result in a brief internet outage.\n'
-    printf 'You can monitor progress on the Network Map Web GUI\n'
-
-
+    # reboot router to complete uninstall of Stubby
+    printf 'Uninstall of Stubby completed. DNS has been set to Cloudfare 1.1.1.1\n'
+    printf 'The router will now reboot to finalize the removal of Stubby.\n'
+    printf 'After the reboot, review the DNS settings on the WAN GUI and adjust if necessary.\n'
+    reboot
 }
 
 exit_message () {
@@ -348,18 +343,18 @@ check_dnsmasq_parms () {
         for DNSMASQ_PARM in "no-resolv" "server=127.0.0.1#5453" "server=0::1#5453"
             do
                if [ "$(grep -c "$DNSMASQ_PARM" "/tmp/etc/dnsmasq.conf")" != "0" ]; then  # see if line exists
-                    printf '%s found in /tmp/etc/dnsmasq.conf. No need to add to /jffs/cofigs/dnsmasq.conf.add"\n' "$DNSMASQ_PARM"
+                    printf 'Required dnsmasq parm %b%s%b found in /tmp/etc/dnsmasq.conf.\n' "${COLOR_GREEN}" "$DNSMASQ_PARM" "${COLOR_WHITE}"
                     continue #line found in dnsmasq.conf, no update required to /jffs/configs/dnsmasq.conf.add
                fi
                if [ -s /jffs/configs/dnsmasq.conf.add ]; then
                     if [ "$(grep -c "$DNSMASQ_PARM" "/jffs/configs/dnsmasq.conf.add")" != "0" ]; then  # see if line exists
-                        printf '%s found in /jffs/configs/dnsmasq.conf.add\n' "$DNSMASQ_PARM"
+                        printf '%b%s%b found in /jffs/configs/dnsmasq.conf.add\n' "${COLOR_GREEN}" "$DNSMASQ_PARM" "${COLOR_WHITE}"
                     else
-                        printf 'Adding %s to /jffs/configs/dnsmasq.conf.add\n' "$DNSMASQ_PARM"
+                        printf 'Adding %b%s%b to /jffs/configs/dnsmasq.conf.add\n' "${COLOR_GREEN}" "$DNSMASQ_PARM" "${COLOR_WHITE}"
                         printf '%s\n' "$DNSMASQ_PARM" >> /jffs/configs/dnsmasq.conf.add
                     fi
                 else
-                    printf 'Adding %s to /jffs/configs/dnsmasq.conf.add\n' "$DNSMASQ_PARM"
+                    printf 'Adding %b%s%b to /jffs/configs/dnsmasq.conf.add\n' "${COLOR_GREEN}" "$DNSMASQ_PARM" "${COLOR_WHITE}"
                     printf '%s\n' "$DNSMASQ_PARM" > /jffs/configs/dnsmasq.conf.add
                 fi
             done
@@ -381,7 +376,6 @@ create_required_directories () {
 check_resolv_dnsmasq_override () {
     DNS1="$(nvram get lan_ipaddr)"
     if [ -s /jffs/configs/resolv.dnsmasq ]; then  # file exists
-
         for SERVER_PARM in server="$DNS1"
             do
                if [ "$(grep -c "$SERVER_PARM" "/jffs/configs/resolv.dnsmasq")" = "0" ]; then  # see if line exists
@@ -437,18 +431,6 @@ S61stubby_update () {
     chmod 755 /opt/etc/init.d/S61stubby > /dev/null 2>&1
 }
 
-check_dnsmasq_postconf () {
-    if [ -s /jffs/scripts/dnsmasq.postconf ]; then  # file exists
-        if [ "$(grep -c "cp /jffs/configs/resolv.dnsmasq /tmp/resolv.dnsmasq" "/jffs/scripts/dnsmasq.postconf")" = "0" ]; then  # see if line exists
-            printf '%s\n' "cp /jffs/configs/resolv.dnsmasq /tmp/resolv.dnsmasq" >> /jffs/scripts/dnsmasq.postconf
-        fi
-    else
-        printf '%s\n' "#!/bin/sh" > /jffs/scripts/dnsmasq.postconf
-        printf '%s\n' "cp /jffs/configs/resolv.dnsmasq /tmp/resolv.dnsmasq" >> /jffs/scripts/dnsmasq.postconf
-        chmod 755 /jffs/scripts/dnsmasq.postconf
-    fi
-}
-
 check_openvpn_event() {
     COUNTER=0
     for OPENVPN_CLIENT in 1 2 3 4 5
@@ -472,20 +454,20 @@ check_openvpn_event() {
         if [ -s /jffs/scripts/openvpn-event ]; then  # file exists
             if [ "$(grep -c "cp /jffs/configs/resolv.dnsmasq /tmp/resolv.dnsmasq" "/jffs/scripts/openvpn-event")" = "0" ]; then  # see if line exists
                 printf '%s\n' "cp /jffs/configs/resolv.dnsmasq /tmp/resolv.dnsmasq" >> /jffs/scripts/openvpn-event
-                printf '%s\n' "Updated /jffs/scripts/openvpn-event"
+                printf 'Updated %b/jffs/scripts/openvpn-event%b\n' "$COLOR_GREEN" "$COLOR_WHITE"
             else
-                printf '%s\n' "Required entry already exists in /jffs/scripts/openvpn-event. Skipping update of /jffs/scripts/openvpn-event"
+                printf 'Required entry already exists in %b/jffs/scripts/openvpn-event%b. Skipping update of %b/jffs/scripts/openvpn-event%b\n' "$COLOR_GREEN" "$COLOR_WHITE" "$COLOR_GREEN" "$COLOR_WHITE"
             fi
         else
             printf '%s\n' "#!/bin/sh" > /jffs/scripts/openvpn-event
             printf '%s\n' "cp /jffs/configs/resolv.dnsmasq /tmp/resolv.dnsmasq" >> /jffs/scripts/openvpn-event
             chmod 755 /jffs/scripts/openvpn-event > /dev/null 2>&1
-            printf '%s\n' "Created /jffs/scripts/openvpn-event"
+            printf 'Created %b/jffs/scripts/openvpn-event%b\n' "$COLOR_GREEN" "$COLOR_WHITE"
         fi
     else
-        printf '%s\n' "No active OpenVPN Clients found. Skipping creation of /jffs/scripts/openvpn-event"
-        printf '%s\n' "If you decide to run an OpenVPN Client in the future, rerun the installer script"
-        printf '%s\n' "to update /jffs/scripts/openvpn-event."
+        printf 'No active OpenVPN Clients found. Skipping creation of %b/jffs/scripts/openvpn-event%b\n' "$COLOR_GREEN" "$COLOR_WHITE"
+        printf 'If you decide to run an OpenVPN Client in the future, rerun the installer script\n'
+        printf 'to update /jffs/scripts/openvpn-event.\n'
     fi
 }
 
@@ -550,10 +532,8 @@ Chk_Entware ca-certificates
 
 check_dnsmasq_parms
 create_required_directories
-check_resolv_dnsmasq_override
 stubby_yml_update
 S61stubby_update
-#check_dnsmasq_postconf
 check_openvpn_event
 update_wan_dns_settings
 

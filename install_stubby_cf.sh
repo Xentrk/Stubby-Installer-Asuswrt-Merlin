@@ -374,7 +374,7 @@ create_required_directories () {
 }
 
 check_resolv_dnsmasq_override () {
-    DNS1="$(nvram get lan_ipaddr)"
+    DNS1=1.1.1.1
     if [ -s /jffs/configs/resolv.dnsmasq ]; then  # file exists
         for SERVER_PARM in server="$DNS1"
             do
@@ -431,6 +431,19 @@ S61stubby_update () {
     chmod 755 /opt/etc/init.d/S61stubby > /dev/null 2>&1
 }
 
+check_dnsmasq_postconf () {
+    if [ -s /jffs/scripts/dnsmasq.postconf ]; then  # file exists
+        if [ "$(grep -c "cp /jffs/configs/resolv.dnsmasq /tmp/resolv.dnsmasq" "/jffs/scripts/dnsmasq.postconf")" = "0" ]; then  # see if line exists
+            printf '%s\n' "cp /jffs/configs/resolv.dnsmasq /tmp/resolv.dnsmasq" >> /jffs/scripts/dnsmasq.postconf
+        fi
+    else
+        printf '%s\n' "#!/bin/sh" > /jffs/scripts/dnsmasq.postconf
+        printf '%s\n' "cp /jffs/configs/resolv.dnsmasq /tmp/resolv.dnsmasq" >> /jffs/scripts/dnsmasq.postconf
+        chmod 755 /jffs/scripts/dnsmasq.postconf
+    fi
+    cp /jffs/configs/resolv.dnsmasq /tmp/resolv.dnsmasq
+}
+
 check_openvpn_event() {
     COUNTER=0
     for OPENVPN_CLIENT in 1 2 3 4 5
@@ -448,7 +461,6 @@ check_openvpn_event() {
         fi
 
         # require override file if OpenVPN Clients are used
-        check_resolv_dnsmasq_override
 
         printf '%s\n' "$COUNTER active OpenVPN $WORD found"
         if [ -s /jffs/scripts/openvpn-event ]; then  # file exists
@@ -479,12 +491,12 @@ update_wan_dns_settings () {
 
 # Set DNS1 to use the routers's IP address
 
-    LAN_IPADDR="$(nvram get lan_ipaddr)"
-    nvram set wan0_dns=$LAN_IPADDR
-    nvram set wan_dns=$LAN_IPADDR
-    nvram set wan_dns1_x=$LAN_IPADDR
-    nvram set wan0_xdns=$LAN_IPADDR
-    nvram set wan0_dns1_x=$LAN_IPADDR
+    DNS1=1.1.1.1
+    nvram set wan0_dns=$DNS1
+    nvram set wan_dns=$DNS1
+    nvram set wan_dns1_x=$DNS1
+    nvram set wan0_xdns=$DNS1
+    nvram set wan0_dns1_x=$DNS1
 
 # Set DNS2 to null
 
@@ -525,15 +537,17 @@ Chk_Entware stubby
 Chk_Entware ca-certificates
     if [ "$READY" -eq "0" ]; then
         printf "existing ca-certificates package found\n"
-        opkg updateca-certificates && printf "ca-certificates successfully updated\n" || printf "An error occurred updating ca-certificates\n" || exit 1
+        opkg update ca-certificates && printf "ca-certificates successfully updated\n" || printf "An error occurred updating ca-certificates\n" || exit 1
     else
         opkg install ca-certificates && printf "ca-certificates successfully installed\n" || printf "An error occurred installing ca-certificates\n" || exit 1
     fi
 
 check_dnsmasq_parms
 create_required_directories
+check_resolv_dnsmasq_override
 stubby_yml_update
 S61stubby_update
+check_dnsmasq_postconf
 check_openvpn_event
 update_wan_dns_settings
 

@@ -34,4 +34,4 @@ upstream_recursive_servers:
     tls_auth_name: "cloudflare-dns.com"
     tls_pubkey_pinset:
       - digest: "sha256"
-        value: yioEpqeR4WtDwE9YxNVnCEkTxIjx6EEIwFSQW+lJsbc
+        value: yioEpqeR4WtDwE9YxNVnCEkTxIjx6EEIwFSQW+lJsbc=

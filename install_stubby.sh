@@ -3,7 +3,7 @@
 # Script: install_stubby.sh
 # Version 1.0.0
 # Author: Xentrk
-# Date: 7-October-2018
+# Date: 9-October-2018
 #
 # Description:
 #  Install the stubby DNS over TLS resolver and the ca-certificates packages from entware on Asuswrt-Merlin firmware.
@@ -15,7 +15,7 @@
 logger -t "($(basename "$0"))" $$ Starting Script Execution
 
 # Uncomment the line below for debugging
-set -x
+#set -x
 
 Set_Color_Parms () {
     COLOR_RED='\033[0;31m'
@@ -381,7 +381,7 @@ check_resolv_dnsmasq_override () {
                if [ "$(grep -c "$SERVER_PARM" "/jffs/configs/resolv.dnsmasq")" = "0" ]; then  # see if line exists
                    printf '%s\n' "$SERVER_PARM" > /jffs/configs/resolv.dnsmasq
                else
-                   printf "/jffs/configs/resolv.dnsmasq override file already exists. No update required.\n"
+                   printf '%b/jffs/configs/resolv.dnsmasq%b override file already exists. No update required.\n' "${COLOR_GREEN}" "${COLOR_WHITE}"
                fi
             done
     else
@@ -399,7 +399,7 @@ make_backup () {
 
     if ! mv "$DIR/$FILE" "$DIR/$BACKUP_FILE_NAME" > /dev/null 2>&1; then
         printf 'Error backing up existing %b%s%b to %b%s%b\n' "$COLOR_GREEN" "$FILE" "$COLOR_WHITE" "$COLOR_GREEN" "$BACKUP_FILE_NAME" "$COLOR_WHITE"
-        printf "Exiting %s)\n" "$(basename "$0")"
+        printf 'Exiting %s)\n' "$(basename "$0")"
         exit 1
     else
         printf '%b%s%b backed up to %b%s%b\n' "$COLOR_GREEN" "$FILE" "$COLOR_WHITE" "$COLOR_GREEN" "$BACKUP_FILE_NAME" "$COLOR_WHITE"

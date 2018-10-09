@@ -15,7 +15,7 @@
 logger -t "($(basename "$0"))" $$ Starting Script Execution
 
 # Uncomment the line below for debugging
-#set -x
+set -x
 
 Set_Color_Parms () {
     COLOR_RED='\033[0;31m'
@@ -441,6 +441,7 @@ check_openvpn_event() {
         done
 
     if [ "$COUNTER" -gt "0" ]; then
+        check_resolv_dnsmasq_override
         if [ "$COUNTER" -gt "1" ]; then
               WORD=Clients
         elif [ "$COUNTER" -eq "1" ]; then
@@ -448,8 +449,6 @@ check_openvpn_event() {
         fi
 
         # require override file if OpenVPN Clients are used
-        check_resolv_dnsmasq_override
-
         printf '%s\n' "$COUNTER active OpenVPN $WORD found"
         if [ -s /jffs/scripts/openvpn-event ]; then  # file exists
             if [ "$(grep -c "cp /jffs/configs/resolv.dnsmasq /tmp/resolv.dnsmasq" "/jffs/scripts/openvpn-event")" = "0" ]; then  # see if line exists
@@ -513,10 +512,6 @@ Chk_Entware
 Chk_Entware stubby
     if [ "$READY" -eq "0" ]; then
         printf "existing stubby package found\n"
-        # Kill stubby process
-        case "$(pidof stubby | wc -w)" in
-            1)  kill $(pidof stubby) ;;
-        esac
         opkg update stubby && printf "stubby successfully updated\n" || printf "An error occurred updating stubby\n" || exit 1
     else
         opkg install stubby && printf "stubby successfully installed\n" || printf "An error occurred installing stubby\n" || exit 1

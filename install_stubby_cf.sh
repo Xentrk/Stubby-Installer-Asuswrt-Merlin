@@ -3,7 +3,7 @@
 # Script: install_stubby.sh
 # Version 1.0.0
 # Author: Xentrk
-# Date: 7-October-2018
+# Date: 9-October-2018
 #
 # Description:
 #  Install the stubby DNS over TLS resolver and the ca-certificates packages from entware on Asuswrt-Merlin firmware.
@@ -15,7 +15,7 @@
 logger -t "($(basename "$0"))" $$ Starting Script Execution
 
 # Uncomment the line below for debugging
-#set -x
+set -x
 
 Set_Color_Parms () {
     COLOR_RED='\033[0;31m'
@@ -375,20 +375,9 @@ create_required_directories () {
 
 check_resolv_dnsmasq_override () {
     DNS1=1.1.1.1
-    if [ -s /jffs/configs/resolv.dnsmasq ]; then  # file exists
-        for SERVER_PARM in server="$DNS1"
-            do
-               if [ "$(grep -c "$SERVER_PARM" "/jffs/configs/resolv.dnsmasq")" = "0" ]; then  # see if line exists
-                   printf '%s\n' "$SERVER_PARM" > /jffs/configs/resolv.dnsmasq
-               else
-                   printf "/jffs/configs/resolv.dnsmasq override file already exists. No update required.\n"
-               fi
-            done
-    else
-       printf 'server=%s\n' "$DNS1" > /jffs/configs/resolv.dnsmasq
-       printf 'server=%s\n' "$DNS1" > /tmp/resolv.dnsmasq
-       printf 'nameserver %s\n' "$DNS1" > /tmp/resolv.conf
-    fi
+    printf 'server=%s\n' "$DNS1" > /jffs/configs/resolv.dnsmasq
+    printf 'server=%s\n' "$DNS1" > /tmp/resolv.dnsmasq
+    printf 'nameserver %s\n' "$DNS1" > /tmp/resolv.conf
 }
 
 make_backup () {
@@ -399,7 +388,7 @@ make_backup () {
 
     if ! mv "$DIR/$FILE" "$DIR/$BACKUP_FILE_NAME" > /dev/null 2>&1; then
         printf 'Error backing up existing %b%s%b to %b%s%b\n' "$COLOR_GREEN" "$FILE" "$COLOR_WHITE" "$COLOR_GREEN" "$BACKUP_FILE_NAME" "$COLOR_WHITE"
-        printf "Exiting %s)\n" "$(basename "$0")"
+        printf 'Exiting %s)\n' "$(basename "$0")"
         exit 1
     else
         printf '%b%s%b backed up to %b%s%b\n' "$COLOR_GREEN" "$FILE" "$COLOR_WHITE" "$COLOR_GREEN" "$BACKUP_FILE_NAME" "$COLOR_WHITE"
@@ -431,19 +420,6 @@ S61stubby_update () {
     chmod 755 /opt/etc/init.d/S61stubby > /dev/null 2>&1
 }
 
-check_dnsmasq_postconf () {
-    if [ -s /jffs/scripts/dnsmasq.postconf ]; then  # file exists
-        if [ "$(grep -c "cp /jffs/configs/resolv.dnsmasq /tmp/resolv.dnsmasq" "/jffs/scripts/dnsmasq.postconf")" = "0" ]; then  # see if line exists
-            printf '%s\n' "cp /jffs/configs/resolv.dnsmasq /tmp/resolv.dnsmasq" >> /jffs/scripts/dnsmasq.postconf
-        fi
-    else
-        printf '%s\n' "#!/bin/sh" > /jffs/scripts/dnsmasq.postconf
-        printf '%s\n' "cp /jffs/configs/resolv.dnsmasq /tmp/resolv.dnsmasq" >> /jffs/scripts/dnsmasq.postconf
-        chmod 755 /jffs/scripts/dnsmasq.postconf
-    fi
-    cp /jffs/configs/resolv.dnsmasq /tmp/resolv.dnsmasq
-}
-
 check_openvpn_event() {
     COUNTER=0
     for OPENVPN_CLIENT in 1 2 3 4 5
@@ -454,6 +430,7 @@ check_openvpn_event() {
         done
 
     if [ "$COUNTER" -gt "0" ]; then
+        check_resolv_dnsmasq_override
         if [ "$COUNTER" -gt "1" ]; then
               WORD=Clients
         elif [ "$COUNTER" -eq "1" ]; then
@@ -461,7 +438,6 @@ check_openvpn_event() {
         fi
 
         # require override file if OpenVPN Clients are used
-
         printf '%s\n' "$COUNTER active OpenVPN $WORD found"
         if [ -s /jffs/scripts/openvpn-event ]; then  # file exists
             if [ "$(grep -c "cp /jffs/configs/resolv.dnsmasq /tmp/resolv.dnsmasq" "/jffs/scripts/openvpn-event")" = "0" ]; then  # see if line exists
@@ -496,7 +472,7 @@ update_wan_dns_settings () {
     nvram set wan_dns=$DNS1
     nvram set wan_dns1_x=$DNS1
     nvram set wan0_xdns=$DNS1
-    nvram set wan0_dns1_x=$DNS1
+    nvram set wan0_dns1_x$DNS1
 
 # Set DNS2 to null
 
@@ -525,10 +501,6 @@ Chk_Entware
 Chk_Entware stubby
     if [ "$READY" -eq "0" ]; then
         printf "existing stubby package found\n"
-        # Kill stubby process
-        case "$(pidof stubby | wc -w)" in
-            1)  kill $(pidof stubby) ;;
-        esac
         opkg update stubby && printf "stubby successfully updated\n" || printf "An error occurred updating stubby\n" || exit 1
     else
         opkg install stubby && printf "stubby successfully installed\n" || printf "An error occurred installing stubby\n" || exit 1
@@ -544,10 +516,8 @@ Chk_Entware ca-certificates
 
 check_dnsmasq_parms
 create_required_directories
-check_resolv_dnsmasq_override
 stubby_yml_update
 S61stubby_update
-check_dnsmasq_postconf
 check_openvpn_event
 update_wan_dns_settings
 

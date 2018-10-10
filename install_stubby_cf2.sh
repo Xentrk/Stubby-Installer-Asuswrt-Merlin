@@ -488,7 +488,7 @@ update_wan_dns_settings () {
     nvram set wan_dns=$DNS1
     nvram set wan_dns1_x=$DNS1
     nvram set wan0_xdns=$DNS1
-    nvram set wan0_dns1_x$DNS1
+    nvram set wan0_dns1_x=$DNS1
 
 # Set DNS2 to null
 

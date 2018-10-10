@@ -80,7 +80,7 @@ Run the following commands from an SSH session to verify that stubby is working 
     [10:13:35.163106] STUBBY: 1.1.1.1                                  : Conn closed: TLS - Resps=     1, Timeouts  =     0, Curr_auth =Success, Keepalive(ms)=  2000
     [10:13:35.163158] STUBBY: 1.1.1.1                                  : Upstream   : TLS - Resps=     1, Timeouts  =     0, Best_auth =Success
     [10:13:35.163173] STUBBY: 1.1.1.1                                  : Upstream   : TLS - Conns=     1, Conn_fails=     0, Conn_shuts=      0, Backoffs     =     0
-
+Press **Ctrl-C** to return to the command prompt.
 
 **echo | openssl s_client -connect '1.1.1.1:853'**
 

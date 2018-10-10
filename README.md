@@ -28,11 +28,81 @@ Copy and paste the command below into an SSH session.
 ## Validating that Stubby is Working
 Run the following commands from an SSH session to verify that stubby is working properly:
 
-    ps | grep stubby | grep -v grep
+**ps | grep stubby | grep -v grep**
+
+    21283 admin    5560 S    stubby -g -v 5 -C /opt/etc/stubby/stubby.yml 2>/opt/var/log/stubby.log
+
     netstat -lnptu | grep stubby
-    drill github.com (requires entware package drill)
-    nslookup github.com
-    echo | openssl s_client -connect '1.1.1.1:853'
+    tcp        0      0 127.0.0.1:5453          0.0.0.0:*               LISTEN      21283/stubby
+    udp        0      0 127.0.0.1:5453          0.0.0.0:*                           21283/stubby
+
+**drill github.com** (requires entware package drill)
+
+    ;; ->>HEADER<<- opcode: QUERY, rcode: NOERROR, id: 41290
+    ;; flags: qr rd ra ; QUERY: 1, ANSWER: 2, AUTHORITY: 0, ADDITIONAL: 0
+    ;; QUESTION SECTION:
+    ;; github.com.  IN      A
+
+    ;; ANSWER SECTION:
+    github.com.     42      IN      A       192.30.253.113
+    github.com.     42      IN      A       192.30.253.112
+
+    ;; AUTHORITY SECTION:
+
+    ;; ADDITIONAL SECTION:
+
+    ;; Query time: 82 msec
+    ;; EDNS: version 0; flags: ; udp: 1452
+    ;; SERVER: 127.0.0.1
+    ;; WHEN: Wed Oct 10 10:23:23 2018
+    ;; MSG SIZE  rcvd: 91
+
+**nslookup github.com**
+
+    Server:    127.0.0.1
+    Address 1: 127.0.0.1 localhost.localdomain
+
+    Name:      github.com
+    Address 1: 192.30.253.113 lb-192-30-253-113-iad.github.com
+    Address 2: 192.30.253.112 lb-192-30-253-112-iad.github.com
+
+**stubby -l**
+
+    [10:13:13.838111] STUBBY: Read config from file /opt/etc/stubby/stubby.yml
+    [10:13:13.844362] STUBBY: DNSSEC Validation is OFF
+    [10:13:13.844413] STUBBY: Transport list is:
+    [10:13:13.844426] STUBBY:   - TLS
+    [10:13:13.844439] STUBBY: Privacy Usage Profile is Strict (Authentication required)
+    [10:13:13.844450] STUBBY: (NOTE a Strict Profile only applies when TLS is the ONLY transport!!)
+    [10:13:13.844461] STUBBY: Starting DAEMON....
+    [10:13:33.075865] STUBBY: 1.1.1.1                                  : Conn opened: TLS - Strict Profile
+    [10:13:33.144900] STUBBY: 1.1.1.1                                  : Verify passed : TLS
+    [10:13:35.163106] STUBBY: 1.1.1.1                                  : Conn closed: TLS - Resps=     1, Timeouts  =     0, Curr_auth =Success, Keepalive(ms)=  2000
+    [10:13:35.163158] STUBBY: 1.1.1.1                                  : Upstream   : TLS - Resps=     1, Timeouts  =     0, Best_auth =Success
+    [10:13:35.163173] STUBBY: 1.1.1.1                                  : Upstream   : TLS - Conns=     1, Conn_fails=     0, Conn_shuts=      0, Backoffs     =     0
+
+
+**echo | openssl s_client -connect '1.1.1.1:853'**
+
+    CONNECTED(00000003)
+    depth=2 C = US, O = DigiCert Inc, OU = www.digicert.com, CN = DigiCert Global Root CA
+    verify return:1
+    depth=1 C = US, O = DigiCert Inc, CN = DigiCert ECC Secure Server CA
+    verify return:1
+    depth=0 C = US, ST = CA, L = San Francisco, O = "Cloudflare, Inc.", CN = *.cloudflare-dns.com
+    verify return:1
+    ---
+    Certificate chain
+    0 s:/C=US/ST=CA/L=San Francisco/O=Cloudflare, Inc./CN=*.cloudflare-dns.com
+    i:/C=US/O=DigiCert Inc/CN=DigiCert ECC Secure Server CA
+    1 s:/C=US/O=DigiCert Inc/CN=DigiCert ECC Secure Server CA
+    i:/C=US/O=DigiCert Inc/OU=www.digicert.com/CN=DigiCert Global Root CA
+    ---
+    Server certificate
+    -----BEGIN CERTIFICATE-----
+    MIID9DCCA3qgAwIBAgIQBWzetBRl/ycHFsBukRYuGTAKBggqhkjOPQQDAjBMMQsw
+    CQYDVQQGEwJVUzEVMBMGA1UEChMMRGlnaUNlcnQgSW5jMSYwJAYDVQQDEx1EaWdp
+    <snip>
 
 Check the last few lines of the output from the **echo | openssl s_client -connect '1.1.1.1:853'** command.  If you see the message
 
@@ -53,9 +123,7 @@ To **(start|stop|restart|check|kill|reconfigure)** stubby, type the command belo
     /opt/etc/init.d/S61stubby option
 
 ## DNSSEC
-**this section is being worked on**
-
-The install script turns off the DNSSEC setting on the firmware to avoid conflicts with DNSSEC built into Stubby. The [Cloudflare Help Page](https://1.1.1.1/help) does not support DNSSEC.  The site will give a false result when using DNSSEC. The default **stubby.yml** configuration file from the install script will fail the DNSSEC Test websites listed below. If you want to experiment with DNSSEC when using Cloudflare, you can copy the  **stubby.yml.dnssec** file contents to **/opt/etc/stubby/stubby.yml**, followed by a restart of Stubby using the command **/opt/etc/init.d/S61stubby restart**.
+The **install_stubby.sh** script turns off the DNSSEC setting on the firmware to avoid conflicts with DNSSEC built into Stubby.
 
 ## DNS Test Web Sites
 1. DNSSEC Test

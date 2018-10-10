@@ -388,10 +388,12 @@ create_required_directories () {
 }
 
 check_resolv_dnsmasq_override () {
-    DNS1="$(nvram get lan_ipaddr)"
+    DNS1=127.0.0.1
     printf 'server=%s\n' "$DNS1" > /jffs/configs/resolv.dnsmasq
     printf 'server=%s\n' "$DNS1" > /tmp/resolv.dnsmasq
-    printf 'nameserver %s\n' "$DNS1" > /tmp/resolv.conf
+
+    LAN_IP="$(nvram get lan_ipaddr)"
+    printf 'nameserver %s\n' "$LAN_IP" > /tmp/resolv.conf
 }
 
 make_backup () {
@@ -481,12 +483,12 @@ update_wan_dns_settings () {
 
 # Set DNS1 to use the routers's IP address
 
-    LAN_IPADDR="$(nvram get lan_ipaddr)"
-    nvram set wan0_dns=$LAN_IPADDR
-    nvram set wan_dns=$LAN_IPADDR
-    nvram set wan_dns1_x=$LAN_IPADDR
-    nvram set wan0_xdns=$LAN_IPADDR
-    nvram set wan0_dns1_x=$LAN_IPADDR
+    DNS1=1.1.1.1
+    nvram set wan0_dns=$DNS1
+    nvram set wan_dns=$DNS1
+    nvram set wan_dns1_x=$DNS1
+    nvram set wan0_xdns=$DNS1
+    nvram set wan0_dns1_x$DNS1
 
 # Set DNS2 to null
 

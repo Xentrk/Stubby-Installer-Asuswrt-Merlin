@@ -365,7 +365,21 @@ check_dnsmasq_parms () {
 }
 
 create_required_directories () {
-    for DIR in "/opt/var/cache/stubby" "/opt/var/log"
+    for DIR in "/opt/var/"
+        do
+            if [ ! -d "$DIR" ]; then
+                mkdir "$DIR" > /dev/null 2>&1 && printf "Created project directory %b%s%b\n" "${COLOR_GREEN}" "${DIR}" "${COLOR_WHITE}" || printf "Error creating directory %b%s%b. Exiting $(basename "$0")\n" "${COLOR_GREEN}" "${DIR}" "${COLOR_WHITE}" || exit 1
+            fi
+        done
+
+    for DIR in "/opt/var/cache" "/opt/var/log"
+        do
+            if [ ! -d "$DIR" ]; then
+                mkdir "$DIR" > /dev/null 2>&1 && printf "Created project directory %b%s%b\n" "${COLOR_GREEN}" "${DIR}" "${COLOR_WHITE}" || printf "Error creating directory %b%s%b. Exiting $(basename "$0")\n" "${COLOR_GREEN}" "${DIR}" "${COLOR_WHITE}" || exit 1
+            fi
+        done
+
+    for DIR in "/opt/var/cache/stubby"
         do
             if [ ! -d "$DIR" ]; then
                 mkdir "$DIR" > /dev/null 2>&1 && printf "Created project directory %b%s%b\n" "${COLOR_GREEN}" "${DIR}" "${COLOR_WHITE}" || printf "Error creating directory %b%s%b. Exiting $(basename "$0")\n" "${COLOR_GREEN}" "${DIR}" "${COLOR_WHITE}" || exit 1

@@ -482,11 +482,11 @@ update_wan_dns_settings () {
 # Set DNS1 to use the routers's IP address
 
     LAN_IPADDR="$(nvram get lan_ipaddr)"
-    nvram set wan0_dns=$LAN_IPADDR
-    nvram set wan_dns=$LAN_IPADDR
-    nvram set wan_dns1_x=$LAN_IPADDR
-    nvram set wan0_xdns=$LAN_IPADDR
-    nvram set wan0_dns1_x=$LAN_IPADDR
+    nvram set wan0_dns="$LAN_IPADDR"
+    nvram set wan_dns="$LAN_IPADDR"
+    nvram set wan_dns1_x="$LAN_IPADDR"
+    nvram set wan0_xdns="$LAN_IPADDR"
+    nvram set wan0_dns1_x="$LAN_IPADDR"
 
 # Set DNS2 to null
 

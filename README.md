@@ -141,6 +141,7 @@ The **install_stubby.sh** script turns off the DNSSEC setting on the firmware to
 
   * https://www.dnsleaktest.com/ (use Extended test)
   *	https://ipleak.net/
+  * https://www.perfect-privacy.com/dns-leaktest/
 
 4. WebRTC Leak Test
 

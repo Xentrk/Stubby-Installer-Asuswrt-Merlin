@@ -32,7 +32,8 @@ Run the following commands from an SSH session to verify that stubby is working 
 
     21283 admin    5560 S    stubby -g -v 5 -C /opt/etc/stubby/stubby.yml 2>/opt/var/log/stubby.log
 
-    netstat -lnptu | grep stubby
+**netstat -lnptu | grep stubby**
+
     tcp        0      0 127.0.0.1:5453          0.0.0.0:*               LISTEN      21283/stubby
     udp        0      0 127.0.0.1:5453          0.0.0.0:*                           21283/stubby
 

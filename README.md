@@ -118,6 +118,15 @@ Use the [Cloudflare Help Page](https://1.1.1.1/help) to validate you are connect
     Connected to 1.1.1.1         Yes
     Using DNS over HTTPS (DoH)   No
     Using DNS over TLS (DoT)     Yes
+
+## Validation with Quad9
+Quad9 blocks the website http://isitblocked.org. If Quad9 is working properly, an **nslookup isitblocked.org** will fail:
+
+    Server:    127.0.0.1
+    Address 1: 127.0.0.1 localhost.localdomain
+
+    nslookup: can't resolve 'isitblocked.org'
+
 ## Starting, Stopping and Killing Stubby
 To **(start|stop|restart|check|kill|reconfigure)** stubby, type the command below where **option** is one of the options listed in the parenthesis.
 
@@ -126,14 +135,14 @@ To **(start|stop|restart|check|kill|reconfigure)** stubby, type the command belo
 ## DNSSEC
 The **install_stubby.sh** script turns off the DNSSEC setting on the firmware to avoid conflicts with DNSSEC built into Stubby.
 
-## DNS Test Web Sites
+## DNSSEC, DNS Spoof, DNS Leak and WebRTC Leak Test Web Sites
 1. DNSSEC Test
 
   * https://rootcanary.org/test.html
   * http://dnssec.vs.uni-due.de/
   * http://en.conn.internet.nl/connection/
 
-2. DNS Spoof and Entrophy Test
+2. DNS Nameserver Spoofability Test
   * https://www.grc.com/dns/dns.htm (scroll down and click on "Initiate Standard DNS Spoofability Test")
   *	https://www.dns-oarc.net/oarc/services/dnsentropy
 

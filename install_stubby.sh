@@ -3,7 +3,7 @@
 # Script: install_stubby.sh
 # Version 1.0.0
 # Author: Xentrk
-# Date: 9-October-2018
+# Date: 12-October-2018
 #
 # Description:
 #  Install the stubby DNS over TLS resolver and the ca-certificates packages from entware on Asuswrt-Merlin firmware.
@@ -140,7 +140,7 @@ remove_existing_installation () {
 
     # Kill stubby process
     case "$(pidof stubby | wc -w)" in
-        1)  kill $(pidof stubby) ;;
+        1)  kill "$(pidof stubby)" ;;
     esac
 
 
@@ -342,7 +342,7 @@ Chk_Entware () {
                 for DIR in /opt/var/cache/stubby /opt/etc/stubby
                     do
                         if [ -d "$DIR" ]; then
-                            is_dir_empty $DIR
+                            is_dir_empty "$DIR"
                             if [ "$?" -eq "0" ]; then
                                 if ! rmdir "$DIR" > /dev/null 2>&1; then
                                     printf '\n'
@@ -374,7 +374,8 @@ Chk_Entware () {
 }
 
 is_dir_empty () {
-    cd "$1"
+    DIR=$1
+    cd "$DIR"
     set -- .[!.]* ; test -f "$1" && return 1
     set -- ..?* ; test -f "$1" && return 1
     set -- * ; test -f "$1" && return 1
@@ -634,7 +635,7 @@ create_required_directories
 stubby_yml_update
 S61stubby_update
 #check_openvpn_event
-update_wan_and_resolv_settings $USER_OPTION
+update_wan_and_resolv_settings "$USER_OPTION"
 #check_resolv_dnsmasq_override $USER_OPTION
 #update_wan_dns_settings $USER_OPTION
 

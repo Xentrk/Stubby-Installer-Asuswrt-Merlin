@@ -133,7 +133,7 @@ To **(start|stop|restart|check|kill|reconfigure)** stubby, type the command belo
     /opt/etc/init.d/S61stubby option
 
 ## DNS over TLS with OpenVPN
-To configure an OpenVPN Client to use Stubby DNS, set **Accept DNS Configuration = Disabled**.  Then, select the **Apply** button to save the setting. 
+To configure an OpenVPN Client to use Stubby DNS, set **Accept DNS Configuration = Disabled** on the **VPN->VPN Client** page.  Then, select the **Apply** button to save the setting.
 
 ## DNSSEC
 The **install_stubby.sh** script turns off the DNSSEC setting on the firmware to avoid conflicts with DNSSEC built into Stubby.

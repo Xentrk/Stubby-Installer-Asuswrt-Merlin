@@ -5,11 +5,11 @@ Stubby DNS Privacy Daemon Install Script for Asuswrt-Merlin Firmware
 
 ## Description
 
-[Stubby](https://dnsprivacy.org/wiki/display/DP/DNS+Privacy+Daemon+-+Stubby) is an application that acts as a local DNS Privacy stub resolver (using DNS-over-TLS). Stubby encrypts DNS queries sent from a client machine (desktop or laptop) to a DNS Privacy resolver increasing end user privacy.
+[Stubby](https://dnsprivacy.org/wiki/display/DP/DNS+Privacy+Daemon+-+Stubby) is an application that acts as a local DNS Privacy stub resolver using DNS-over-TLS. Stubby encrypts DNS queries sent from a client machine (desktop or laptop) to a DNS Privacy resolver increasing end user privacy.
 
 ## Requirements
 1. An Asus router with  [Asuswrt-Merlin](http://asuswrt.lostrealm.ca/) firmware installed.
-2. A USB drive with entware installed.  Entware can be installed using [amtm - the SNBForum Asuswrt-Merlin Terminal Menu](https://www.snbforums.com/threads/amtm-the-snbforum-asuswrt-merlin-terminal-menu.42415/)
+2. A USB drive with [entware](https://github.com/RMerl/asuswrt-merlin/wiki/Entware) installed.  Entware can be installed using [amtm - the SNBForum Asuswrt-Merlin Terminal Menu](https://www.snbforums.com/threads/amtm-the-snbforum-asuswrt-merlin-terminal-menu.42415/)
 
 The use of Stubby on Asuswrt-Merlin is experimental and not endorsed by the firmware developer. As an extra precaution, it is highly recommended to take a back-up of the jffs partition and the firmware configuration before proceeding with the installation. You can also use this script to uninstall Stubby and remove the changes made during the installation.   
 

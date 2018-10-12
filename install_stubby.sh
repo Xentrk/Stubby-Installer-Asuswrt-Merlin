@@ -46,7 +46,7 @@ welcome_message () {
     printf '##   1. Install the stubby and ca-certificates entware packages                                            ##\n'
     printf '##   2. Override how the firmware manages DNS.                                                             ##\n'
     printf '##   3. Disable the firmware DNSSEC setting. Stubby has a separate DNSSEC setting in stubby.yml            ##\n'
-    printf '##   4. Default to Cloudfare DNS 1.1.1.1. You can change to other supported DNS over TLS providers by      ##\n'
+    printf '##   4. Default to Cloudflare DNS 1.1.1.1. You can change to other supported DNS over TLS providers by      ##\n'
     printf '##      modifying /opt/var/stubby/stubby.yml and the DNS Settings on the WAN Menu.                         ##\n'
     printf '##                                                                                                         ##\n'
     printf '## You can also use this script to uninstall Stubby to back out the changes made during the installation.  ##\n'
@@ -62,7 +62,7 @@ welcome_message () {
     printf '%bOption ==>%b ' "${COLOR_GREEN}" "${COLOR_WHITE}"
     read -r f
         case $f in
-	          1) 	install_stubby ;;
+	          1) 	install_stubby_options ;;
 	          2)	validate_removal ;;
             e)  exit_message ;;
 	          *)	printf '%bInvalid Option%b %s%b Please enter a valid option\n' "$COLOR_RED" "$COLOR_GREEN" "$f" "$COLOR_WHITE";
@@ -147,8 +147,10 @@ remove_existing_installation () {
     # Remove the stubby package
     Chk_Entware stubby
     if [ "$READY" -eq "0" ]; then
-        printf "existing stubby package found\n"
-        opkg remove stubby
+        printf "Existing stubby package found. Removing Stubby\n"
+        opkg remove stubby && printf "Stubby successfully removed\n" || printf "Error occurred when removing Stubby\n"
+    else
+        printf "Unable to remove Stubby. Entware is not mounted\n"
     fi
 
 
@@ -200,6 +202,11 @@ remove_existing_installation () {
         rm /jffs/configs/resolv.dnsmasq
     fi
 
+    # Remove /jffs/configs/resolv.config
+    if [ -f /jffs/configs/resolv.config ]; then  # file exists
+        rm /jffs/configs/resolv.config
+    fi
+
     # remove file /opt/etc/init.d/S61stubby
     if [ -f /opt/etc/init.d/S61stubby ]; then  # file exists
         rm //opt/etc/init.d/S61stubby
@@ -207,12 +214,17 @@ remove_existing_installation () {
 
     # remove /jffs/scripts/openvpn-event
     if [ -s /jffs/scripts/openvpn-event ]; then  # file exists
+        if [ "$(grep -c "cp /jffs/configs/resolv.conf /tmp/resolv.conf" "/jffs/scripts/openvpn-event")" != "0" ]; then  # see if line exists
+            sed -i '/resolv.conf/d' "/jffs/scripts/openvpn-event" > /dev/null 2>&1
+            printf '\n'
+            printf '%bresolv.conf%b entry removed from %b/jffs/scripts/openvpn-event%b\n' "$COLOR_GREEN" "$COLOR_WHITE" "$COLOR_GREEN" "$COLOR_WHITE"
+        fi
         if [ "$(grep -c "cp /jffs/configs/resolv.dnsmasq /tmp/resolv.dnsmasq" "/jffs/scripts/openvpn-event")" != "0" ]; then  # see if line exists
             sed -i '/resolv.dnsmasq/d' "/jffs/scripts/openvpn-event" > /dev/null 2>&1
             printf '\n'
-            printf 'One line entry removed from %b/jffs/scripts/openvpn-event%b\n' "$COLOR_GREEN" "$COLOR_WHITE"
-            printf 'Skipping deletion of %b/jffs/scripts/openvpn-event%b as it may be used by other applications.\n' "$COLOR_GREEN" "$COLOR_WHITE"
-            printf 'You can manually delete %b/jffs/scripts/openvpn-event%b using the %brm%b command if not used by other applications.\n' "$COLOR_GREEN" "$COLOR_WHITE" "$COLOR_GREEN" "$COLOR_WHITE"
+            printf '%bresolv.dnsmasq%b line entry removed from %b/jffs/scripts/openvpn-event%b\n' "$COLOR_GREEN" "$COLOR_WHITE" "$COLOR_GREEN" "$COLOR_WHITE"
+            printf 'Skipping deletion of %b/jffs/scripts/openvpn-event%b.\n' "$COLOR_GREEN" "$COLOR_WHITE"
+            printf 'You can manually delete %b/jffs/scripts/openvpn-event%b using the %brm%b command if no longer required.\n' "$COLOR_GREEN" "$COLOR_WHITE" "$COLOR_GREEN" "$COLOR_WHITE"
         fi
     fi
 
@@ -227,7 +239,7 @@ remove_existing_installation () {
         fi
     fi
 
-    # Default DNS1 to Cloudfare 1.1.1.1
+    # Default DNS1 to Cloudflare 1.1.1.1
     DNS1=1.1.1.1
     nvram set wan0_dns="$DNS1"
     nvram set wan_dns="$DNS1"
@@ -238,7 +250,7 @@ remove_existing_installation () {
     nvram commit
 
     # reboot router to complete uninstall of Stubby
-    printf 'Uninstall of Stubby completed. DNS has been set to Cloudfare 1.1.1.1\n'
+    printf 'Uninstall of Stubby completed. DNS has been set to Cloudflare 1.1.1.1\n'
     printf 'The router will now reboot to finalize the removal of Stubby.\n'
     printf 'After the reboot, review the DNS settings on the WAN GUI and adjust if necessary.\n'
     reboot
@@ -258,6 +270,37 @@ exit_message () {
     printf '\n'
     printf '\n'
     exit 0
+}
+
+#1. (OpenWRT Method) Use 127.0.0.1 for DNS1, nameserver entry in /etc/resolv.conf and server entry in /etc/resolv.dnsmasq
+#2. (DonnyJohnny Method) Use LAN IP for DNS1, nameserver entry in /etc/resolv.conf and server entry in /etc/resolv.dnsmasq
+#3. (Skeal Method - Hybrid 1) Use 1.1.1.1 for DNS1, LAN_IP in /etc/resolv.conf and 127.0.0.1 for server entry /etc/resolv.dnsmasq
+#4. (Hybrid 2) Use 1.1.1.1 for DNS1, 127.0.0.1 for nameserver entry in /etc/resolv.dnsmasq and 127.0.0.1 for server entry in /etc/resolv.dnsmasq
+#5. (Hybrid 3) Use 1.1.1.1 as DNS1; LAN IP for nameserver entry in /etc/resolv.conf and LAN IP for server entry in /etc/resolv.dnsmasq
+
+install_stubby_options () {
+    printf '\n'
+    printf '%b1%b = (OpenWRT Method) Use 127.0.0.1 for DNS1, nameserver entry in /etc/resolv.conf and server entry in /etc/resolv.dnsmasq\n' "${COLOR_GREEN}" "${COLOR_WHITE}"
+    printf '%b2%b = (DonnyJohnny Method) Use LAN IP for DNS1, nameserver entry in /etc/resolv.conf and server entry in /etc/resolv.dnsmasq\n' "${COLOR_GREEN}" "${COLOR_WHITE}"
+    printf '%b3%b = (Skeal Method - Hybrid 1) Use 1.1.1.1 for DNS1, LAN_IP in /etc/resolv.conf and 127.0.0.1 for server entry /etc/resolv.dnsmasq\n' "${COLOR_GREEN}" "${COLOR_WHITE}"
+    printf '%b4%b = (Hybrid 2) Use 1.1.1.1 for DNS1, 127.0.0.1 for nameserver entry in /etc/resolv.dnsmasq and 127.0.0.1 for server entry in /etc/resolv.dnsmasq\n' "${COLOR_GREEN}" "${COLOR_WHITE}"
+    printf '%b5%b = (Hybrid 3) Use 1.1.1.1 as DNS1; LAN IP for nameserver entry in /etc/resolv.conf and LAN IP for server entry in /etc/resolv.dnsmasq\n' "${COLOR_GREEN}" "${COLOR_WHITE}"
+    printf '%bc%b = Cancel\n' "${COLOR_GREEN}" "${COLOR_WHITE}"
+    printf '%be%b = Exit Script\n' "${COLOR_GREEN}" "${COLOR_WHITE}"
+    printf '\n'
+    printf '%bOption ==>%b ' "${COLOR_GREEN}" "${COLOR_WHITE}"
+    read -r f
+        case $f in
+	          1) 	install_stubby 1 ;;
+	          2) 	install_stubby 2 ;;
+            3) 	install_stubby 3 ;;
+            4) 	install_stubby 4 ;;
+            5) 	install_stubby 5 ;;
+	          c)	welcome_message ;;
+            e)  exit_message ;;
+	          *)	printf '%bInvalid Option%b %s%b Please enter a valid option\n' "$COLOR_RED" "$COLOR_GREEN" "$f" "$COLOR_WHITE";
+                validate_removal ;;
+        esac
 }
 
 install_stubby () {
@@ -387,6 +430,12 @@ create_required_directories () {
         done
 }
 
+#1. (OpenWRT Method) Use 127.0.0.1 for DNS1, nameserver entry in /etc/resolv.conf and server entry in /etc/resolv.dnsmasq
+#2. (DonnyJohnny Method) Use LAN IP for DNS1, nameserver entry in /etc/resolv.conf and server entry in /etc/resolv.dnsmasq
+#3. (Skeal Method - Hybrid 1) Use 1.1.1.1 for DNS1, LAN_IP in /etc/resolv.conf and 127.0.0.1 for server entry /etc/resolv.dnsmasq
+#4. (Hybrid 2) Use 1.1.1.1 for DNS1, 127.0.0.1 for nameserver entry in /etc/resolv.dnsmasq and 127.0.0.1 for server entry in /etc/resolv.dnsmasq
+#5. (Hybrid 3) Use 1.1.1.1 as DNS1; LAN IP for nameserver entry in /etc/resolv.conf and LAN IP for server entry in /etc/resolv.dnsmasq
+
 check_resolv_dnsmasq_override () {
     DNS1="$(nvram get lan_ipaddr)"
     printf 'server=%s\n' "$DNS1" > /jffs/configs/resolv.dnsmasq
@@ -428,13 +477,16 @@ stubby_yml_update () {
 
 S61stubby_update () {
     if [ -s "/opt/etc/init.d/S61stubby" ]; then
-        make_backup /opt/etc/init.d S61stubby
+        rm /opt/etc/init.d/S61stubby > /dev/null 2>&1
+        rm /opt/etc/init.d/S61stubby.* > /dev/null 2>&1
     fi
     download_file /opt/etc/init.d S61stubby
     chmod 755 /opt/etc/init.d/S61stubby > /dev/null 2>&1
 }
 
 check_openvpn_event() {
+    SERVER=$1
+
     COUNTER=0
     for OPENVPN_CLIENT in 1 2 3 4 5
         do
@@ -444,7 +496,8 @@ check_openvpn_event() {
         done
 
     if [ "$COUNTER" -gt "0" ]; then
-        check_resolv_dnsmasq_override
+    # need /jffs/configs/resolv.dnsmasq override
+        printf 'server=%s\n' "$SERVER" > /jffs/configs/resolv.dnsmasq
         if [ "$COUNTER" -gt "1" ]; then
               WORD=Clients
         elif [ "$COUNTER" -eq "1" ]; then
@@ -473,34 +526,82 @@ check_openvpn_event() {
     fi
 }
 
-update_wan_dns_settings () {
+update_wan_and_resolv_settings () {
+    USER_OPTION=$1
+
 # Update Connect to DNS Server Automatically
 
     nvram set wan_dnsenable_x="0"
     nvram set wan0_dnsenable_x="0"
 
+#1. (OpenWRT Method) Use 127.0.0.1 for DNS1, nameserver entry in /etc/resolv.conf and server entry in /etc/resolv.dnsmasq
+#2. (DonnyJohnny Method) Use LAN IP for DNS1, nameserver entry in /etc/resolv.conf and server entry in /etc/resolv.dnsmasq
+#3. (Skeal Method - Hybrid 1) Use 1.1.1.1 for DNS1, LAN_IP in /etc/resolv.conf and 127.0.0.1 for server entry /etc/resolv.dnsmasq
+#4. (Hybrid 2) Use 1.1.1.1 for DNS1, 127.0.0.1 for nameserver entry in /etc/resolv.dnsmasq and 127.0.0.1 for server entry in /etc/resolv.dnsmasq
+#5. (Hybrid 3) Use 1.1.1.1 as DNS1; LAN IP for nameserver entry in /etc/resolv.conf and LAN IP for server entry in /etc/resolv.dnsmasq
 # Set DNS1 to use the routers's IP address
+    case $USER_OPTION in
+	          1) 	DNS1=127.0.0.1; NAMESERVER=127.0.0.1; SERVER=127.0.0.1 ;;
+	          2) 	DNS1="$(nvram get lan_ipaddr)"; NAMESERVER="$(nvram get lan_ipaddr)"; SERVER="$(nvram get lan_ipaddr)" ;;
+	          3) 	DNS1=1.1.1.1; NAMESERVER="$(nvram get lan_ipaddr)"; SERVER=127.0.0.1; check_dnsmasq_postconf "$NAMESERVER" "$SERVER" ;;
+            4) 	DNS1=1.1.1.1; NAMESERVER=127.0.0.1; SERVER=127.0.0.1; check_dnsmasq_postconf "$NAMESERVER" "$SERVER" ;;
+            5) 	DNS1=1.1.1.1; NAMESERVER="$(nvram get lan_ipaddr)"; SERVER="$(nvram get lan_ipaddr)"; check_dnsmasq_postconf "$NAMESERVER" "$SERVER" ;;
+        esac
 
-    LAN_IPADDR="$(nvram get lan_ipaddr)"
-    nvram set wan0_dns="$LAN_IPADDR"
-    nvram set wan_dns="$LAN_IPADDR"
-    nvram set wan_dns1_x="$LAN_IPADDR"
-    nvram set wan0_xdns="$LAN_IPADDR"
-    nvram set wan0_dns1_x="$LAN_IPADDR"
+# Set firmare nameserver and server entries
+    printf 'nameserver %s\n' "$NAMESERVER" > /tmp/resolv.conf
+    printf 'server=%s\n' "$SERVER" > /tmp/resolv.dnsmasq
+
+# Set DNS1 based on user option
+    nvram set wan0_dns="$DNS1"
+    nvram set wan_dns="$DNS1"
+    nvram set wan_dns1_x="$DNS1"
+    nvram set wan0_xdns="$DNS1"
+    nvram set wan0_dns1_x="$DNS1"
 
 # Set DNS2 to null
+    nvram set wan_dns2_x=""
+    nvram set wan0_dns2_x=""
 
-  nvram set wan_dns2_x=""
-  nvram set wan0_dns2_x=""
+# Turn off DNSSEC setting in firmware
+    nvram set dnssec_enable="0"
 
-# Turn off DNSSEC
+# Commit nvram values
+    nvram commit
 
-  nvram set dnssec_enable="0"
+    check_openvpn_event "$SERVER"
+}
 
-  nvram commit
+check_dnsmasq_postconf () {
+    NAMESERVER=$1
+    SERVER=$2
+
+    printf 'server=%s\n' "$SERVER" > /jffs/configs/resolv.dnsmasq
+    printf 'nameserver %s\n' "$NAMESERVER" > /jffs/configs/resolv.conf
+
+    if [ -s /jffs/scripts/dnsmasq.postconf ]; then  # file exists
+        if [ "$(grep -c "cp /jffs/configs/resolv.dnsmasq /tmp/resolv.dnsmasq" "/jffs/scripts/dnsmasq.postconf")" = "0" ] && \
+           [ "$(grep -c "cp /jffs/configs/resolv.conf /tmp/resolv.conf" "/jffs/scripts/dnsmasq.postconf")" = "0" ] ; then
+            printf '%s\n' "cp /jffs/configs/resolv.dnsmasq /tmp/resolv.dnsmasq" >> /jffs/scripts/dnsmasq.postconf
+            printf '%s\n' "cp /jffs/configs/resolv.conf /tmp/resolv.conf" >> /jffs/scripts/dnsmasq.postconf
+        elif [ "$(grep -c "cp /jffs/configs/resolv.dnsmasq /tmp/resolv.dnsmasq" "/jffs/scripts/dnsmasq.postconf")" = "1" ] && \
+             [ "$(grep -c "cp /jffs/configs/resolv.conf /tmp/resolv.conf" "/jffs/scripts/dnsmasq.postconf")" = "0" ] ; then
+               printf '%s\n' "cp /jffs/configs/resolv.conf /tmp/resolv.conf" >> /jffs/scripts/dnsmasq.postconf
+        elif [ "$(grep -c "cp /jffs/configs/resolv.dnsmasq /tmp/resolv.dnsmasq" "/jffs/scripts/dnsmasq.postconf")" = "0" ] && \
+             [ "$(grep -c "cp /jffs/configs/resolv.conf /tmp/resolv.conf" "/jffs/scripts/dnsmasq.postconf")" = "1" ] ; then
+               printf '%s\n' "cp /jffs/configs/resolv.dnsmasq /tmp/resolv.dnsmasq" >> /jffs/scripts/dnsmasq.postconf
+        fi
+    else
+        printf '%s\n' "#!/bin/sh" > /jffs/scripts/dnsmasq.postconf
+        printf '%s\n' "cp /jffs/configs/resolv.dnsmasq /tmp/resolv.dnsmasq" >> /jffs/scripts/dnsmasq.postconf
+        printf '%s\n' "cp /jffs/configs/resolv.conf /tmp/resolv.conf" >> /jffs/scripts/dnsmasq.postconf
+        chmod 755 /jffs/scripts/dnsmasq.postconf
+    fi
 }
 
 ###################### Main ################
+USER_OPTION=$1
+
 Set_Color_Parms
 
 Chk_Entware
@@ -532,8 +633,10 @@ check_dnsmasq_parms
 create_required_directories
 stubby_yml_update
 S61stubby_update
-check_openvpn_event
-update_wan_dns_settings
+#check_openvpn_event
+update_wan_and_resolv_settings $USER_OPTION
+#check_resolv_dnsmasq_override $USER_OPTION
+#update_wan_dns_settings $USER_OPTION
 
 service restart_dnsmasq > /dev/null 2>&1
 /opt/etc/init.d/S61stubby restart

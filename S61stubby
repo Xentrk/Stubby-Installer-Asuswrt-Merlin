@@ -4,8 +4,6 @@ logger -t S61stubby "The value of nvram parm ntp_ready is: $(nvram get ntp_ready
 # set environment PATH to system binaries
 export PATH=/sbin:/bin:/usr/sbin:/usr/bin:$PATH
 
-
-
 ENABLED=yes
 PROCS=stubby
 ARGS="-g -v 5 -C /opt/etc/stubby/stubby.yml 2>/opt/var/log/stubby.log"

@@ -15,7 +15,7 @@
 logger -t "($(basename "$0"))" $$ Starting Script Execution
 
 # Uncomment the line below for debugging
-#set -x
+set -x
 
 Set_Color_Parms () {
     COLOR_RED='\033[0;31m'
@@ -229,11 +229,20 @@ remove_existing_installation () {
     fi
 
     # remove /jffs/scripts/dnsmasq.postconf
+    COUNT=0
     if [ -s /jffs/scripts/dnsmasq.postconf ]; then  # file exists
-    if [ "$(grep -c "cp /jffs/configs/resolv.dnsmasq /tmp/resolv.dnsmasq" "/jffs/scripts/dnsmasq.postconf")" != "0" ]; then  # see if line exists
+        if [ "$(grep -c "cp /jffs/configs/resolv.dnsmasq /tmp/resolv.dnsmasq" "/jffs/scripts/dnsmasq.postconf")" != "0" ]; then  # see if line exists
+            COUNT=1
             sed -i '/resolv.dnsmasq/d' "/jffs/scripts/dnsmasq.postconf" > /dev/null 2>&1
             printf '\n'
             printf 'One line entry removed from %b/jffs/scripts/dnsmasq.postconf%b\n' "$COLOR_GREEN" "$COLOR_WHITE"
+        fi
+        if [ "$(grep -c "cp /jffs/configs/resolv.conf /tmp/resolv.conf" "/jffs/scripts/dnsmasq.postconf")" != "0" ]; then  # see if line exists
+            COUNT=2
+            sed -i '/resolv.conf/d' "/jffs/scripts/dnsmasq.conf" > /dev/null 2>&1
+            printf '\n'
+        fi
+        if [ "$COUNT" -ge "1" ]; then
             printf 'Skipping deletion of %b/jffs/scripts/dnsmasq.postconf%b as it may be used by other applications.\n' "$COLOR_GREEN" "$COLOR_WHITE"
             printf 'Manually remove %b/jffs/scripts/openvpn-event%b using the %brm%b command if the file is no longer required\n' "$COLOR_GREEN" "$COLOR_WHITE" "$COLOR_GREEN" "$COLOR_WHITE"
         fi
@@ -530,6 +539,25 @@ check_openvpn_event() {
 update_wan_and_resolv_settings () {
     USER_OPTION=$1
 
+    # remove prior install option entries from /jffs/scripts/dnsmasq.postconf
+    COUNT=0
+    if [ -s /jffs/scripts/dnsmasq.postconf ]; then  # file exists
+        if [ "$(grep -c "cp /jffs/configs/resolv.dnsmasq /tmp/resolv.dnsmasq" "/jffs/scripts/dnsmasq.postconf")" != "0" ]; then  # see if line exists
+            COUNT=1
+            sed -i '/resolv.dnsmasq/d' "/jffs/scripts/dnsmasq.postconf" > /dev/null 2>&1
+            printf '\n'
+            printf 'One line entry removed from %b/jffs/scripts/dnsmasq.postconf%b\n' "$COLOR_GREEN" "$COLOR_WHITE"
+        fi
+        if [ "$(grep -c "cp /jffs/configs/resolv.conf /tmp/resolv.conf" "/jffs/scripts/dnsmasq.postconf")" != "0" ]; then  # see if line exists
+            COUNT=2
+            sed -i '/resolv.conf/d' "/jffs/scripts/dnsmasq.postconf" > /dev/null 2>&1
+            printf '\n'
+        fi
+        if [ "$COUNT" -ge "1" ]; then
+            printf 'Skipping deletion of %b/jffs/scripts/dnsmasq.postconf%b as it may be used by other applications.\n' "$COLOR_GREEN" "$COLOR_WHITE"
+            printf 'Manually remove %b/jffs/scripts/openvpn-event%b using the %brm%b command if the file is no longer required\n' "$COLOR_GREEN" "$COLOR_WHITE" "$COLOR_GREEN" "$COLOR_WHITE"
+        fi
+    fi
 # Update Connect to DNS Server Automatically
 
     nvram set wan_dnsenable_x="0"

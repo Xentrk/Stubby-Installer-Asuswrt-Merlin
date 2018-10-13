@@ -202,9 +202,9 @@ remove_existing_installation () {
         rm /jffs/configs/resolv.dnsmasq
     fi
 
-    # Remove /jffs/configs/resolv.config
-    if [ -f /jffs/configs/resolv.config ]; then  # file exists
-        rm /jffs/configs/resolv.config
+    # Remove /jffs/configs/resolv.conf
+    if [ -f /jffs/configs/resolv.conf ]; then  # file exists
+        rm /jffs/configs/resolv.conf
     fi
 
     # remove file /opt/etc/init.d/S61stubby
@@ -538,6 +538,16 @@ check_openvpn_event() {
 
 update_wan_and_resolv_settings () {
     USER_OPTION=$1
+
+    # Remove /jffs/configs/resolv.dnsmasq
+    if [ -f /jffs/configs/resolv.dnsmasq ]; then  # file exists
+        rm /jffs/configs/resolv.dnsmasq
+    fi
+
+    # Remove /jffs/configs/resolv.conf
+    if [ -f /jffs/configs/resolv.conf ]; then  # file exists
+        rm /jffs/configs/resolv.conf
+    fi
 
     # remove prior install option entries from /jffs/scripts/dnsmasq.postconf
     COUNT=0

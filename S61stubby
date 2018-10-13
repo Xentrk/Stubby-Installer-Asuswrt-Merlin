@@ -1,4 +1,10 @@
 #!/bin/sh
+logger -t S61stubby "Starting Stubby DNS over TLS $0"
+logger -t S61stubby "The value of nvram parm ntp_ready is: $(nvram get ntp_ready)"
+# set environment PATH to system binaries
+export PATH=/sbin:/bin:/usr/sbin:/usr/bin:$PATH
+
+
 
 ENABLED=yes
 PROCS=stubby
@@ -6,5 +12,5 @@ ARGS="-g -v 5 -C /opt/etc/stubby/stubby.yml 2>/opt/var/log/stubby.log"
 PREARGS="nohup"
 DESC=$PROCS
 PATH=/opt/sbin:/opt/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-
+logger -t S61stubby "The value of nvram parm ntp_ready @ rc.func is: $(nvram get ntp_ready)"
 . /opt/etc/init.d/rc.func

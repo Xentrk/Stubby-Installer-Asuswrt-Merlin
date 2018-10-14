@@ -11,6 +11,7 @@ round_robin_upstreams: 0
 idle_timeout: 2000
 tls_connection_retries: 5
 tls_backoff_time: 900
+timeout: 2000
 appdata_dir: "/opt/var/cache/stubby"
 listen_addresses:
   - 127.0.0.1@5453

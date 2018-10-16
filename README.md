@@ -13,9 +13,9 @@ The Stubby installer script **install_stubby.sh** will
 3. Download the Stubby entware start up script **S61stubby** to **/opt/etc/init.d**.
 4. Download the Stubby configuration file **stubby.yml** to **/opt/etc/stubby**.
 5. Override how the firmware manages DNS
-  * Add the entry **no-reolv** to **/jffs/configs/dnsmasq.conf.add** if it does not exist in **/tmp/dnsmasq.conf**.
+  * Add the entry **no-resolv** to **/jffs/configs/dnsmasq.conf.add** if it does not exist in **/tmp/dnsmasq.conf**.
   * Add the entries **server=127.0.0.1#5453** and **server=0::1#5453** to **/jffs/configs/dnsmasq.conf.add**.  This instructs dnsmasq to forward DNS requests to Stubby.
-  * Set the WAN DNS1 o the Router's IP Addresss and set the WAN DNS2 entry to null.
+  * Set WAN DNS1 to the Router's IP Address and set the WAN DNS2 entry to null.
   * Update **/tmp/resolv.conf** and **/tmp/resolv.dnsmasq** to use the Router's IP address.
   * If one or more active OpenVPN Clients are found, create the file **/jffs/configs/resolv.dnsmasq** and add an entry in **/jffs/scripts/openvpn-event** to copy **/jffs/configs/resolv.dnsmasq** to **/tmp/resolv.dnsmasq**.  This is required to prevent OpenVPN up/down events from adding the internal VPN DNS server IP addresses 10.9.0.1 and 10.8.0.1 to **/tmp/resolv.dnsmasq**.
 6. Default to Cloudflare DNS 1.1.1.1 using DNS over TLS. You can change to other supported DNS over TLS providers by modifying **/opt/etc/stubby/stubby.yml**.
@@ -116,7 +116,7 @@ Check the last few lines of the output from the **echo | openssl s_client -conne
 
     Verify return code: 20 (unable to get local issuer certificate)
 
-in the last few lines, enter the following command to validate the certificate path:
+in the last few lines, enter the following command to validate the certificate path which will fix the error:
 
     echo | openssl s_client -verify on -CApath /opt/etc/ssl/certs -connect  1.1.1.1:853
 

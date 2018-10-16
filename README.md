@@ -1,30 +1,37 @@
-# DO NOT USE TESTING IN PROGRESS!
-
 # Stubby-Installer-Asuswrt-Merlin
-Stubby DNS Privacy Daemon Install Script for Asuswrt-Merlin Firmware
+Stubby DNS Privacy Daemon Install Script for [Asuswrt-Merlin](https://asuswrt.lostrealm.ca/) Firmware
 
 ## Description
 
 [Stubby](https://dnsprivacy.org/wiki/display/DP/DNS+Privacy+Daemon+-+Stubby) is an application that acts as a local DNS Privacy stub resolver using DNS-over-TLS. Stubby encrypts DNS queries sent from a client machine (desktop or laptop) to a DNS Privacy resolver increasing end user privacy.
 
-## Requirements
-1. An Asus router with  [Asuswrt-Merlin](http://asuswrt.lostrealm.ca/) firmware installed.
-2. A USB drive with [entware](https://github.com/RMerl/asuswrt-merlin/wiki/Entware) installed.  Entware can be installed using [amtm - the SNBForum Asuswrt-Merlin Terminal Menu](https://www.snbforums.com/threads/amtm-the-snbforum-asuswrt-merlin-terminal-menu.42415/)
-
-The use of Stubby on Asuswrt-Merlin is experimental and not endorsed by the firmware developer. As an extra precaution, it is highly recommended to take a back-up of the jffs partition and the firmware configuration before proceeding with the installation. You can also use this script to uninstall Stubby and remove the changes made during the installation.   
+The use of Stubby on [Asuswrt-Merlin](https://asuswrt.lostrealm.ca/) is experimental and not endorsed by the firmware developer. You can also use this script to uninstall Stubby and remove the changes made during the installation.   
 
 The Stubby installer script **install_stubby.sh** will
 1. Install the entware packages **stubby** and **ca-certificates**
-2. Override how the firmware manages DNS  
-3. Default to Cloudflare DNS 1.1.1.1. You can change to other supported DNS over TLS providers by modifying **/opt/etc/stubby/stubby.yml**.
-4. Provide the option to remove Stubby and the firmware DNS overrides.
+2. Create **/opt/var/cache/stubby** and **/opt/var/log** folders if they do not exist.
+3. Download the Stubby entware start up script **S61stubby** to **/opt/etc/init.d**.
+4. Download the Stubby configuration file **stubby.yml** to **/opt/etc/stubby**.
+5. Override how the firmware manages DNS
+  * Add the entry **no-reolv** to **/jffs/configs/dnsmasq.conf.add** if it does not exist in **/tmp/dnsmasq.conf**.
+  * Add the entries **server=127.0.0.1#5453** and **server=0::1#5453** to **/jffs/configs/dnsmasq.conf.add**.  This instructs dnsmasq to forward DNS requests to Stubby.
+  * Set the WAN DNS1 o the Router's IP Addresss and set the WAN DNS2 entry to null.
+  * Update **/tmp/resolv.conf** and **/tmp/resolv.dnsmasq** to use the Router's IP address.
+  * If one or more active OpenVPN Clients are found, create the file **/jffs/configs/resolv.dnsmasq** and add an entry in **/jffs/scripts/openvpn-event** to copy **/jffs/configs/resolv.dnsmasq** to **/tmp/resolv.dnsmasq**.  This is required to prevent OpenVPN up/down events from adding the internal VPN DNS server IP addresses 10.9.0.1 and 10.8.0.1 to **/tmp/resolv.dnsmasq**.
+6. Default to Cloudflare DNS 1.1.1.1 using DNS over TLS. You can change to other supported DNS over TLS providers by modifying **/opt/etc/stubby/stubby.yml**.
+7. Provide the option to remove Stubby and the firmware DNS overrides created during the installation. The uninstall option will set the WAN DNS1 to use Cloudflare 1.1.1.1 without DNS over TLS. A reboot is required to finalize the removal of Stubby. You can modify the DNS settings after the reboot has completed.
+
+## Requirements
+1. An Asus router with  [Asuswrt-Merlin](http://asuswrt.lostrealm.ca/) firmware installed.
+2. A USB drive with [entware](https://github.com/RMerl/asuswrt-merlin/wiki/Entware) installed.  Entware can be installed using [amtm - the SNBForum Asuswrt-Merlin Terminal Menu](https://www.snbforums.com/threads/amtm-the-snbforum-asuswrt-merlin-terminal-menu.42415/)
 
 ## Installation
 Copy and paste the command below into an SSH session.
 ```javascript
 /usr/sbin/curl --retry 3 "https://raw.githubusercontent.com/Xentrk/Stubby-Installer-Asuswrt-Merlin/master/install_stubby.sh" -o /jffs/scripts/install_stubby.sh && chmod 755 /jffs/scripts/install_stubby.sh && sh /jffs/scripts/install_stubby.sh
 ```
-
+## Stubby Configuration
+See the [Stubby Configuration Guide](https://dnsprivacy.org/wiki/display/DP/Configuring+Stubby) for a description of the configuration file options.  
 ## Validating that Stubby is Working
 Run the following commands from an SSH session to verify that stubby is working properly:
 
@@ -109,7 +116,7 @@ Check the last few lines of the output from the **echo | openssl s_client -conne
 
     Verify return code: 20 (unable to get local issuer certificate)
 
-in the last few lines, enter the following command:
+in the last few lines, enter the following command to validate the certificate path:
 
     echo | openssl s_client -verify on -CApath /opt/etc/ssl/certs -connect  1.1.1.1:853
 
@@ -136,7 +143,7 @@ To **(start|stop|restart|check|kill|reconfigure)** stubby, type the command belo
 To configure an OpenVPN Client to use Stubby DNS, set **Accept DNS Configuration = Disabled** on the **VPN->VPN Client** page. Select the **Apply** button to save the setting.
 
 ## DNSSEC
-The **install_stubby.sh** script turns off the DNSSEC setting on the firmware to avoid conflicts with DNSSEC built into Stubby.
+The **install_stubby.sh** script turns off the DNSSEC setting on the firmware to avoid conflicts with DNSSEC built into Stubby. Stubby uses **getdns** to manage DNSSEC. **getdns** uses a form of built-in trust-anchor management modelled on [RFC7958](https://tools.ietf.org/html/rfc7958), named [Zero configuration DNSSEC](https://getdnsapi.net/releases/getdns-1-2-0/).  If you turn on the firmware DNSSEC, the [Cloudflare Help Page](https://1.1.1.1/help) test page will not work.
 
 ## DNSSEC, DNS Spoof, DNS Leak and WebRTC Leak Test Web Sites
 1. DNSSEC Test
@@ -167,9 +174,9 @@ The **install_stubby.sh** script turns off the DNSSEC setting on the firmware to
 
 * [Martineau](https://www.snbforums.com/members/martineau.13215/) on snbforums.com provided the **Chk_Entware** function.
 
-* [John9527](https://www.snbforums.com/members/john9527.27638/) is the developer of the [Asuswrt-Merlin Fork](https://github.com/john9527/asuswrt-merlin). **John9527** implemented Stubby in August 2018 and provided the **stubby.yml** configuration generated by the firmware **Asuswrt-Merlin-Fork**. The **stubby.yml** provided by **John9527** was used as a benchmark for this project.  My goal is to standardize the configurations used in the [Asuswrt-Merlin Fork](https://github.com/john9527/asuswrt-merlin) when possible.     
+* [John9527](https://www.snbforums.com/members/john9527.27638/) is the developer of the [Asuswrt-Merlin Fork](https://github.com/john9527/asuswrt-merlin). *John9527* implemented Stubby in August 2018 and provided the **stubby.yml** configuration generated by the firmware **Asuswrt-Merlin-Fork**. The **stubby.yml** provided by *John9527* was used as a benchmark for this project.  My goal is to standardize the configurations used in the [Asuswrt-Merlin Fork](https://github.com/john9527/asuswrt-merlin) when possible.     
 
-* Thank you to [snbforums.com](https://www.snbforums.com/) members [skeal](https://www.snbforums.com/members/skeal.47960/) and [M@rco](https://www.snbforums.com/members/m-rco.56284/) who volunteered their time performing testing and providing feedback.
+* Thank you to [snbforums.com](https://www.snbforums.com/) members *Jack Yaz*, *bbunge*,  [skeal](https://www.snbforums.com/members/skeal.47960/) and [M@rco](https://www.snbforums.com/members/m-rco.56284/) who volunteered their time performing testing and providing feedback.
 
 ## Support
 

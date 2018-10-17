@@ -39,6 +39,10 @@ Run the following commands from an SSH session to verify that stubby is working 
 
     21283 admin    5560 S    stubby -g -v 5 -C /opt/etc/stubby/stubby.yml 2>/opt/var/log/stubby.log
 
+** /opt/etc/init.d/S61stubby check**
+
+     Checking stubby...              alive.
+
 **netstat -lnptu | grep stubby**
 
     tcp        0      0 127.0.0.1:5453          0.0.0.0:*               LISTEN      21283/stubby
@@ -136,7 +140,8 @@ Quad9 blocks the website http://isitblocked.org. If Quad9 is working properly, a
 
 ## Known Issues
 1. The [Cloudflare Help Page](https://1.1.1.1/help) test page will not work when the secondary IPv6 **2606:4700:4700::1001** is specified in **/opt/etc/stubby/stubby.yml**.
-2. Two of the testers experienced issues with the router not being able to access the WAN upon a reboot. The models are the RT-AC68U_B1 and RT-AC3100/CA.  The fix was to replace the NTP server domain name with the NTP IPv4 address on the **Administration->System** page.  Some tutorials add a server entry for an NTP server in the dnsmasq configuration file. On Asuswrt-Merlin, do a nslookup from an SSH session on the NTP server you use to obtain the IPv4 address.  Then, add a similar entry to **/jffs/configs/dnsmasq.conf.add** e.g. ```server=/ntp.pool.org/64.99.80.121```.  Restart dnsmasq using the command ```service restart_dnsmasq``` or reboot for it to take effect. 
+2. Two of the testers experienced issues with the router not being able to access the WAN upon a reboot. The models are the RT-AC68U_B1 and RT-AC3100/CA.  The fix was to replace the NTP server domain name with the NTP IPv4 address on the **Administration->System** page.  Some tutorials add a server entry for an NTP server in the dnsmasq configuration file. On Asuswrt-Merlin, do a nslookup from an SSH session on the NTP server you use to obtain the IPv4 address.  Then, add a similar entry to **/jffs/configs/dnsmasq.conf.add** e.g. ```server=/ntp.pool.org/64.99.80.121```.  Restart dnsmasq using the command ```service restart_dnsmasq``` or reboot for it to take effect.
+3. Stubby logging is currently simplistic or non-existent and simply writes to stdout. The Stubby team is working on making this better!
 
 
 ## Starting, Stopping and Killing Stubby
@@ -147,8 +152,17 @@ To **(start|stop|restart|check|kill|reconfigure)** stubby, type the command belo
 ## DNS over TLS with OpenVPN
 To configure an OpenVPN Client to use Stubby DNS, set **Accept DNS Configuration = Disabled** on the **VPN->VPN Client** page. Select the **Apply** button to save the setting.
 
+## Blocking Client DNS requests
+To force all LAN clients to use Stubby, enter the following commands in an SSH session.  
+
+    iptables -t nat -A PREROUTING -i br0 -p udp --dport 53 -j DNAT --to "$(nvram get lan_ipaddr)"
+    iptables -t nat -A PREROUTING -i br0 -p tcp --dport 53 -j DNAT --to "$(nvram get lan_ipaddr)"
+
+Add the commands to **/jffs/scripts/firewall-start** so the rules survice a reboot.
+
 ## DNSSEC
-The **install_stubby.sh** script turns off the DNSSEC setting on the firmware to avoid conflicts with DNSSEC built into Stubby. Stubby uses **getdns** to manage DNSSEC. **getdns** uses a form of built-in trust-anchor management modelled on [RFC7958](https://tools.ietf.org/html/rfc7958), named [Zero configuration DNSSEC](https://getdnsapi.net/releases/getdns-1-2-0/).  If you turn on the firmware DNSSEC, the [Cloudflare Help Page](https://1.1.1.1/help) test page will not work.
+The **install_stubby.sh** script turns off the DNSSEC setting on the firmware to avoid conflicts with DNSSEC built into Stubby. Stubby uses **getdns** to manage DNSSEC. **getdns** uses a form of built-in trust-anchor management modelled on [RFC7958](https://tools.ietf.org/html/rfc7958), named [Zero configuration DNSSEC](https://getdnsapi.net/releases/getdns-1-2-0/).  If you turn on the firmware DNSSEC, the [Cloudflare Help Page](https://1.1.1.1/help) test page will not work. Early in my testing, I had root anchor files in the appdata_dir **/opt/var/cache/stubby**. Later in my testing, no root anchor files appeared in the appdata_dir. I created an [issue]( I created an issue with stubby support team about it:
+https://github.com/getdnsapi/stubby/issues/136) with the Stubby team. However, they stopped replying to my follow-up questions. Since I received no response from the Stubby suport team and the DNSSEC test sites worked, I closed the issue.   
 
 ## DNSSEC, DNS Spoof, DNS Leak and WebRTC Leak Test Web Sites
 1. DNSSEC Test

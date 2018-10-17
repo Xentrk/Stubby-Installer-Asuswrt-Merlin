@@ -3,7 +3,7 @@ Stubby DNS Privacy Daemon Install Script for [Asuswrt-Merlin](https://asuswrt.lo
 
 ## Description
 
-[Stubby](https://dnsprivacy.org/wiki/display/DP/DNS+Privacy+Daemon+-+Stubby) is an application that acts as a local DNS Privacy stub resolver using DNS-over-TLS. Stubby encrypts DNS queries sent from a client machine (desktop or laptop) to a DNS Privacy resolver increasing end user privacy.
+[Stubby](https://dnsprivacy.org/wiki/display/DP/DNS+Privacy+Daemon+-+Stubby) is an application that acts as a local DNS Privacy stub resolver using DNS-over-TLS. Stubby encrypts DNS queries sent from a client machine to a DNS Privacy resolver increasing end user privacy.
 
 The use of Stubby on [Asuswrt-Merlin](https://asuswrt.lostrealm.ca/) is experimental and not endorsed by the firmware developer. You can also use this script to uninstall Stubby and remove the changes made during the installation.   
 
@@ -13,11 +13,11 @@ The Stubby installer script **install_stubby.sh** will
 3. Download the Stubby entware start up script **S61stubby** to **/opt/etc/init.d**.
 4. Download the Stubby configuration file **stubby.yml** to **/opt/etc/stubby**.
 5. Override how the firmware manages DNS
-  * Add the entry **no-resolv** to **/jffs/configs/dnsmasq.conf.add** if it does not exist in **/tmp/dnsmasq.conf**.
-  * Add the entries **server=127.0.0.1#5453** and **server=0::1#5453** to **/jffs/configs/dnsmasq.conf.add**.  This instructs dnsmasq to forward DNS requests to Stubby.
-  * Set WAN DNS1 to the Router's IP Address and set the WAN DNS2 entry to null.
-  * Update **/tmp/resolv.conf** and **/tmp/resolv.dnsmasq** to use the Router's IP address.
-  * If one or more active OpenVPN Clients are found, create the file **/jffs/configs/resolv.dnsmasq** and add an entry in **/jffs/scripts/openvpn-event** to copy **/jffs/configs/resolv.dnsmasq** to **/tmp/resolv.dnsmasq**.  This is required to prevent OpenVPN up/down events from adding the internal VPN DNS server IP addresses 10.9.0.1 and 10.8.0.1 to **/tmp/resolv.dnsmasq**.
+    * Add the entry **no-resolv** to **/jffs/configs/dnsmasq.conf.add** if it does not exist in **/tmp/dnsmasq.conf**.
+    * Add the entries **server=127.0.0.1#5453** and **server=0::1#5453** to **/jffs/configs/dnsmasq.conf.add**.  This instructs dnsmasq to forward DNS requests to Stubby.
+    * Set WAN DNS1 to the Router's IP Address and set the WAN DNS2 entry to null.
+    * Update **/tmp/resolv.conf** and **/tmp/resolv.dnsmasq** to use the Router's IP address.
+    * If one or more active OpenVPN Clients are found, create the file **/jffs/configs/resolv.dnsmasq** and add an entry in **/jffs/scripts/openvpn-event** to copy **/jffs/configs/resolv.dnsmasq** to **/tmp/resolv.dnsmasq**.  This is required to prevent OpenVPN up/down events from adding the internal VPN DNS server IP addresses 10.9.0.1 and 10.8.0.1 to **/tmp/resolv.dnsmasq**.
 6. Default to Cloudflare DNS 1.1.1.1 using DNS over TLS. You can change to other supported DNS over TLS providers by modifying **/opt/etc/stubby/stubby.yml**.
 7. Provide the option to remove Stubby and the firmware DNS overrides created during the installation. The uninstall option will set the WAN DNS1 to use Cloudflare 1.1.1.1 without DNS over TLS. A reboot is required to finalize the removal of Stubby. You can modify the DNS settings after the reboot has completed.
 
@@ -39,7 +39,7 @@ Run the following commands from an SSH session to verify that stubby is working 
 
     21283 admin    5560 S    stubby -g -v 5 -C /opt/etc/stubby/stubby.yml 2>/opt/var/log/stubby.log
 
-** /opt/etc/init.d/S61stubby check**
+**/opt/etc/init.d/S61stubby check**
 
      Checking stubby...              alive.
 

@@ -158,7 +158,7 @@ A client device with DNS configured will override the DNS configured on the rout
     iptables -t nat -A PREROUTING -i br0 -p udp --dport 53 -j DNAT --to "$(nvram get lan_ipaddr)"
     iptables -t nat -A PREROUTING -i br0 -p tcp --dport 53 -j DNAT --to "$(nvram get lan_ipaddr)"
 
-Add the commands to **/jffs/scripts/firewall-start** so the rules survice a reboot.
+Add the commands to **/jffs/scripts/firewall-start** so the rules survive a reboot.
 
 ## DNSSEC
 The **install_stubby.sh** script turns off the DNSSEC setting on the firmware to avoid conflicts with DNSSEC built into Stubby. Stubby uses **getdns** to manage DNSSEC. **getdns** uses a form of built-in trust-anchor management modelled on [RFC7958](https://tools.ietf.org/html/rfc7958), named [Zero configuration DNSSEC](https://getdnsapi.net/releases/getdns-1-2-0/).  If you turn on the firmware DNSSEC, the [Cloudflare Help Page](https://1.1.1.1/help) test page will not work. Early in my testing, I had root anchor files in the appdata_dir **/opt/var/cache/stubby**. Later in my testing, no root anchor files appeared in the appdata_dir. I created an [issue]( I created an issue with stubby support team about it:

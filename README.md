@@ -134,6 +134,11 @@ Quad9 blocks the website http://isitblocked.org. If Quad9 is working properly, a
 
     nslookup: can't resolve 'isitblocked.org'
 
+## Known Issues
+1. The [Cloudflare Help Page](https://1.1.1.1/help) test page will not work when the secondary IPv6 **2606:4700:4700::1001** is specified in **/opt/etc/stubby/stubby.yml**.
+2. Two of the testers experienced issues with the router not being able to access the WAN upon a reboot. The models are the RT-AC68U_B1 and RT-AC3100/CA.  The fix was to replace the NTP server domain name with the NTP IPv4 address on the **Administration->System** page.  Some tutorials add a server entry for an NTP server in the dnsmasq configuration file. On Asuswrt-Merlin, do a nslookup from an SSH session on the NTP server you use to obtain the IPv4 address.  Then, add a similar entry to **/jffs/configs/dnsmasq.conf.add** e.g. ```server=/ntp.pool.org/64.99.80.121```.  Restart dnsmasq using the command ```service restart_dnsmasq``` or reboot for it to take effect. 
+
+
 ## Starting, Stopping and Killing Stubby
 To **(start|stop|restart|check|kill|reconfigure)** stubby, type the command below where **option** is one of the options listed in the parenthesis.
 

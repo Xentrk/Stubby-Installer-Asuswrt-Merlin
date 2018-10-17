@@ -13,7 +13,7 @@
 #
 ####################################################################################################
 logger -t "($(basename "$0"))" $$ Starting Script Execution
-
+VERSION=1.0.0
 # Uncomment the line below for debugging
 #set -x
 
@@ -25,35 +25,34 @@ Set_Color_Parms () {
 
 welcome_message () {
     printf '\n'
-    printf '#############################################################################################################\n'
-    printf '##                                                                                                         ##\n'
-    printf '##  Welcome to the %bStubby-Installer-Asuswrt-Merlin%b installation script                                     ##\n' "$COLOR_GREEN" "$COLOR_WHITE"
-    printf '##  Version %s by Xentrk                                                                                ##\n' "$VERSION"
-    printf '##                                                                                                         ##\n'
-    printf '##         ____        _         _                                                                         ##\n'
-    printf '##        |__  |      | |       | |                                                                        ##\n'
-    printf '##  __  __  _| |_ _ _ | |_  ___ | | __    ____ ____  _ _ _                                                 ##\n'
-    printf '##  \ \/ / |_  | %b %b \  __|/ _ \| |/ /   /  _//    \| %b %b \                                                ##\n' "\`" "\`" "\`" "\`"
-    printf '##   /  /  __| | | | |  |_ | __/|   <   (  (_ | [] || | | |                                                ##\n'
-    printf '##  /_/\_\|___ |_|_|_|\___|\___||_|\_\[] \___\\\____/|_|_|_|                                                ##\n'
-    printf '##                                                                                                         ##\n'
-    printf '#############################################################################################################\n'
-    printf '##                                                                                                         ##\n'
-    printf '## Stubby Wiki: https://dnsprivacy.org/wiki/display/DP/DNS+Privacy+Daemon+-+Stubby                         ##\n'
-    printf '## Requirements: jffs partition and USB drive with entware installed                                       ##\n'
-    printf '##                                                                                                         ##\n'
-    printf '## The use of Stubby on Asuswrt-Merlin is experimental. The install script will:                           ##\n'
-    printf '##   1. Install the stubby and ca-certificates entware packages                                            ##\n'
-    printf '##   2. Override how the firmware manages DNS.                                                             ##\n'
-    printf '##   3. Disable the firmware DNSSEC setting. Stubby has a separate DNSSEC setting in stubby.yml            ##\n'
-    printf '##   4. Default to Cloudflare DNS 1.1.1.1. You can change to other supported DNS over TLS providers by      ##\n'
-    printf '##      modifying /opt/var/stubby/stubby.yml and the DNS Settings on the WAN Menu.                         ##\n'
-    printf '##                                                                                                         ##\n'
-    printf '## You can also use this script to uninstall Stubby to back out the changes made during the installation.  ##\n'
-    printf '## As an extra precaution, it is highly recommended to take a back-up of the jffs partition, the firmware  ##\n'
-    printf '## configuration and USB before proceeding with the installation. See the project repository at            ##\n'
-    printf '## https://github.com/Xentrk/Stubby-Installer-Asuswrt-Merlin tips for helpful tips                         ##\n'
-    printf '#############################################################################################################\n'
+    printf '###############################################################################################################\n'
+    printf '##                                                                                                           ##\n'
+    printf '##  Welcome to the %bStubby-Installer-Asuswrt-Merlin%b installation script                                       ##\n' "$COLOR_GREEN" "$COLOR_WHITE"
+    printf '##  Version %s by Xentrk                                                                                  ##\n' "$VERSION"
+    printf '##                                                                                                           ##\n'
+    printf '##         ____        _         _                                                                           ##\n'
+    printf '##        |__  |      | |       | |                                                                          ##\n'
+    printf '##  __  __  _| |_ _ _ | |_  ___ | | __    ____ ____  _ _ _                                                   ##\n'
+    printf '##  \ \/ / |_  | %b %b \  __|/ _ \| |/ /   /  _//    \| %b %b \                                                  ##\n' "\`" "\`" "\`" "\`"
+    printf '##   /  /  __| | | | |  |_ | __/|   <   (  (_ | [] || | | |                                                  ##\n'
+    printf '##  /_/\_\|___ |_|_|_|\___|\___||_|\_\[] \___\\\____/|_|_|_|                                                  ##\n'
+    printf '##                                                                                                           ##\n'
+    printf '###############################################################################################################\n'
+    printf '##                                                                                                           ##\n'
+    printf '## Stubby Wiki: https://dnsprivacy.org/wiki/display/DP/DNS+Privacy+Daemon+-+Stubby                           ##\n'
+    printf '## Requirements: jffs partition and USB drive with entware installed                                         ##\n'
+    printf '##                                                                                                           ##\n'
+    printf '## The use of Stubby on Asuswrt-Merlin is experimental. The install script will:                             ##\n'
+    printf '##   1. Install the stubby and ca-certificates entware packages                                              ##\n'
+    printf '##   2. Override how the firmware manages DNS.                                                               ##\n'
+    printf '##   3. Disable the firmware DNSSEC setting. Stubby has a separate DNSSEC setting in stubby.yml              ##\n'
+    printf '##   4. Default to Cloudflare DNS 1.1.1.1. You can change to other supported DNS over TLS providers by       ##\n'
+    printf '##      modifying /opt/var/stubby/stubby.yml and the DNS Settings on the WAN Menu.                           ##\n'
+    printf '##                                                                                                           ##\n'
+    printf '## You can also use this script to uninstall Stubby to back out the changes made during the installation.    ##\n'
+    printf '## See the project repository at %bhttps://github.com/Xentrk/Stubby-Installer-Asuswrt-Merlin%b for helpful tips. ##\n' "$COLOR_GREEN" "$COLOR_WHITE"
+    printf '##                                                                                                           ##\n'
+    printf '###############################################################################################################\n'
     printf '\n'
     printf '%b1%b = Begin Stubby Installation Process\n' "${COLOR_GREEN}" "${COLOR_WHITE}"
     printf '%b2%b = Remove Existing Stubby Installation\n' "${COLOR_GREEN}" "${COLOR_WHITE}"
@@ -62,7 +61,7 @@ welcome_message () {
     printf '%bOption ==>%b ' "${COLOR_GREEN}" "${COLOR_WHITE}"
     read -r f
         case $f in
-	          1) 	install_stubby_options ;;
+	          1) 	install_stubby ;;
 	          2)	validate_removal ;;
             e)  exit_message ;;
 	          *)	printf '%bInvalid Option%b %s%b Please enter a valid option\n' "$COLOR_RED" "$COLOR_GREEN" "$f" "$COLOR_WHITE";
@@ -267,8 +266,9 @@ remove_existing_installation () {
 
 exit_message () {
     printf '\n'
+    printf '   %bhttps://github.com/Xentrk/Stubby-Installer-Asuswrt-Merlin%b\n' "$COLOR_GREEN" "$COLOR_WHITE"
     printf '\n'
-    printf 'Have a %bGrateful Day%b!\n' "$COLOR_GREEN" "$COLOR_WHITE"
+    printf '                      Have a Grateful Day!\n'
     printf '\n'
     printf '           ____        _         _                           \n'
     printf '          |__  |      | |       | |                          \n'
@@ -280,12 +280,6 @@ exit_message () {
     printf '\n'
     exit 0
 }
-
-#1. (OpenWRT Method) Use 127.0.0.1 for DNS1, nameserver entry in /etc/resolv.conf and server entry in /etc/resolv.dnsmasq
-#2. (DonnyJohnny Method) Use LAN IP for DNS1, nameserver entry in /etc/resolv.conf and server entry in /etc/resolv.dnsmasq
-#3. (Skeal Method - Hybrid 1) Use 1.1.1.1 for DNS1, LAN_IP in /etc/resolv.conf and 127.0.0.1 for server entry /etc/resolv.dnsmasq
-#4. (Hybrid 2) Use 1.1.1.1 for DNS1, 127.0.0.1 for nameserver entry in /etc/resolv.dnsmasq and 127.0.0.1 for server entry in /etc/resolv.dnsmasq
-#5. (Hybrid 3) Use 1.1.1.1 as DNS1; LAN IP for nameserver entry in /etc/resolv.conf and LAN IP for server entry in /etc/resolv.dnsmasq
 
 install_stubby_options () {
     printf '\n'
@@ -440,19 +434,6 @@ create_required_directories () {
         done
 }
 
-#1. (OpenWRT Method) Use 127.0.0.1 for DNS1, nameserver entry in /etc/resolv.conf and server entry in /etc/resolv.dnsmasq
-#2. (DonnyJohnny Method) Use LAN IP for DNS1, nameserver entry in /etc/resolv.conf and server entry in /etc/resolv.dnsmasq
-#3. (Skeal Method - Hybrid 1) Use 1.1.1.1 for DNS1, LAN_IP in /etc/resolv.conf and 127.0.0.1 for server entry /etc/resolv.dnsmasq
-#4. (Hybrid 2) Use 1.1.1.1 for DNS1, 127.0.0.1 for nameserver entry in /etc/resolv.dnsmasq and 127.0.0.1 for server entry in /etc/resolv.dnsmasq
-#5. (Hybrid 3) Use 1.1.1.1 as DNS1; LAN IP for nameserver entry in /etc/resolv.conf and LAN IP for server entry in /etc/resolv.dnsmasq
-
-check_resolv_dnsmasq_override () {
-    DNS1="$(nvram get lan_ipaddr)"
-    printf 'server=%s\n' "$DNS1" > /jffs/configs/resolv.dnsmasq
-    printf 'server=%s\n' "$DNS1" > /tmp/resolv.dnsmasq
-    printf 'nameserver %s\n' "$DNS1" > /tmp/resolv.conf
-}
-
 make_backup () {
     DIR=$1
     FILE=$2
@@ -473,22 +454,31 @@ download_file () {
     FILE=$2
     GIT_REPO="Stubby-Installer-Asuswrt-Merlin"
     GITHUB_DIR="https://raw.githubusercontent.com/Xentrk/$GIT_REPO/master"
-
-    /usr/sbin/curl --retry 3 "$GITHUB_DIR/$FILE" -o "$DIR/$FILE"
+    STATUS=$(/usr/sbin/curl --retry 3 -w '%{http_code}' "$GITHUB_DIR/$FILE" -o "$DIR/$FILE")
+    if [ $STATUS -eq 200 ]; then
+        printf '%b%s%b downloaded successfully.\n' "$COLOR_GREEN" "$FILE" "$COLOR_WHITE"
+    else
+        printf '%b%s%b download failed with curl error %s\n' "$COLOR_GREEN" "$FILE" "$COLOR_WHITE" "$STATUS"
+        printf 'Rerun %binstall_stubby.sh%b and select the %bRemove Existing Stubby Installation%b option\n' "$COLOR_GREEN" "$COLOR_WHITE" "$COLOR_GREEN" "$COLOR_WHITE"
+        exit 1
+    fi
 }
 
 stubby_yml_update () {
-    if [ -s "/opt/etc/stubby/stubby.yml" ]; then
-        make_backup /opt/etc/stubby stubby.yml
+    if [ -d "/opt/etc/init.d" ]; then
+        $(find /opt/etc/init.d -type f -name S61stubby\* -delete)
     fi
     download_file /opt/etc/stubby stubby.yml
     chmod 644 /opt/etc/stubby/stubby.yml > /dev/null 2>&1
 }
 
 S61stubby_update () {
-    if [ -s "/opt/etc/init.d/S61stubby" ]; then
-        rm /opt/etc/init.d/S61stubby > /dev/null 2>&1
-        rm /opt/etc/init.d/S61stubby.* > /dev/null 2>&1
+    if [ -d "/opt/etc/init.d" ]; then
+        printf %s "$(find /opt/etc/init.d -type f -name S61stubby\*)" |
+        while IFS= read -r line
+            do
+                rm "$line"
+            done
     fi
     download_file /opt/etc/init.d S61stubby
     chmod 755 /opt/etc/init.d/S61stubby > /dev/null 2>&1
@@ -537,55 +527,16 @@ check_openvpn_event() {
 }
 
 update_wan_and_resolv_settings () {
-    USER_OPTION=$1
 
-    # Remove /jffs/configs/resolv.dnsmasq
-    if [ -f /jffs/configs/resolv.dnsmasq ]; then  # file exists
-        rm /jffs/configs/resolv.dnsmasq
-    fi
-
-    # Remove /jffs/configs/resolv.conf
-    if [ -f /jffs/configs/resolv.conf ]; then  # file exists
-        rm /jffs/configs/resolv.conf
-    fi
-
-    # remove prior install option entries from /jffs/scripts/dnsmasq.postconf
-    COUNT=0
-    if [ -s /jffs/scripts/dnsmasq.postconf ]; then  # file exists
-        if [ "$(grep -c "cp /jffs/configs/resolv.dnsmasq /tmp/resolv.dnsmasq" "/jffs/scripts/dnsmasq.postconf")" != "0" ]; then  # see if line exists
-            COUNT=1
-            sed -i '/resolv.dnsmasq/d' "/jffs/scripts/dnsmasq.postconf" > /dev/null 2>&1
-            printf '\n'
-            printf 'One line entry removed from %b/jffs/scripts/dnsmasq.postconf%b\n' "$COLOR_GREEN" "$COLOR_WHITE"
-        fi
-        if [ "$(grep -c "cp /jffs/configs/resolv.conf /tmp/resolv.conf" "/jffs/scripts/dnsmasq.postconf")" != "0" ]; then  # see if line exists
-            COUNT=2
-            sed -i '/resolv.conf/d' "/jffs/scripts/dnsmasq.postconf" > /dev/null 2>&1
-            printf '\n'
-        fi
-        if [ "$COUNT" -ge "1" ]; then
-            printf 'Skipping deletion of %b/jffs/scripts/dnsmasq.postconf%b as it may be used by other applications.\n' "$COLOR_GREEN" "$COLOR_WHITE"
-            printf 'Manually remove %b/jffs/scripts/openvpn-event%b using the %brm%b command if the file is no longer required\n' "$COLOR_GREEN" "$COLOR_WHITE" "$COLOR_GREEN" "$COLOR_WHITE"
-        fi
-    fi
 # Update Connect to DNS Server Automatically
 
     nvram set wan_dnsenable_x="0"
     nvram set wan0_dnsenable_x="0"
 
-#1. (OpenWRT Method) Use 127.0.0.1 for DNS1, nameserver entry in /etc/resolv.conf and server entry in /etc/resolv.dnsmasq
-#2. (DonnyJohnny Method) Use LAN IP for DNS1, nameserver entry in /etc/resolv.conf and server entry in /etc/resolv.dnsmasq
-#3. (Skeal Method - Hybrid 1) Use 1.1.1.1 for DNS1, LAN_IP in /etc/resolv.conf and 127.0.0.1 for server entry /etc/resolv.dnsmasq
-#4. (Hybrid 2) Use 1.1.1.1 for DNS1, 127.0.0.1 for nameserver entry in /etc/resolv.dnsmasq and 127.0.0.1 for server entry in /etc/resolv.dnsmasq
-#5. (Hybrid 3) Use 1.1.1.1 as DNS1; LAN IP for nameserver entry in /etc/resolv.conf and LAN IP for server entry in /etc/resolv.dnsmasq
-# Set DNS1 to use the routers's IP address
-    case $USER_OPTION in
-	          1) 	DNS1=127.0.0.1; NAMESERVER=127.0.0.1; SERVER=127.0.0.1 ;;
-	          2) 	DNS1="$(nvram get lan_ipaddr)"; NAMESERVER="$(nvram get lan_ipaddr)"; SERVER="$(nvram get lan_ipaddr)" ;;
-	          3) 	DNS1=1.1.1.1; NAMESERVER="$(nvram get lan_ipaddr)"; SERVER=127.0.0.1; check_dnsmasq_postconf "$NAMESERVER" "$SERVER" ;;
-            4) 	DNS1=1.1.1.1; NAMESERVER=127.0.0.1; SERVER=127.0.0.1; check_dnsmasq_postconf "$NAMESERVER" "$SERVER" ;;
-            5) 	DNS1=1.1.1.1; NAMESERVER="$(nvram get lan_ipaddr)"; SERVER="$(nvram get lan_ipaddr)"; check_dnsmasq_postconf "$NAMESERVER" "$SERVER" ;;
-        esac
+    LAN_IP="$(nvram get lan_ipaddr)"
+    DNS1="$LAN_IP"
+    NAMESERVER="$LAN_IP"
+    SERVER="$LAN_IP"
 
 # Set firmare nameserver and server entries
     printf 'nameserver %s\n' "$NAMESERVER" > /tmp/resolv.conf
@@ -611,35 +562,7 @@ update_wan_and_resolv_settings () {
     check_openvpn_event "$SERVER"
 }
 
-check_dnsmasq_postconf () {
-    NAMESERVER=$1
-    SERVER=$2
-
-    printf 'server=%s\n' "$SERVER" > /jffs/configs/resolv.dnsmasq
-    printf 'nameserver %s\n' "$NAMESERVER" > /jffs/configs/resolv.conf
-
-    if [ -s /jffs/scripts/dnsmasq.postconf ]; then  # file exists
-        if [ "$(grep -c "cp /jffs/configs/resolv.dnsmasq /tmp/resolv.dnsmasq" "/jffs/scripts/dnsmasq.postconf")" = "0" ] && \
-           [ "$(grep -c "cp /jffs/configs/resolv.conf /tmp/resolv.conf" "/jffs/scripts/dnsmasq.postconf")" = "0" ] ; then
-            printf '%s\n' "cp /jffs/configs/resolv.dnsmasq /tmp/resolv.dnsmasq" >> /jffs/scripts/dnsmasq.postconf
-            printf '%s\n' "cp /jffs/configs/resolv.conf /tmp/resolv.conf" >> /jffs/scripts/dnsmasq.postconf
-        elif [ "$(grep -c "cp /jffs/configs/resolv.dnsmasq /tmp/resolv.dnsmasq" "/jffs/scripts/dnsmasq.postconf")" = "1" ] && \
-             [ "$(grep -c "cp /jffs/configs/resolv.conf /tmp/resolv.conf" "/jffs/scripts/dnsmasq.postconf")" = "0" ] ; then
-               printf '%s\n' "cp /jffs/configs/resolv.conf /tmp/resolv.conf" >> /jffs/scripts/dnsmasq.postconf
-        elif [ "$(grep -c "cp /jffs/configs/resolv.dnsmasq /tmp/resolv.dnsmasq" "/jffs/scripts/dnsmasq.postconf")" = "0" ] && \
-             [ "$(grep -c "cp /jffs/configs/resolv.conf /tmp/resolv.conf" "/jffs/scripts/dnsmasq.postconf")" = "1" ] ; then
-               printf '%s\n' "cp /jffs/configs/resolv.dnsmasq /tmp/resolv.dnsmasq" >> /jffs/scripts/dnsmasq.postconf
-        fi
-    else
-        printf '%s\n' "#!/bin/sh" > /jffs/scripts/dnsmasq.postconf
-        printf '%s\n' "cp /jffs/configs/resolv.dnsmasq /tmp/resolv.dnsmasq" >> /jffs/scripts/dnsmasq.postconf
-        printf '%s\n' "cp /jffs/configs/resolv.conf /tmp/resolv.conf" >> /jffs/scripts/dnsmasq.postconf
-        chmod 755 /jffs/scripts/dnsmasq.postconf
-    fi
-}
-
 ###################### Main ################
-USER_OPTION=$1
 
 Set_Color_Parms
 
@@ -672,13 +595,15 @@ check_dnsmasq_parms
 create_required_directories
 stubby_yml_update
 S61stubby_update
-#check_openvpn_event
-update_wan_and_resolv_settings "$USER_OPTION"
-#check_resolv_dnsmasq_override $USER_OPTION
-#update_wan_dns_settings $USER_OPTION
+update_wan_and_resolv_settings
 
 service restart_dnsmasq > /dev/null 2>&1
 /opt/etc/init.d/S61stubby restart
+
+[ "$(pidof stubby)" -gt 0 ] && printf 'Installation of Stubby completed.\n' || printf 'Unsuccesful installation of Stubby detected.\n' \
+|| printf 'Rerun install_stubby.sh and select the %bRemove option to remove changes\n' "$COLOR_GREEN" "$COLOR_WHITE"
+
+exit_message
 }
 
 clear

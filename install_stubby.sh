@@ -3,19 +3,23 @@
 # Script: install_stubby.sh
 # Version 1.0.0
 # Author: Xentrk
-# Date: 12-October-2018
+# Date: 17-October-2018
 #
 # Description:
 #  Install the stubby DNS over TLS resolver and the ca-certificates packages from entware on Asuswrt-Merlin firmware.
+#  See https://github.com/Xentrk/Stubby-Installer-Asuswrt-Merlin for a description of system changes
 #
 # Acknowledgement:
-#  Chk_Entware function provided by @Martineau at snbforums.com
+#  Chk_Entware function provided by @Martineau
+#  Test team: bbunge, skeal, M@rco, Jack Yaz
+#  Assistance: John9527
 #
 ####################################################################################################
 logger -t "($(basename "$0"))" $$ Starting Script Execution
 VERSION=1.0.0
+
 # Uncomment the line below for debugging
-#set -x
+set -x
 
 Set_Color_Parms () {
     COLOR_RED='\033[0;31m'
@@ -71,7 +75,7 @@ welcome_message () {
 
 validate_removal () {
     printf '\n'
-    printf 'IMPORTANT: %bThe router will need to reboot in order to complete the removal of Stubby%b.\n' "${COLOR_RED}" "${COLOR_WHITE}"
+    printf 'IMPORTANT: %bThe router will need to reboot in order to complete the removal of Stubby%b\n' "${COLOR_RED}" "${COLOR_WHITE}"
     printf '%by%b = Are you sure you want to uninstall Stubby?\n' "${COLOR_GREEN}" "${COLOR_WHITE}"
     printf '%bn%b = Cancel\n' "${COLOR_GREEN}" "${COLOR_WHITE}"
     printf '%be%b = Exit Script\n' "${COLOR_GREEN}" "${COLOR_WHITE}"
@@ -201,49 +205,19 @@ remove_existing_installation () {
         rm /jffs/configs/resolv.dnsmasq
     fi
 
-    # Remove /jffs/configs/resolv.conf
-    if [ -f /jffs/configs/resolv.conf ]; then  # file exists
-        rm /jffs/configs/resolv.conf
-    fi
-
     # remove file /opt/etc/init.d/S61stubby
-    if [ -f /opt/etc/init.d/S61stubby ]; then  # file exists
-        rm //opt/etc/init.d/S61stubby
+    if [ -d "/opt/etc/init.d" ]; then
+        $(find /opt/etc/init.d -type f -name S61stubby\* -delete)
     fi
 
     # remove /jffs/scripts/openvpn-event
     if [ -s /jffs/scripts/openvpn-event ]; then  # file exists
-        if [ "$(grep -c "cp /jffs/configs/resolv.conf /tmp/resolv.conf" "/jffs/scripts/openvpn-event")" != "0" ]; then  # see if line exists
-            sed -i '/resolv.conf/d' "/jffs/scripts/openvpn-event" > /dev/null 2>&1
-            printf '\n'
-            printf '%bresolv.conf%b entry removed from %b/jffs/scripts/openvpn-event%b\n' "$COLOR_GREEN" "$COLOR_WHITE" "$COLOR_GREEN" "$COLOR_WHITE"
-        fi
         if [ "$(grep -c "cp /jffs/configs/resolv.dnsmasq /tmp/resolv.dnsmasq" "/jffs/scripts/openvpn-event")" != "0" ]; then  # see if line exists
             sed -i '/resolv.dnsmasq/d' "/jffs/scripts/openvpn-event" > /dev/null 2>&1
             printf '\n'
             printf '%bresolv.dnsmasq%b line entry removed from %b/jffs/scripts/openvpn-event%b\n' "$COLOR_GREEN" "$COLOR_WHITE" "$COLOR_GREEN" "$COLOR_WHITE"
             printf 'Skipping deletion of %b/jffs/scripts/openvpn-event%b.\n' "$COLOR_GREEN" "$COLOR_WHITE"
             printf 'You can manually delete %b/jffs/scripts/openvpn-event%b using the %brm%b command if no longer required.\n' "$COLOR_GREEN" "$COLOR_WHITE" "$COLOR_GREEN" "$COLOR_WHITE"
-        fi
-    fi
-
-    # remove /jffs/scripts/dnsmasq.postconf
-    COUNT=0
-    if [ -s /jffs/scripts/dnsmasq.postconf ]; then  # file exists
-        if [ "$(grep -c "cp /jffs/configs/resolv.dnsmasq /tmp/resolv.dnsmasq" "/jffs/scripts/dnsmasq.postconf")" != "0" ]; then  # see if line exists
-            COUNT=1
-            sed -i '/resolv.dnsmasq/d' "/jffs/scripts/dnsmasq.postconf" > /dev/null 2>&1
-            printf '\n'
-            printf 'One line entry removed from %b/jffs/scripts/dnsmasq.postconf%b\n' "$COLOR_GREEN" "$COLOR_WHITE"
-        fi
-        if [ "$(grep -c "cp /jffs/configs/resolv.conf /tmp/resolv.conf" "/jffs/scripts/dnsmasq.postconf")" != "0" ]; then  # see if line exists
-            COUNT=2
-            sed -i '/resolv.conf/d' "/jffs/scripts/dnsmasq.conf" > /dev/null 2>&1
-            printf '\n'
-        fi
-        if [ "$COUNT" -ge "1" ]; then
-            printf 'Skipping deletion of %b/jffs/scripts/dnsmasq.postconf%b as it may be used by other applications.\n' "$COLOR_GREEN" "$COLOR_WHITE"
-            printf 'Manually remove %b/jffs/scripts/openvpn-event%b using the %brm%b command if the file is no longer required\n' "$COLOR_GREEN" "$COLOR_WHITE" "$COLOR_GREEN" "$COLOR_WHITE"
         fi
     fi
 
@@ -279,31 +253,6 @@ exit_message () {
     printf '\n'
     printf '\n'
     exit 0
-}
-
-install_stubby_options () {
-    printf '\n'
-    printf '%b1%b = (OpenWRT Method) Use 127.0.0.1 for DNS1, nameserver entry in /etc/resolv.conf and server entry in /etc/resolv.dnsmasq\n' "${COLOR_GREEN}" "${COLOR_WHITE}"
-    printf '%b2%b = (DonnyJohnny Method) Use LAN IP for DNS1, nameserver entry in /etc/resolv.conf and server entry in /etc/resolv.dnsmasq\n' "${COLOR_GREEN}" "${COLOR_WHITE}"
-    printf '%b3%b = (Skeal Method - Hybrid 1) Use 1.1.1.1 for DNS1, LAN_IP in /etc/resolv.conf and 127.0.0.1 for server entry /etc/resolv.dnsmasq\n' "${COLOR_GREEN}" "${COLOR_WHITE}"
-    printf '%b4%b = (Hybrid 2) Use 1.1.1.1 for DNS1, 127.0.0.1 for nameserver entry in /etc/resolv.dnsmasq and 127.0.0.1 for server entry in /etc/resolv.dnsmasq\n' "${COLOR_GREEN}" "${COLOR_WHITE}"
-    printf '%b5%b = (Hybrid 3) Use 1.1.1.1 as DNS1; LAN IP for nameserver entry in /etc/resolv.conf and LAN IP for server entry in /etc/resolv.dnsmasq\n' "${COLOR_GREEN}" "${COLOR_WHITE}"
-    printf '%bc%b = Cancel\n' "${COLOR_GREEN}" "${COLOR_WHITE}"
-    printf '%be%b = Exit Script\n' "${COLOR_GREEN}" "${COLOR_WHITE}"
-    printf '\n'
-    printf '%bOption ==>%b ' "${COLOR_GREEN}" "${COLOR_WHITE}"
-    read -r f
-        case $f in
-	          1) 	install_stubby 1 ;;
-	          2) 	install_stubby 2 ;;
-            3) 	install_stubby 3 ;;
-            4) 	install_stubby 4 ;;
-            5) 	install_stubby 5 ;;
-	          c)	welcome_message ;;
-            e)  exit_message ;;
-	          *)	printf '%bInvalid Option%b %s%b Please enter a valid option\n' "$COLOR_RED" "$COLOR_GREEN" "$f" "$COLOR_WHITE";
-                validate_removal ;;
-        esac
 }
 
 install_stubby () {
@@ -456,7 +405,7 @@ download_file () {
     GITHUB_DIR="https://raw.githubusercontent.com/Xentrk/$GIT_REPO/master"
     STATUS=$(/usr/sbin/curl --retry 3 -w '%{http_code}' "$GITHUB_DIR/$FILE" -o "$DIR/$FILE")
     if [ $STATUS -eq 200 ]; then
-        printf '%b%s%b downloaded successfully.\n' "$COLOR_GREEN" "$FILE" "$COLOR_WHITE"
+        printf '%b%s%b downloaded successfully\n' "$COLOR_GREEN" "$FILE" "$COLOR_WHITE"
     else
         printf '%b%s%b download failed with curl error %s\n' "$COLOR_GREEN" "$FILE" "$COLOR_WHITE" "$STATUS"
         printf 'Rerun %binstall_stubby.sh%b and select the %bRemove Existing Stubby Installation%b option\n' "$COLOR_GREEN" "$COLOR_WHITE" "$COLOR_GREEN" "$COLOR_WHITE"
@@ -465,9 +414,7 @@ download_file () {
 }
 
 stubby_yml_update () {
-    if [ -d "/opt/etc/init.d" ]; then
-        $(find /opt/etc/init.d -type f -name S61stubby\* -delete)
-    fi
+    make_backup /opt/etc/stubby stubby.yml
     download_file /opt/etc/stubby stubby.yml
     chmod 644 /opt/etc/stubby/stubby.yml > /dev/null 2>&1
 }

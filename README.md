@@ -153,7 +153,7 @@ To **(start|stop|restart|check|kill|reconfigure)** stubby, type the command belo
 To configure an OpenVPN Client to use Stubby DNS, set **Accept DNS Configuration = Disabled** on the **VPN->VPN Client** page. Select the **Apply** button to save the setting.
 
 ## Blocking Client DNS requests
-To force all LAN clients to use Stubby, enter the following commands in an SSH session.  
+A client device with DNS configured will override the DNS configured on the router. To override client DNS settings and force all LAN clients to use Stubby, enter the following commands in an SSH session.  
 
     iptables -t nat -A PREROUTING -i br0 -p udp --dport 53 -j DNAT --to "$(nvram get lan_ipaddr)"
     iptables -t nat -A PREROUTING -i br0 -p tcp --dport 53 -j DNAT --to "$(nvram get lan_ipaddr)"

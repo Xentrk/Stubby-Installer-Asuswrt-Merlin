@@ -28,7 +28,7 @@ The Stubby installer script **install_stubby.sh** will
 ## Installation
 Copy and paste the command below into an SSH session.
 ```javascript
-/usr/sbin/curl --retry 3 "https://raw.githubusercontent.com/Xentrk/Stubby-Installer-Asuswrt-Merlin/master/install_stubby.sh" -o /jffs/scripts/install_stubby.sh && chmod 755 /jffs/scripts/install_stubby.sh && sh /jffs/scripts/install_stubby.sh
+/usr/sbin/curl --retry 3 "https://raw.githubusercontent.com/Xentrk/Stubby-Installer-Asuswrt-Merlin/master/install_stubby.sh" -o "/jffs/scripts/install_stubby.sh" && chmod 755 /jffs/scripts/install_stubby.sh && sh /jffs/scripts/install_stubby.sh
 ```
 ## Stubby Configuration
 See the [Stubby Configuration Guide](https://dnsprivacy.org/wiki/display/DP/Configuring+Stubby) for a description of the configuration file options.  

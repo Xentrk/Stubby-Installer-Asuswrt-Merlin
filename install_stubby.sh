@@ -53,8 +53,7 @@ welcome_message () {
     printf '|      /opt/var/stubby/stubby.yml                                     |\n'
     printf '|                                                                     |\n'
     printf '| You can also use this script to uninstall Stubby to back out the    |\n'
-    printf '| changes made during the installation.                               |\n'
-    printf '| See the project repository at                                       |\n'
+    printf '| changes made during the installation. See the project repository at |\n'
     printf '| %bhttps://github.com/Xentrk/Stubby-Installer-Asuswrt-Merlin%b           |\n' "$COLOR_GREEN" "$COLOR_WHITE"
     printf '| for helpful tips.                                                   |\n'
     printf '|_____________________________________________________________________|\n'

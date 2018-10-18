@@ -29,36 +29,35 @@ Set_Color_Parms () {
 
 welcome_message () {
     printf '\n'
-    printf '#######################################################################\n'
-    printf '#                                                                     #\n'
-    printf '#  Welcome to the %bStubby-Installer-Asuswrt-Merlin%b installation script #\n' "$COLOR_GREEN" "$COLOR_WHITE"
-    printf '#  Version %s by Xentrk                                            #\n' "$VERSION"
-    printf '#         ____        _         _                                     #\n'
-    printf '#        |__  |      | |       | |                                    #\n'
-    printf '#  __  __  _| |_ _ _ | |_  ___ | | __    ____ ____  _ _ _             #\n'
-    printf '#  \ \/ / |_  | %b %b \  __|/ _ \| |/ /   /  _//    \| %b %b \            #\n' "\`" "\`" "\`" "\`"
-    printf '#   /  /  __| | | | |  |_ | __/|   <   (  (_ | [] || | | |            #\n'
-    printf '#  /_/\_\|___ |_|_|_|\___|\___||_|\_\[] \___\\\____/|_|_|_|            #\n'
-    printf '#                                                                     #\n'
-    printf '#######################################################################\n'
-    printf '#                                                                     #\n'
-    printf '# Requirements: jffs partition and USB drive with entware installed   #\n'
-    printf '#                                                                     #\n'
-    printf '# The use of Stubby on Asuswrt-Merlin is experimental.                #\n'
-    printf '# The install script will:                                            #\n'
-    printf '#   1. install the stubby and ca-certificates entware packages        #\n'
-    printf '#   2. override how the firmware manages DNS                          #\n'
-    printf '#   3. disable the firmware DNSSEC setting                            #\n'
-    printf '#   4. default to Cloudflare DNS 1.1.1.1. You can change to other     #\n'
-    printf '#      supported DNS over TLS providers by modifying                  #\n'
-    printf '#      /opt/var/stubby/stubby.yml                                     #\n'
-    printf '#                                                                     #\n'
-    printf '# You can also use this script to uninstall Stubby to back out the    #\n'
-    printf '# changes made during the installation.                               #\n'
-    printf '# See the project repository at                                       #\n'
-    printf '# %bhttps://github.com/Xentrk/Stubby-Installer-Asuswrt-Merlin%b           #\n' "$COLOR_GREEN" "$COLOR_WHITE"
-    printf '# for helpful tips.                                                   #\n'
-    printf '#######################################################################\n'
+    printf '_______________________________________________________________________\n'
+    printf '|                                                                     |\n'
+    printf '|  Welcome to the %bStubby-Installer-Asuswrt-Merlin%b installation script |\n' "$COLOR_GREEN" "$COLOR_WHITE"
+    printf '|  Version %s by Xentrk                                            |\n' "$VERSION"
+    printf '|         ____        _         _                                     |\n'
+    printf '|        |__  |      | |       | |                                    |\n'
+    printf '|  __  __  _| |_ _ _ | |_  ___ | | __    ____ ____  _ _ _             |\n'
+    printf '|  \ \/ / |_  | %b %b \  __|/ _ \| |/ /   /  _//    \| %b %b \            |\n' "\`" "\`" "\`" "\`"
+    printf '|   /  /  __| | | | |  |_ | __/|   <   (  (_ | [] || | | |            |\n'
+    printf '|  /_/\_\|___ |_|_|_|\___|\___||_|\_\[] \___\\\____/|_|_|_|            |\n'
+    printf '|_____________________________________________________________________|\n'
+    printf '|                                                                     |\n'
+    printf '| Requirements: jffs partition and USB drive with entware installed   |\n'
+    printf '|                                                                     |\n'
+    printf '| The use of Stubby on Asuswrt-Merlin is experimental.                |\n'
+    printf '| The install script will:                                            |\n'
+    printf '|   1. install the stubby and ca-certificates entware packages        |\n'
+    printf '|   2. override how the firmware manages DNS                          |\n'
+    printf '|   3. disable the firmware DNSSEC setting                            |\n'
+    printf '|   4. default to Cloudflare DNS 1.1.1.1. You can change to other     |\n'
+    printf '|      supported DNS over TLS providers by modifying                  |\n'
+    printf '|      /opt/var/stubby/stubby.yml                                     |\n'
+    printf '|                                                                     |\n'
+    printf '| You can also use this script to uninstall Stubby to back out the    |\n'
+    printf '| changes made during the installation.                               |\n'
+    printf '| See the project repository at                                       |\n'
+    printf '| %bhttps://github.com/Xentrk/Stubby-Installer-Asuswrt-Merlin%b           |\n' "$COLOR_GREEN" "$COLOR_WHITE"
+    printf '| for helpful tips.                                                   |\n'
+    printf '|_____________________________________________________________________|\n'
     printf '\n'
     printf '%b1%b = Begin Stubby Installation Process\n' "${COLOR_GREEN}" "${COLOR_WHITE}"
     printf '%b2%b = Remove Existing Stubby Installation\n' "${COLOR_GREEN}" "${COLOR_WHITE}"

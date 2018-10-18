@@ -3,7 +3,7 @@
 # Script: install_stubby.sh
 # Version 1.0.0
 # Author: Xentrk
-# Date: 17-October-2018
+# Date: 18-October-2018
 #
 # Description:
 #  Install the stubby DNS over TLS resolver and the ca-certificates packages from entware on Asuswrt-Merlin firmware.
@@ -29,34 +29,36 @@ Set_Color_Parms () {
 
 welcome_message () {
     printf '\n'
-    printf '###############################################################################################################\n'
-    printf '##                                                                                                           ##\n'
-    printf '##  Welcome to the %bStubby-Installer-Asuswrt-Merlin%b installation script                                       ##\n' "$COLOR_GREEN" "$COLOR_WHITE"
-    printf '##  Version %s by Xentrk                                                                                  ##\n' "$VERSION"
-    printf '##                                                                                                           ##\n'
-    printf '##         ____        _         _                                                                           ##\n'
-    printf '##        |__  |      | |       | |                                                                          ##\n'
-    printf '##  __  __  _| |_ _ _ | |_  ___ | | __    ____ ____  _ _ _                                                   ##\n'
-    printf '##  \ \/ / |_  | %b %b \  __|/ _ \| |/ /   /  _//    \| %b %b \                                                  ##\n' "\`" "\`" "\`" "\`"
-    printf '##   /  /  __| | | | |  |_ | __/|   <   (  (_ | [] || | | |                                                  ##\n'
-    printf '##  /_/\_\|___ |_|_|_|\___|\___||_|\_\[] \___\\\____/|_|_|_|                                                  ##\n'
-    printf '##                                                                                                           ##\n'
-    printf '###############################################################################################################\n'
-    printf '##                                                                                                           ##\n'
-    printf '## Stubby Wiki: https://dnsprivacy.org/wiki/display/DP/DNS+Privacy+Daemon+-+Stubby                           ##\n'
-    printf '## Requirements: jffs partition and USB drive with entware installed                                         ##\n'
-    printf '##                                                                                                           ##\n'
-    printf '## The use of Stubby on Asuswrt-Merlin is experimental. The install script will:                             ##\n'
-    printf '##   1. Install the stubby and ca-certificates entware packages                                              ##\n'
-    printf '##   2. Override how the firmware manages DNS.                                                               ##\n'
-    printf '##   3. Disable the firmware DNSSEC setting. Stubby has a separate DNSSEC setting in stubby.yml              ##\n'
-    printf '##   4. Default to Cloudflare DNS 1.1.1.1. You can change to other supported DNS over TLS providers by       ##\n'
-    printf '##      modifying /opt/var/stubby/stubby.yml and the DNS Settings on the WAN Menu.                           ##\n'
-    printf '##                                                                                                           ##\n'
-    printf '## You can also use this script to uninstall Stubby to back out the changes made during the installation.    ##\n'
-    printf '## See the project repository at %bhttps://github.com/Xentrk/Stubby-Installer-Asuswrt-Merlin%b for helpful tips. ##\n' "$COLOR_GREEN" "$COLOR_WHITE"
-    printf '##                                                                                                           ##\n'
-    printf '###############################################################################################################\n'
+    printf '#######################################################################\n'
+    printf '#                                                                     #\n'
+    printf '#  Welcome to the %bStubby-Installer-Asuswrt-Merlin%b installation script #\n' "$COLOR_GREEN" "$COLOR_WHITE"
+    printf '#  Version %s by Xentrk                                            #\n' "$VERSION"
+    printf '#         ____        _         _                                     #\n'
+    printf '#        |__  |      | |       | |                                    #\n'
+    printf '#  __  __  _| |_ _ _ | |_  ___ | | __    ____ ____  _ _ _             #\n'
+    printf '#  \ \/ / |_  | %b %b \  __|/ _ \| |/ /   /  _//    \| %b %b \            #\n' "\`" "\`" "\`" "\`"
+    printf '#   /  /  __| | | | |  |_ | __/|   <   (  (_ | [] || | | |            #\n'
+    printf '#  /_/\_\|___ |_|_|_|\___|\___||_|\_\[] \___\\\____/|_|_|_|            #\n'
+    printf '#                                                                     #\n'
+    printf '#######################################################################\n'
+    printf '#                                                                     #\n'
+    printf '# Requirements: jffs partition and USB drive with entware installed   #\n'
+    printf '#                                                                     #\n'
+    printf '# The use of Stubby on Asuswrt-Merlin is experimental.                #\n'
+    printf '# The install script will:                                            #\n'
+    printf '#   1. install the stubby and ca-certificates entware packages        #\n'
+    printf '#   2. override how the firmware manages DNS                          #\n'
+    printf '#   3. disable the firmware DNSSEC setting                            #\n'
+    printf '#   4. default to Cloudflare DNS 1.1.1.1. You can change to other     #\n'
+    printf '#      supported DNS over TLS providers by modifying                  #\n'
+    printf '#      /opt/var/stubby/stubby.yml                                     #\n'
+    printf '#                                                                     #\n'
+    printf '# You can also use this script to uninstall Stubby to back out the    #\n'
+    printf '# changes made during the installation.                               #\n'
+    printf '# See the project repository at                                       #\n'
+    printf '# %bhttps://github.com/Xentrk/Stubby-Installer-Asuswrt-Merlin%b           #\n' "$COLOR_GREEN" "$COLOR_WHITE"
+    printf '# for helpful tips.                                                   #\n'
+    printf '#######################################################################\n'
     printf '\n'
     printf '%b1%b = Begin Stubby Installation Process\n' "${COLOR_GREEN}" "${COLOR_WHITE}"
     printf '%b2%b = Remove Existing Stubby Installation\n' "${COLOR_GREEN}" "${COLOR_WHITE}"
@@ -139,7 +141,7 @@ Chk_Entware () {
 }
 
 remove_existing_installation () {
-    printf 'Starting removal of Stubby. Removal process will not remove ca-certificates since the package is often used by other programs.\n'
+    printf 'Starting removal of Stubby. Removal process will not remove ca-certificates since the package is often used by other programs\n'
 
     # Kill stubby process
     case "$(pidof stubby | wc -w)" in
@@ -184,7 +186,7 @@ remove_existing_installation () {
                 fi
             else
                 printf '\n'
-                printf '%b%s%b folder does not exist. No directory to remove.\n' "$COLOR_GREEN" "$DIR" "$COLOR_WHITE"
+                printf '%b%s%b folder does not exist. No directory to remove\n' "$COLOR_GREEN" "$DIR" "$COLOR_WHITE"
             fi
         done
 
@@ -196,8 +198,8 @@ remove_existing_installation () {
     # /opt/var/log message to user
     if [ -d "/opt/var/log" ]; then
         printf '\n'
-        printf 'Directory %b/opt/var/log%b found. Skipping deletion of directory as it may be used by other applications.\n' "$COLOR_GREEN" "$COLOR_WHITE"
-        printf 'You can manually delete %b/opt/var/log%b if not used by other applications.\n' "$COLOR_GREEN" "$COLOR_WHITE"
+        printf 'Directory %b/opt/var/log%b found. Skipping deletion of directory as it may be used by other applications\n' "$COLOR_GREEN" "$COLOR_WHITE"
+        printf 'You can manually delete %b/opt/var/log%b if not used by other applications\n' "$COLOR_GREEN" "$COLOR_WHITE"
     fi
 
     # Remove /jffs/configs/resolv.dnsmasq
@@ -216,8 +218,8 @@ remove_existing_installation () {
             sed -i '/resolv.dnsmasq/d' "/jffs/scripts/openvpn-event" > /dev/null 2>&1
             printf '\n'
             printf '%bresolv.dnsmasq%b line entry removed from %b/jffs/scripts/openvpn-event%b\n' "$COLOR_GREEN" "$COLOR_WHITE" "$COLOR_GREEN" "$COLOR_WHITE"
-            printf 'Skipping deletion of %b/jffs/scripts/openvpn-event%b.\n' "$COLOR_GREEN" "$COLOR_WHITE"
-            printf 'You can manually delete %b/jffs/scripts/openvpn-event%b using the %brm%b command if no longer required.\n' "$COLOR_GREEN" "$COLOR_WHITE" "$COLOR_GREEN" "$COLOR_WHITE"
+            printf 'Skipping deletion of %b/jffs/scripts/openvpn-event%b\n' "$COLOR_GREEN" "$COLOR_WHITE"
+            printf 'You can manually delete %b/jffs/scripts/openvpn-event%b using the %brm%b command if no longer required\n' "$COLOR_GREEN" "$COLOR_WHITE" "$COLOR_GREEN" "$COLOR_WHITE"
         fi
     fi
 
@@ -233,8 +235,8 @@ remove_existing_installation () {
 
     # reboot router to complete uninstall of Stubby
     printf 'Uninstall of Stubby completed. DNS has been set to Cloudflare 1.1.1.1\n'
-    printf 'The router will now reboot to finalize the removal of Stubby.\n'
-    printf 'After the reboot, review the DNS settings on the WAN GUI and adjust if necessary.\n'
+    printf 'The router will now reboot to finalize the removal of Stubby\n'
+    printf 'After the reboot, review the DNS settings on the WAN GUI and adjust if necessary\n'
     reboot
 }
 
@@ -339,7 +341,7 @@ check_dnsmasq_parms () {
         for DNSMASQ_PARM in "no-resolv" "server=127.0.0.1#5453" "server=0::1#5453"
             do
                if [ "$(grep -c "$DNSMASQ_PARM" "/tmp/etc/dnsmasq.conf")" != "0" ]; then  # see if line exists
-                    printf 'Required dnsmasq parm %b%s%b found in /tmp/etc/dnsmasq.conf.\n' "${COLOR_GREEN}" "$DNSMASQ_PARM" "${COLOR_WHITE}"
+                    printf 'Required dnsmasq parm %b%s%b found in /tmp/etc/dnsmasq.conf\n' "${COLOR_GREEN}" "$DNSMASQ_PARM" "${COLOR_WHITE}"
                     continue #line found in dnsmasq.conf, no update required to /jffs/configs/dnsmasq.conf.add
                fi
                if [ -s /jffs/configs/dnsmasq.conf.add ]; then
@@ -355,7 +357,7 @@ check_dnsmasq_parms () {
                 fi
             done
     else
-       printf "dnsmasq.conf file not found in /tmp/etc. dnsmasq appears to not be configured on your router. Check router configuration.\n"
+       printf "dnsmasq.conf file not found in /tmp/etc. dnsmasq appears to not be configured on your router. Check router configuration\n"
        exit 1
     fi
 }
@@ -458,7 +460,8 @@ check_openvpn_event() {
                 printf '%s\n' "cp /jffs/configs/resolv.dnsmasq /tmp/resolv.dnsmasq" >> /jffs/scripts/openvpn-event
                 printf 'Updated %b/jffs/scripts/openvpn-event%b\n' "$COLOR_GREEN" "$COLOR_WHITE"
             else
-                printf 'Required entry already exists in %b/jffs/scripts/openvpn-event%b. Skipping update of %b/jffs/scripts/openvpn-event%b\n' "$COLOR_GREEN" "$COLOR_WHITE" "$COLOR_GREEN" "$COLOR_WHITE"
+                printf 'Required entry already exists in %b/jffs/scripts/openvpn-event%b\n' "$COLOR_GREEN" "$COLOR_WHITE"
+                printf 'Skipping update of %b/jffs/scripts/openvpn-event%b\n' "$COLOR_GREEN" "$COLOR_WHITE"
             fi
         else
             printf '%s\n' "#!/bin/sh" > /jffs/scripts/openvpn-event
@@ -469,7 +472,7 @@ check_openvpn_event() {
     else
         printf 'No active OpenVPN Clients found. Skipping creation of %b/jffs/scripts/openvpn-event%b\n' "$COLOR_GREEN" "$COLOR_WHITE"
         printf 'If you decide to run an OpenVPN Client in the future, rerun the installer script\n'
-        printf 'to update /jffs/scripts/openvpn-event.\n'
+        printf 'to update /jffs/scripts/openvpn-event\n'
     fi
 }
 
@@ -517,7 +520,7 @@ Chk_Entware
     if [ "$READY" -eq "0" ]; then
         opkg update && printf "entware successfully updated\n" || printf "An error occurred updating entware\n" || exit 1
     else
-        printf "You must first install Entware before proceeding.\n"
+        printf "You must first install Entware before proceeding\n"
         printf "Exiting %s\n" "$(basename "$0")"
         exit 1
     fi
@@ -547,7 +550,7 @@ update_wan_and_resolv_settings
 service restart_dnsmasq > /dev/null 2>&1
 /opt/etc/init.d/S61stubby restart
 
-[ "$(pidof stubby)" -gt 0 ] && printf 'Installation of Stubby completed.\n' || printf 'Unsuccesful installation of Stubby detected.\n' \
+[ "$(pidof stubby)" -gt 0 ] && printf 'Installation of Stubby completed\n' || printf 'Unsuccesful installation of Stubby detected\n' \
 || printf 'Rerun install_stubby.sh and select the %bRemove option to remove changes\n' "$COLOR_GREEN" "$COLOR_WHITE"
 
 exit_message

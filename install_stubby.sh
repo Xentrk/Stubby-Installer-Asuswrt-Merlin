@@ -548,8 +548,12 @@ update_wan_and_resolv_settings
 service restart_dnsmasq > /dev/null 2>&1
 /opt/etc/init.d/S61stubby restart
 
-[ "$(pidof stubby)" -gt 0 ] && printf 'Installation of Stubby completed\n' || printf 'Unsuccesful installation of Stubby detected\n' \
-|| printf 'Rerun install_stubby.sh and select the %bRemove option to remove changes\n' "$COLOR_GREEN" "$COLOR_WHITE"
+if [ -n "$(pidof stubby)" ]; then
+    printf 'Installation of Stubby completed\n'
+else
+    printf 'Warning! Unsuccesful installation of Stubby detected\n'
+    printf 'Rerun %binstall_stubby.sh%b and select the %bRemove%b option to backout changes\n' "$COLOR_GREEN" "$COLOR_WHITE" "$COLOR_GREEN" "$COLOR_WHITE"
+fi
 
 exit_message
 }

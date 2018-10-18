@@ -19,7 +19,7 @@ logger -t "($(basename "$0"))" $$ Starting Script Execution
 VERSION=1.0.0
 
 # Uncomment the line below for debugging
-set -x
+#set -x
 
 Set_Color_Parms () {
     COLOR_RED='\033[0;31m'

@@ -78,6 +78,12 @@ Run the following commands from an SSH session to verify that stubby is working 
     Address 1: 192.30.253.113 lb-192-30-253-113-iad.github.com
     Address 2: 192.30.253.112 lb-192-30-253-112-iad.github.com
 
+**getdns_query -s @127.0.0.1 github.com**
+
+    <snip>
+    "status": GETDNS_RESPSTATUS_GOOD
+    }
+
 **stubby -l**
 
     [10:13:13.838111] STUBBY: Read config from file /opt/etc/stubby/stubby.yml

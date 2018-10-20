@@ -108,6 +108,7 @@ Press **Ctrl-C** to return to the command prompt.
 
 
 **echo | openssl s_client -verify on -CApath /opt/etc/ssl/certs -connect  1.1.1.1:853**
+
     CONNECTED(00000003)
     depth=2 C = US, O = DigiCert Inc, OU = www.digicert.com, CN = DigiCert Global Root CA
     verify return:1

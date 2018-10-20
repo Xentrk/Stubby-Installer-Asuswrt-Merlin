@@ -31,7 +31,7 @@ Copy and paste the command below into an SSH session.
 /usr/sbin/curl --retry 3 "https://raw.githubusercontent.com/Xentrk/Stubby-Installer-Asuswrt-Merlin/master/install_stubby.sh" -o "/jffs/scripts/install_stubby.sh" && chmod 755 /jffs/scripts/install_stubby.sh && sh /jffs/scripts/install_stubby.sh
 ```
 ## Stubby Configuration
-See the [Stubby Configuration Guide](https://dnsprivacy.org/wiki/display/DP/Configuring+Stubby) for a description of the configuration file options. For information on how I derived at the settings I use, see my blog post [DNS over TLS with DNSMASQ and Stubby on Asuswrt-Merlin](https://x3mtek.com/dns-over-tls-with-dnsmasq-and-stubby-on-asuswrt-merlin/).  
+See the [Stubby Configuration Guide](https://dnsprivacy.org/wiki/display/DP/Configuring+Stubby) for a description of the configuration file options. For information on how I derived at the settings used in this project, see my blog post [DNS over TLS with DNSMASQ and Stubby on Asuswrt-Merlin](https://x3mtek.com/dns-over-tls-with-dnsmasq-and-stubby-on-asuswrt-merlin/).  
 ## Validating that Stubby is Working
 Run the following commands from an SSH session to verify that stubby is working properly:
 

@@ -48,6 +48,12 @@ Run the following commands from an SSH session to verify that stubby is working 
     tcp        0      0 127.0.0.1:5453          0.0.0.0:*               LISTEN      21283/stubby
     udp        0      0 127.0.0.1:5453          0.0.0.0:*                           21283/stubby
 
+**netstat -lnpt | grep -P '^Active|^Proto|/stubby'**
+
+    Active Internet connections (only servers)
+    Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name
+    tcp        0      0 127.0.0.1:5453          0.0.0.0:*               LISTEN      24290/stubby
+
 **drill github.com** (requires entware package drill)
 
     ;; ->>HEADER<<- opcode: QUERY, rcode: NOERROR, id: 41290

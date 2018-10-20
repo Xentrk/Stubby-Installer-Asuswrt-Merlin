@@ -106,8 +106,8 @@ Run the following commands from an SSH session to verify that stubby is working 
     [10:13:35.163173] STUBBY: 1.1.1.1                                  : Upstream   : TLS - Conns=     1, Conn_fails=     0, Conn_shuts=      0, Backoffs     =     0
 Press **Ctrl-C** to return to the command prompt.
 
-**echo | openssl s_client -connect '1.1.1.1:853'**
 
+**echo | openssl s_client -verify on -CApath /opt/etc/ssl/certs -connect  1.1.1.1:853**
     CONNECTED(00000003)
     depth=2 C = US, O = DigiCert Inc, OU = www.digicert.com, CN = DigiCert Global Root CA
     verify return:1
@@ -127,14 +127,6 @@ Press **Ctrl-C** to return to the command prompt.
     MIID9DCCA3qgAwIBAgIQBWzetBRl/ycHFsBukRYuGTAKBggqhkjOPQQDAjBMMQsw
     CQYDVQQGEwJVUzEVMBMGA1UEChMMRGlnaUNlcnQgSW5jMSYwJAYDVQQDEx1EaWdp
     <snip>
-
-Check the last few lines of the output from the **echo | openssl s_client -connect '1.1.1.1:853'** command.  If you see the message
-
-    Verify return code: 20 (unable to get local issuer certificate)
-
-in the last few lines, enter the following command to validate the certificate path which will fix the error:
-
-    echo | openssl s_client -verify on -CApath /opt/etc/ssl/certs -connect  1.1.1.1:853
 
 Use the [Cloudflare Help Page](https://1.1.1.1/help) to validate you are connected to 1.1.1.1 and **DNS over TLS** is working.  If working properly, the page will display a **Yes** as seen in the example below:
 

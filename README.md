@@ -25,6 +25,15 @@ The Stubby installer script **install_stubby.sh** will
 1. An Asus router with  [Asuswrt-Merlin](http://asuswrt.lostrealm.ca/) firmware installed.
 2. A USB drive with [entware](https://github.com/RMerl/asuswrt-merlin/wiki/Entware) installed.  Entware can be installed using [amtm - the SNBForum Asuswrt-Merlin Terminal Menu](https://www.snbforums.com/threads/amtm-the-snbforum-asuswrt-merlin-terminal-menu.42415/)
 
+## Supported Models
+All Asus models that are [supported by Asuswrt-Merlin](https://asuswrt.lostrealm.ca/about), *with the exception of the AC86U*, should be supported by this script. I have received confirmation that it works on:
+
+* RT-AC66U_B1
+* RT-AC68U
+* RT-AC87U
+* RT-AC88U
+* RT-AC3100
+
 ## Installation
 Copy and paste the command below into an SSH session.
 ```javascript

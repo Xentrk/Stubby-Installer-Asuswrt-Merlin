@@ -8,7 +8,7 @@ Stubby DNS Privacy Daemon Install Script for [Asuswrt-Merlin](https://asuswrt.lo
 The use of Stubby on [Asuswrt-Merlin](https://asuswrt.lostrealm.ca/) is experimental and not endorsed by the firmware developer. You can also use this script to uninstall Stubby and remove the changes made during the installation.   
 
 The Stubby installer script **install_stubby.sh** will
-1. Install the entware packages **stubby** and **ca-certificates**
+1. Install the entware packages **stubby**
 2. Create **/opt/var/cache/stubby** and **/opt/var/log** folders if they do not exist.
 3. Download the Stubby entware start up script **S61stubby** to **/opt/etc/init.d**.
 4. Download the Stubby configuration file **stubby.yml** to **/opt/etc/stubby**.

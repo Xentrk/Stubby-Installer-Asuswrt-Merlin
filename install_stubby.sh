@@ -3,10 +3,10 @@
 # Script: install_stubby.sh
 # Version 1.0.0
 # Author: Xentrk
-# Date: 18-October-2018
+# Date: 22-October-2018
 #
 # Description:
-#  Install the stubby DNS over TLS resolver and the ca-certificates packages from entware on Asuswrt-Merlin firmware.
+#  Install the stubby DNS over TLS resolver package from entware on Asuswrt-Merlin firmware.
 #  See https://github.com/Xentrk/Stubby-Installer-Asuswrt-Merlin for a description of system changes
 #
 # Acknowledgement:
@@ -45,7 +45,7 @@ welcome_message () {
     printf '|                                                                     |\n'
     printf '| The use of Stubby on Asuswrt-Merlin is experimental.                |\n'
     printf '| The install script will:                                            |\n'
-    printf '|   1. install the stubby and ca-certificates entware packages        |\n'
+    printf '|   1. install the stubby entware package                             |\n'
     printf '|   2. override how the firmware manages DNS                          |\n'
     printf '|   3. disable the firmware DNSSEC setting                            |\n'
     printf '|   4. default to Cloudflare DNS 1.1.1.1. You can change to other     |\n'
@@ -139,7 +139,7 @@ Chk_Entware () {
 }
 
 remove_existing_installation () {
-    printf 'Starting removal of Stubby. Removal process will not remove ca-certificates since the package is often used by other programs\n'
+    printf 'Starting removal of Stubby\n'
 
     # Kill stubby process
     case "$(pidof stubby | wc -w)" in
@@ -529,14 +529,6 @@ Chk_Entware stubby
         opkg update stubby && printf "stubby successfully updated\n" || printf "An error occurred updating stubby\n" || exit 1
     else
         opkg install stubby && printf "stubby successfully installed\n" || printf "An error occurred installing stubby\n" || exit 1
-    fi
-
-Chk_Entware ca-certificates
-    if [ "$READY" -eq "0" ]; then
-        printf "existing ca-certificates package found\n"
-        opkg update ca-certificates && printf "ca-certificates successfully updated\n" || printf "An error occurred updating ca-certificates\n" || exit 1
-    else
-        opkg install ca-certificates && printf "ca-certificates successfully installed\n" || printf "An error occurred installing ca-certificates\n" || exit 1
     fi
 
 check_dnsmasq_parms

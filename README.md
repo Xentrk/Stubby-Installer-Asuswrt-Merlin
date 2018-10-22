@@ -212,4 +212,4 @@ The **install_stubby.sh** script turns off the DNSSEC setting on the firmware to
 
 ## Support
 
-Support for the project is available on snbforums.com (Link Coming Soon)
+Support for the project is available on [snbforums.com](https://www.snbforums.com/threads/stubby-installer-asuswrt-merlin.49469/)

@@ -3,7 +3,7 @@
 # Script: install_stubby.sh
 # Version 1.0.0
 # Author: Xentrk
-# Date: 22-October-2018
+# Date: 24-October-2018
 #
 # Description:
 #  Install the stubby DNS over TLS resolver package from entware on Asuswrt-Merlin firmware.
@@ -286,7 +286,7 @@ Chk_Entware () {
             if [ ! -z "$("$ENTWARE" list-installed "$ENTWARE_UTILITY")" ];then
                 READY=0                                 # Specific Entware utility found
             else
-                # Xentrk revision needed to bypass false postive that stubby is installed if /opt/var/cache/stubby
+                # Xentrk revision needed to bypass false positive that stubby is installed if /opt/var/cache/stubby
                 # and /opt/etc/stubby exists. When stubby is removed via the command line, the entware directory
                 # is not deleted.
 
@@ -394,6 +394,7 @@ make_backup () {
         printf 'Exiting %s)\n' "$(basename "$0")"
         exit 1
     else
+        printf 'Existing %b%s%b found\n' "$COLOR_GREEN" "$FILE" "$COLOR_WHITE"
         printf '%b%s%b backed up to %b%s%b\n' "$COLOR_GREEN" "$FILE" "$COLOR_WHITE" "$COLOR_GREEN" "$BACKUP_FILE_NAME" "$COLOR_WHITE"
     fi
 }

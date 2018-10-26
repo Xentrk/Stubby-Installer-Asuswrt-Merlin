@@ -3,7 +3,7 @@
 # Script: install_stubby.sh
 # Version 1.0.0
 # Author: Xentrk
-# Date: 24-October-2018
+# Date: 26-October-2018
 #
 # Description:
 #  Install the stubby DNS over TLS resolver package from entware on Asuswrt-Merlin firmware.
@@ -391,7 +391,7 @@ make_backup () {
 
     if ! mv "$DIR/$FILE" "$DIR/$BACKUP_FILE_NAME" > /dev/null 2>&1; then
         printf 'Error backing up existing %b%s%b to %b%s%b\n' "$COLOR_GREEN" "$FILE" "$COLOR_WHITE" "$COLOR_GREEN" "$BACKUP_FILE_NAME" "$COLOR_WHITE"
-        printf 'Exiting %s)\n' "$(basename "$0")"
+        printf 'Exiting %s\n' "$(basename "$0")"
         exit 1
     else
         printf 'Existing %b%s%b found\n' "$COLOR_GREEN" "$FILE" "$COLOR_WHITE"

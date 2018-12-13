@@ -33,6 +33,7 @@ All Asus models that are [supported by Asuswrt-Merlin](https://asuswrt.lostrealm
 * RT-AC87U
 * RT-AC88U
 * RT-AC3100
+* RT-AC3200
 
 ## Installation
 Copy and paste the command below into an SSH session.

@@ -527,9 +527,16 @@ Chk_Entware
 Chk_Entware stubby
     if [ "$READY" -eq "0" ]; then
         printf "existing stubby package found\n"
-        opkg update stubby && printf "stubby successfully updated\n" || printf "An error occurred updating stubby\n" || exit 1
+        if [ "$(uname -m)" != "aarch64" ]; then
+            opkg update stubby && printf "stubby successfully updated\n" || printf "An error occurred updating stubby\n" || exit 1
+        fi
     else
         opkg install stubby && printf "stubby successfully installed\n" || printf "An error occurred installing stubby\n" || exit 1
+        if [ "$(uname -m)" = "aarch64" ]; then
+            /usr/sbin/curl -L -s --retry 3 "https://github.com/jackyaz/Stubby-Installer-Asuswrt-Merlin/raw/master/getdns_1.4.2-1a_aarch64-3.10.ipk" -o /var/tmp/patchedstubby.ipk
+            opkg install /var/tmp/patchedstubby.ipk && printf "getdns successfully patched\n" || printf "An error occurred patching getdns\n" || exit 1
+            rm /var/tmp/patchedstubby.ipk
+        fi
     fi
 
 check_dnsmasq_parms

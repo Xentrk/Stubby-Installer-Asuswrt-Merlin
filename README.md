@@ -116,8 +116,7 @@ Run the following commands from an SSH session to verify that stubby is working 
     [10:13:35.163173] STUBBY: 1.1.1.1                                  : Upstream   : TLS - Conns=     1, Conn_fails=     0, Conn_shuts=      0, Backoffs     =     0
 Press **Ctrl-C** to return to the command prompt.
 
-
-**echo | openssl s_client -verify on -CApath /rom/etc/ssl/certs -connect  1.1.1.1:853**
+**echo | openssl s_client -verify on -CAfile /rom/etc/ssl/certs/ca-certificates.crt -connect 1.1.1.1:853**
 
     CONNECTED(00000003)
     depth=2 C = US, O = DigiCert Inc, OU = www.digicert.com, CN = DigiCert Global Root CA

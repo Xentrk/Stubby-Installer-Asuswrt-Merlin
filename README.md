@@ -156,7 +156,7 @@ Quad9 blocks the website http://isitblocked.org. If Quad9 is working properly, a
 
 ## Known Issues
 1. The [Cloudflare Help Page](https://1.1.1.1/help) test page will not work when the secondary IPv6 **2606:4700:4700::1001** is specified in **/opt/etc/stubby/stubby.yml**.
-2. Two of the testers experienced issues with the router not being able to access the WAN due to lack of NTP early in the boot reboot process. The models are the RT-AC68U_B1 and RT-AC3100/CA.  The fix is to add the entry ```server=/pool.ntp.org/1.1.1.1``` to **/jffs/configs/dnsmasq.conf.add**.  I also experienced the issue on my AC88U several months in production with no issues. 
+2. Two of the testers experienced issues with the router not being able to access the WAN due to lack of NTP early in the boot reboot process. The models are the RT-AC68U_B1 and RT-AC3100/CA.  The fix is to add the entry ```server=/pool.ntp.org/1.1.1.1``` to **/jffs/configs/dnsmasq.conf.add**.  I also experienced the issue on my AC88U after several months in production with no issues. 
 3. Stubby logging is currently simplistic or non-existent and simply writes to stdout. The Stubby team is working on making this better!
 
 

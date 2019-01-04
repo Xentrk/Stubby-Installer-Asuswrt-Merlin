@@ -82,7 +82,7 @@ validate_removal () {
 	printf '\n'
 	printf '%bOption ==>%b ' "${COLOR_GREEN}" "${COLOR_WHITE}"
 	read -r f
-		case $f in
+		case "$f" in
 	          y) 	remove_existing_installation ;;
 	          n)	welcome_message ;;
 			e)  exit_message ;;
@@ -113,7 +113,7 @@ Chk_Entware () {
    TRIES="0"
 
 	while [ "$TRIES" -lt "$MAX_TRIES" ]; do
-		if which "$ENTWARE" && "$ENTWARE" -v | grep -q "version"; then
+		if which "$ENTWARE"; then
 			if [ -n "$ENTWARE_UTILITY" ]; then            # Specific Entware utility installed?
 				if "$ENTWARE" list-installed "$ENTWARE_UTILITY"; then
 					READY="0"                                 # Specific Entware utility found
@@ -156,10 +156,10 @@ remove_existing_installation () {
 
 	# Remove entries from /jffs/configs/dnsmasq.conf.add
 	if [ -s /jffs/configs/dnsmasq.conf.add ]; then  # file exists
-		if [ "$(grep -c 'server=127.0.0.1#5453' "/jffs/configs/dnsmasq.conf.add")" != "0" ]; then  # see if line exists
+		if grep -q 'server=127.0.0.1#5453' "/jffs/configs/dnsmasq.conf.add"; then  # see if line exists
 			sed -i '/server=127.0.0.1#5453/d' "/jffs/configs/dnsmasq.conf.add" >/dev/null 2>&1
 		fi
-		if [ "$(grep -c 'server=0::1#5453' "/jffs/configs/dnsmasq.conf.add")" != "0" ]; then  # see if line exists
+		if grep -q 'server=0::1#5453' "/jffs/configs/dnsmasq.conf.add"; then  # see if line exists
 			sed -i '/server=0::1#5453/d' "/jffs/configs/dnsmasq.conf.add" >/dev/null 2>&1
 		fi
 	fi
@@ -174,8 +174,7 @@ remove_existing_installation () {
 				if ! rmdir "$DIR" >/dev/null 2>&1; then
 					printf '\nError trying to remove %b%s%b\n' "$COLOR_GREEN" "$DIR" "$COLOR_WHITE"
 				else
-					printf '\n'
-					printf '%b%s%b folder and all files removed\n' "$COLOR_GREEN"  "$DIR" "$COLOR_WHITE"
+					printf '\n%b%s%b folder and all files removed\n' "$COLOR_GREEN"  "$DIR" "$COLOR_WHITE"
 				fi
 			else
 				printf '\n%b%s%b folder does not exist. No directory to remove\n' "$COLOR_GREEN" "$DIR" "$COLOR_WHITE"
@@ -268,30 +267,28 @@ Chk_Entware () {
 		ENTWARE_UTILITY="$1"
 	fi
 
-   # Wait up to (default) 30 seconds to see if Entware utilities available.....
-   TRIES="0"
+	# Wait up to (default) 30 seconds to see if Entware utilities available.....
+	TRIES="0"
 
-   while [ "$TRIES" -lt "$MAX_TRIES" ]; do
-	  if [ -n "$(which $ENTWARE)" ] && [ "$($ENTWARE -v | grep -o "version")" = "version" ]; then
-		 if [ -n "$ENTWARE_UTILITY" ]; then            # Specific Entware utility installed?
-			if [ -n "$("$ENTWARE" list-installed "$ENTWARE_UTILITY")" ]; then
-				READY=0                                 # Specific Entware utility found
-			else
-				# Xentrk revision needed to bypass false positive that stubby is installed if /opt/var/cache/stubby
-				# and /opt/etc/stubby exists. When stubby is removed via the command line, the entware directory
-				# is not deleted.
+	while [ "$TRIES" -lt "$MAX_TRIES" ]; do
+		if which "$ENTWARE"; then
+			if [ -n "$ENTWARE_UTILITY" ]; then            # Specific Entware utility installed?
+				if "$ENTWARE" list-installed "$ENTWARE_UTILITY"; then
+					READY="0"                                 # Specific Entware utility found
+				else
+					# Xentrk revision needed to bypass false positive that stubby is installed if /opt/var/cache/stubby
+					# and /opt/etc/stubby exists. When stubby is removed via the command line, the entware directory
+					# is not deleted.
 
-				# check for stubby folders with no files
+					# check for stubby folders with no files
 				for DIR in /opt/var/cache/stubby /opt/etc/stubby
 					do
 						if [ -d "$DIR" ]; then
 							if ! is_dir_empty "$DIR"; then
 								if ! rmdir "$DIR" >/dev/null 2>&1; then
-									printf '\n'
-									printf 'Error trying to remove %b%s%b\n' "$COLOR_GREEN" "$DIR" "$COLOR_WHITE"
+									printf '\nError trying to remove %b%s%b\n' "$COLOR_GREEN" "$DIR" "$COLOR_WHITE"
 								else
-									printf '\n'
-									printf 'orphaned %b%s%b folder removed\n' "$COLOR_GREEN"  "$DIR" "$COLOR_WHITE"
+									printf '\norphaned %b%s%b folder removed\n' "$COLOR_GREEN"  "$DIR" "$COLOR_WHITE"
 								fi
 							fi
 						fi
@@ -302,17 +299,16 @@ Chk_Entware () {
 				  READY=0                               # Specific Entware utility found
 				fi
 			fi
-		 else
+			else
 			READY=0                                     # Entware utilities ready
-		 fi
-		 break
-	  fi
-	  sleep 1
-	  logger -st "($(basename "$0"))" $$ "Entware" "$ENTWARE_UTILITY" "not available - wait time" $((MAX_TRIES - TRIES-1))" secs left"
-	  TRIES=$((TRIES + 1))
-   done
-
-   return $READY
+			fi
+			break
+		fi
+		sleep 1
+		logger -st "($(basename "$0"))" "$$ Entware $ENTWARE_UTILITY not available - wait time $((MAX_TRIES - TRIES-1)) secs left"
+		TRIES=$((TRIES + 1))
+	done
+	return "$READY"
 }
 
 is_dir_empty () {
@@ -328,12 +324,12 @@ check_dnsmasq_parms () {
 	if [ -s /tmp/etc/dnsmasq.conf ]; then  # dnsmasq.conf file exists
 		for DNSMASQ_PARM in "no-resolv" "server=127.0.0.1#5453" "server=0::1#5453"
 			do
-			   if [ "$(grep -c "$DNSMASQ_PARM" "/tmp/etc/dnsmasq.conf")" != "0" ]; then  # see if line exists
+			   if grep -q "$DNSMASQ_PARM" "/tmp/etc/dnsmasq.conf"; then  # see if line exists
 					printf 'Required dnsmasq parm %b%s%b found in /tmp/etc/dnsmasq.conf\n' "${COLOR_GREEN}" "$DNSMASQ_PARM" "${COLOR_WHITE}"
 					continue #line found in dnsmasq.conf, no update required to /jffs/configs/dnsmasq.conf.add
-			   fi
-			   if [ -s /jffs/configs/dnsmasq.conf.add ]; then
-					if [ "$(grep -c "$DNSMASQ_PARM" "/jffs/configs/dnsmasq.conf.add")" != "0" ]; then  # see if line exists
+				fi
+				if [ -s /jffs/configs/dnsmasq.conf.add ]; then
+					if grep -q "$DNSMASQ_PARM" "/jffs/configs/dnsmasq.conf.add"; then  # see if line exists
 						printf '%b%s%b found in /jffs/configs/dnsmasq.conf.add\n' "${COLOR_GREEN}" "$DNSMASQ_PARM" "${COLOR_WHITE}"
 					else
 						printf 'Adding %b%s%b to /jffs/configs/dnsmasq.conf.add\n' "${COLOR_GREEN}" "$DNSMASQ_PARM" "${COLOR_WHITE}"
@@ -376,7 +372,7 @@ create_required_directories () {
 make_backup () {
 	DIR="$1"
 	FILE="$2"
-	TIMESTAMP=$(date +%Y-%m-%d_%H-%M-%S)
+	TIMESTAMP="$(date +%Y-%m-%d_%H-%M-%S)"
 	BACKUP_FILE_NAME="${FILE}.${TIMESTAMP}"
 
 	if ! mv "$DIR/$FILE" "$DIR/$BACKUP_FILE_NAME" >/dev/null 2>&1; then
@@ -394,7 +390,7 @@ download_file () {
 	FILE="$2"
 	GIT_REPO="Stubby-Installer-Asuswrt-Merlin"
 	GITHUB_DIR="https://raw.githubusercontent.com/Xentrk/$GIT_REPO/master"
-	STATUS=$(/usr/sbin/curl --retry 3 -w '%{http_code}' "$GITHUB_DIR/$FILE" -o "$DIR/$FILE")
+	STATUS="$(/usr/sbin/curl --retry 3 -w '%{http_code}' "$GITHUB_DIR/$FILE" -o "$DIR/$FILE")"
 	if [ "$STATUS" -eq 200 ]; then
 		printf '%b%s%b downloaded successfully\n' "$COLOR_GREEN" "$FILE" "$COLOR_WHITE"
 	else

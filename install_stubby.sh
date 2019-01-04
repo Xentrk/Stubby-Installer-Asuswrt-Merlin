@@ -15,7 +15,7 @@
 #  Assistance: John9527
 #
 ####################################################################################################
-logger -t "($(basename "$0")) $$ Starting Script Execution"
+logger -t "($(basename "$0"))" "$$ Starting Script Execution"
 VERSION=1.0.0
 
 # Uncomment the line below for debugging

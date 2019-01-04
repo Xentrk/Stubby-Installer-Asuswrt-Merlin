@@ -478,8 +478,8 @@ update_wan_and_resolv_settings () {
 	SERVER="$LAN_IP"
 
 # Set firmare nameserver and server entries
-	printf "nameserver $NAMESERVER" > /tmp/resolv.conf
-	printf "server=${SERVER}" > /tmp/resolv.dnsmasq
+	echo "nameserver $NAMESERVER" > /tmp/resolv.conf
+	echo "server=${SERVER}" > /tmp/resolv.dnsmasq
 
 # Set DNS1 based on user option
 	nvram set wan0_dns="$DNS1"
@@ -545,4 +545,4 @@ clear
 Set_Color_Parms
 welcome_message
 
-logger -t "($(basename "$0"))" $$ Ending Script Execution"
+logger -t "($(basename "$0"))" "$$ Ending Script Execution"

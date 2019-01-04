@@ -545,4 +545,4 @@ clear
 Set_Color_Parms
 welcome_message
 
-logger -t "($(basename "$0"))" $$ Ending Script Execution
+logger -t "($(basename "$0"))" $$ Ending Script Execution"

@@ -126,6 +126,7 @@ remove_existing_installation () {
 	if [ "$READY" -eq "0" ]; then
 		echo "Existing stubby package found. Removing Stubby"
 		opkg remove stubby && echo "Stubby successfully removed" || echo "Error occurred when removing Stubby"
+		opkg remove getdns && echo "GetDNS successfully removed" || echo "Error occurred when removing GetDNS"
 	else
 		echo "Unable to remove Stubby. Entware is not mounted"
 	fi
@@ -468,10 +469,11 @@ exit_message () {
 
 install_stubby () {
 
+	echo
 	Chk_Entware
 
 	if [ "$READY" -eq "0" ]; then
-		opkg update && printf "entware successfully updated\n" || printf "An error occurred updating entware\n" || exit 1
+		opkg update >/dev/null 2>&1 && printf "entware successfully updated\n" || printf "An error occurred updating entware\n" || exit 1
 	else
 		printf "You must first install Entware before proceeding\n"
 		printf "Exiting %s\n" "$(basename "$0")"
@@ -495,6 +497,7 @@ install_stubby () {
 			rm /tmp/stubby-hnd-latest.ipk
 		else
 			opkg install stubby && printf "stubby successfully installed\n" || printf "An error occurred installing stubby\n" || exit 1
+			# Shouldn't we be installing getdns too? Platform specific?
 		fi
 	fi
 

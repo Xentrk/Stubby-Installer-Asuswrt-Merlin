@@ -234,7 +234,7 @@ Chk_Entware () {
 	while [ "$TRIES" -lt "$MAX_TRIES" ]; do
 		if [ -f /opt/bin/opkg ]; then
 			if [ -n "$ENTWARE_UTILITY" ]; then            # Specific Entware utility installed?
-				if opkg list-installed "$ENTWARE_UTILITY"; then
+				if [ -n "$(opkg list-installed $ENTWARE_UTILITY)" ]; then
 					READY="0"                                 # Specific Entware utility found
 				else
 					# Xentrk revision needed to bypass false positive that stubby is installed if /opt/var/cache/stubby
@@ -317,7 +317,7 @@ create_required_directories () {
 		fi
 	done
 
-	for DIR in "/opt/var/cache/stubby"; do
+	for DIR in "/opt/var/cache/stubby" "/opt/etc/stubby"; do
 		if [ ! -d "$DIR" ]; then
 			mkdir "$DIR" >/dev/null 2>&1 && printf "Created project directory %b%s%b\n" "${COLOR_GREEN}" "${DIR}" "${COLOR_WHITE}" || printf "Error creating directory %b%s%b. Exiting $(basename "$0")\n" "${COLOR_GREEN}" "${DIR}" "${COLOR_WHITE}" || exit 1
 		fi
@@ -329,13 +329,15 @@ make_backup () {
 	FILE="$2"
 	TIMESTAMP="$(date +%Y-%m-%d_%H-%M-%S)"
 	BACKUP_FILE_NAME="${FILE}.${TIMESTAMP}"
-	if ! mv "$DIR/$FILE" "$DIR/$BACKUP_FILE_NAME" >/dev/null 2>&1; then
-		printf 'Error backing up existing %b%s%b to %b%s%b\n' "$COLOR_GREEN" "$FILE" "$COLOR_WHITE" "$COLOR_GREEN" "$BACKUP_FILE_NAME" "$COLOR_WHITE"
-		printf 'Exiting %s\n' "$(basename "$0")"
-		exit 1
-	else
-		printf 'Existing %b%s%b found\n' "$COLOR_GREEN" "$FILE" "$COLOR_WHITE"
-		printf '%b%s%b backed up to %b%s%b\n' "$COLOR_GREEN" "$FILE" "$COLOR_WHITE" "$COLOR_GREEN" "$BACKUP_FILE_NAME" "$COLOR_WHITE"
+	if [ -f "$DIR/$FILE" ]; then
+		if ! mv "$DIR/$FILE" "$DIR/$BACKUP_FILE_NAME" >/dev/null 2>&1; then
+			printf 'Error backing up existing %b%s%b to %b%s%b\n' "$COLOR_GREEN" "$FILE" "$COLOR_WHITE" "$COLOR_GREEN" "$BACKUP_FILE_NAME" "$COLOR_WHITE"
+			printf 'Exiting %s\n' "$(basename "$0")"
+			exit 1
+		else
+			printf 'Existing %b%s%b found\n' "$COLOR_GREEN" "$FILE" "$COLOR_WHITE"
+			printf '%b%s%b backed up to %b%s%b\n' "$COLOR_GREEN" "$FILE" "$COLOR_WHITE" "$COLOR_GREEN" "$BACKUP_FILE_NAME" "$COLOR_WHITE"
+		fi
 	fi
 }
 
@@ -423,7 +425,7 @@ update_wan_and_resolv_settings () {
 	NAMESERVER="$LAN_IP"
 	SERVER="$LAN_IP"
 
-	Set firmare nameserver and server entries
+	# Set firmare nameserver and server entries
 	echo "nameserver $NAMESERVER" > /tmp/resolv.conf
 	echo "server=${SERVER}" > /tmp/resolv.dnsmasq
 

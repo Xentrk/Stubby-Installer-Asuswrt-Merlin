@@ -182,7 +182,7 @@ remove_existing_installation () {
 
 	# remove file /opt/etc/init.d/S61stubby
 	if [ -d "/opt/etc/init.d" ]; then
-		find /opt/etc/init.d -type f -name S61stubby\* -delete
+		/opt/bin/find /opt/etc/init.d -type f -name S61stubby\* -delete
 	fi
 
 	# remove /jffs/scripts/openvpn-event
@@ -232,7 +232,7 @@ Chk_Entware () {
 	TRIES="0"
 
 	while [ "$TRIES" -lt "$MAX_TRIES" ]; do
-		if which opkg; then
+		if [ -f /opt/bin/opkg ]; then
 			if [ -n "$ENTWARE_UTILITY" ]; then            # Specific Entware utility installed?
 				if opkg list-installed "$ENTWARE_UTILITY"; then
 					READY="0"                                 # Specific Entware utility found
@@ -362,7 +362,7 @@ stubby_yml_update () {
 
 S61stubby_update () {
 	if [ -d "/opt/etc/init.d" ]; then
-		printf %s "$(find /opt/etc/init.d -type f -name S61stubby\*)" | while IFS= read -r "line"; do
+		printf %s "$(/opt/bin/find /opt/etc/init.d -type f -name S61stubby\*)" | while IFS= read -r "line"; do
 			rm "$line"
 		done
 	fi

@@ -473,7 +473,7 @@ install_stubby () {
 				rm /tmp/getdns-hnd-latest.ipk
 				rm /tmp/stubby-hnd-latest.ipk
 			else
-				opkg install stubby getdns && echo "Stubby successfully installed" || { echo "An error occurred installing stubby"; exit 1; }
+				opkg install stubby getdns haveged && echo "Stubby successfully installed" || { echo "An error occurred installing stubby"; exit 1; }
 			fi
 		fi
 

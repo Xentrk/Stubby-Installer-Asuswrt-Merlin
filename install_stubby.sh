@@ -297,7 +297,7 @@ check_dnsmasq_parms () {
 				fi
 			done
 		else
-			printf "dnsmasq.conf file not found in /tmp/etc. dnsmasq appears to not be configured on your router. Check router configuration\n"
+			echo "dnsmasq.conf file not found in /tmp/etc. dnsmasq appears to not be configured on your router. Check router configuration"
 			exit 1
 		fi
 }
@@ -305,7 +305,7 @@ check_dnsmasq_parms () {
 create_required_directories () {
 		for DIR in "/opt/var/cache/stubby" "/opt/var/log" "/opt/etc/stubby"; do
 			if [ ! -d "$DIR" ]; then
-				mkdir -p "$DIR" >/dev/null 2>&1 && printf "Created project directory %b%s%b\n" "${COLOR_GREEN}" "${DIR}" "${COLOR_WHITE}" || printf "Error creating directory %b%s%b. Exiting $(basename "$0")\n" "${COLOR_GREEN}" "${DIR}" "${COLOR_WHITE}" || exit 1
+				mkdir -p "$DIR" >/dev/null 2>&1 && printf "Created project directory %b%s%b\n" "${COLOR_GREEN}" "${DIR}" "${COLOR_WHITE}" || { printf "Error creating directory %b%s%b. Exiting $(basename "$0")\n" "${COLOR_GREEN}" "${DIR}" "${COLOR_WHITE}"; exit 1; }
 			fi
 		done
 }
@@ -389,13 +389,13 @@ check_openvpn_event() {
 			else
 				echo "#!/bin/sh" > /jffs/scripts/openvpn-event
 				echo "cp /jffs/configs/resolv.dnsmasq /tmp/resolv.dnsmasq" >> /jffs/scripts/openvpn-event
-				chmod 755 /jffs/scripts/openvpn-event >/dev/null 2>&1
+				chmod 755 /jffs/scripts/openvpn-event
 				printf 'Created %b/jffs/scripts/openvpn-event%b\n' "$COLOR_GREEN" "$COLOR_WHITE"
 			fi
 		else
 			printf 'No active OpenVPN Clients found. Skipping creation of %b/jffs/scripts/openvpn-event%b\n' "$COLOR_GREEN" "$COLOR_WHITE"
-			printf 'If you decide to run an OpenVPN Client in the future, rerun the installer script\n'
-			printf 'to update /jffs/scripts/openvpn-event\n'
+			echo "If you decide to run an OpenVPN Client in the future, rerun the installer script"
+			echo "to update /jffs/scripts/openvpn-event"
 		fi
 }
 
@@ -434,19 +434,14 @@ update_wan_and_resolv_settings () {
 }
 
 exit_message () {
-		printf '\n'
-		printf '   %bhttps://github.com/Xentrk/Stubby-Installer-Asuswrt-Merlin%b\n' "$COLOR_GREEN" "$COLOR_WHITE"
-		printf '\n'
-		printf '                      Have a Grateful Day!\n'
-		printf '\n'
+		printf '\n   %bhttps://github.com/Xentrk/Stubby-Installer-Asuswrt-Merlin%b\n' "$COLOR_GREEN" "$COLOR_WHITE\n"
+		printf '                      Have a Grateful Day!\n\n'
 		printf '           ____        _         _                           \n'
 		printf '          |__  |      | |       | |                          \n'
 		printf '    __  __  _| |_ _ _ | |_  ___ | | __    ____ ____  _ _ _   \n'
 		printf '    \ \/ / |_  | %b %b \  __|/ _ \| |/ /   /  _//    \| %b %b \ \n' "\`" "\`" "\`" "\`"
 		printf '     /  /  __| | | | |  |_ | __/|   <   (  (_ | [] || | | |  \n'
-		printf '    /_/\_\|___ |_|_|_|\___|\___||_|\_\[] \___\\\____/|_|_|_| \n'
-		printf '\n'
-		printf '\n'
+		printf '    /_/\_\|___ |_|_|_|\___|\___||_|\_\[] \___\\\____/|_|_|_| \n\n\n'
 		exit 0
 }
 
@@ -473,8 +468,8 @@ install_stubby () {
 			if [ "$(uname -m)" = "aarch64" ]; then
 				curl -fsL --retry 3 "https://github.com/Adamm00/Stubby-Installer-Asuswrt-Merlin/raw/master/getdns-hnd-latest.ipk" -o /tmp/getdns-hnd-latest.ipk
 				curl -fsL --retry 3 "https://github.com/Adamm00/Stubby-Installer-Asuswrt-Merlin/raw/master/stubby-hnd-latest.ipk" -o /tmp/stubby-hnd-latest.ipk
-				opkg install /tmp/getdns-hnd-latest.ipk --force-downgrade && echo "patched getdns successfully installed" || { echo "An error occurred installing patched getdns"; exit 1; }
-				opkg install /tmp/stubby-hnd-latest.ipk --force-downgrade && echo "patched stubby successfully installed" || { echo "An error occurred installing patched stubby"; exit 1; }
+				opkg install /tmp/getdns-hnd-latest.ipk --force-downgrade && echo "Patched getdns successfully installed" || { echo "An error occurred installing patched getdns"; exit 1; }
+				opkg install /tmp/stubby-hnd-latest.ipk --force-downgrade && echo "Patched stubby successfully installed" || { echo "An error occurred installing patched stubby"; exit 1; }
 				rm /tmp/getdns-hnd-latest.ipk
 				rm /tmp/stubby-hnd-latest.ipk
 			else
@@ -491,7 +486,7 @@ install_stubby () {
 		service restart_dnsmasq >/dev/null 2>&1
 		/opt/etc/init.d/S61stubby restart
 
-		if pidof stubby; then
+		if pidof stubby >/dev/null 2>&1; then
 			echo "Installation of Stubby completed"
 		else
 			echo "Warning! Unsuccesful installation of Stubby detected"

@@ -124,8 +124,8 @@ remove_existing_installation () {
 		Chk_Entware stubby
 		if [ "$READY" -eq "0" ]; then
 			echo "Existing stubby package found. Removing Stubby"
-			opkg remove stubby { echo "Stubby successfully removed"; echo "Error occurred when removing Stubby"; }
-			opkg remove getdns { echo "GetDNS successfully removed"; echo "Error occurred when removing GetDNS"; }
+			opkg remove stubby && echo "Stubby successfully removed" || echo "Error occurred when removing Stubby"
+			opkg remove getdns && echo "GetDNS successfully removed" || echo "Error occurred when removing GetDNS"
 		else
 			echo "Unable to remove Stubby. Entware is not mounted"
 		fi

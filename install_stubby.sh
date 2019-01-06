@@ -333,7 +333,7 @@ download_file () {
 		GIT_REPO="Stubby-Installer-Asuswrt-Merlin"
 		GITHUB_DIR="https://raw.githubusercontent.com/Adamm00/$GIT_REPO/master"
 		STATUS="$(curl --retry 3 -s -w '%{http_code}' "$GITHUB_DIR/$FILE" -o "$DIR/$FILE")"
-		if [ "$STATUS" -eq 200 ]; then
+		if [ "$STATUS" -eq "200" ]; then
 			printf '%b%s%b downloaded successfully\n' "$COLOR_GREEN" "$FILE" "$COLOR_WHITE"
 		else
 			printf '%b%s%b download failed with curl error %s\n' "$COLOR_GREEN" "$FILE" "$COLOR_WHITE" "$STATUS"
@@ -350,7 +350,7 @@ stubby_yml_update () {
 
 S61stubby_update () {
 		if [ -d "/opt/etc/init.d" ]; then
-			printf %s "$(/opt/bin/find /opt/etc/init.d -type f -name S61stubby\*)" | while IFS= read -r "line"; do
+			/opt/bin/find /opt/etc/init.d -type f -name S61stubby\* | while IFS= read -r "line"; do
 				rm "$line"
 			done
 		fi

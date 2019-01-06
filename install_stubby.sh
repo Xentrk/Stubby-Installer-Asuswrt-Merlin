@@ -65,7 +65,7 @@ welcome_message () {
 			read -r "menu1"
 			case "$menu1" in
 				1)
-					install_stubby
+					install_stubby "$@"
 					break
 				;;
 				2)
@@ -459,15 +459,15 @@ install_stubby () {
 
 		Chk_Entware stubby
 
-		if [ "$READY" -eq "0" ]; then
+		if [ "$READY" -eq "0" ] && [ "$1" != "update" ]; then
 			echo "Existing stubby package found"
 			if [ "$(uname -m)" != "aarch64" ]; then
 				opkg update stubby && echo "stubby successfully updated" || { echo "An error occurred updating stubby"; exit 1; }
 			fi
 		else
 			if [ "$(uname -m)" = "aarch64" ]; then
-				curl -fsL --retry 3 "https://github.com/Adamm00/Stubby-Installer-Asuswrt-Merlin/raw/master/getdns-hnd-latest.ipk" -o /tmp/getdns-hnd-latest.ipk
-				curl -fsL --retry 3 "https://github.com/Adamm00/Stubby-Installer-Asuswrt-Merlin/raw/master/stubby-hnd-latest.ipk" -o /tmp/stubby-hnd-latest.ipk
+				download_file /tmp getdns-hnd-latest.ipk
+				download_file /tmp stubby-hnd-latest.ipk
 				opkg install /tmp/getdns-hnd-latest.ipk --force-downgrade && echo "Patched getdns successfully installed" || { echo "An error occurred installing patched getdns"; exit 1; }
 				opkg install /tmp/stubby-hnd-latest.ipk --force-downgrade && echo "Patched stubby successfully installed" || { echo "An error occurred installing patched stubby"; exit 1; }
 				rm /tmp/getdns-hnd-latest.ipk
@@ -497,6 +497,6 @@ install_stubby () {
 }
 
 clear
-welcome_message
+welcome_message "$@"
 
 logger -t "($(basename "$0"))" "$$ Ending Script Execution"

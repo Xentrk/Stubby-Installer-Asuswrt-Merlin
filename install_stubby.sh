@@ -332,7 +332,7 @@ download_file () {
 		FILE="$2"
 		GIT_REPO="Stubby-Installer-Asuswrt-Merlin"
 		GITHUB_DIR="https://raw.githubusercontent.com/Adamm00/$GIT_REPO/master"
-		STATUS="$(curl --retry 3 -s -w '%{http_code}' "$GITHUB_DIR/$FILE" -o "$DIR/$FILE")"
+		STATUS="$(curl --retry 3 -sL -w '%{http_code}' "$GITHUB_DIR/$FILE" -o "$DIR/$FILE")"
 		if [ "$STATUS" -eq "200" ]; then
 			printf '%b%s%b downloaded successfully\n' "$COLOR_GREEN" "$FILE" "$COLOR_WHITE"
 		else

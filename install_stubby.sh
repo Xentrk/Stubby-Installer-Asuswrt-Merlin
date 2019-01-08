@@ -18,6 +18,10 @@
 export PATH=/sbin:/bin:/usr/sbin:/usr/bin$PATH
 logger -t "($(basename "$0"))" "$$ Starting Script Execution"
 VERSION=1.0.1
+GIT_REPO="Stubby-Installer-Asuswrt-Merlin"
+GITHUB_DIR="https://raw.githubusercontent.com/Adamm00/$GIT_REPO/master"
+localmd5="$(md5sum "$0" | awk '{print $1}')"
+remotemd5="$(curl -fsL --retry 3 "${GITHUB_DIR}/install_stubby.sh" | md5sum | awk '{print $1}')"
 
 # Uncomment the line below for debugging
 #set -x
@@ -60,7 +64,10 @@ welcome_message () {
 			printf '\n'
 			printf '%b1%b = Begin Stubby Installation Process\n' "${COLOR_GREEN}" "${COLOR_WHITE}"
 			printf '%b2%b = Remove Existing Stubby Installation\n' "${COLOR_GREEN}" "${COLOR_WHITE}"
-			printf '%be%b = Exit Script\n' "${COLOR_GREEN}" "${COLOR_WHITE}"
+			if [ "$localmd5" = "$remotemd5" ]; then
+				printf '%b3%b = Update install_stubby.sh\n' "${COLOR_GREEN}" "${COLOR_WHITE}"
+			fi
+			printf '\n%be%b = Exit Script\n' "${COLOR_GREEN}" "${COLOR_WHITE}"
 			printf '\n%bOption ==>%b ' "${COLOR_GREEN}" "${COLOR_WHITE}"
 			read -r "menu1"
 			case "$menu1" in
@@ -70,6 +77,10 @@ welcome_message () {
 				;;
 				2)
 					validate_removal
+					break
+				;;
+				3)
+					update_installer
 					break
 				;;
 				e)
@@ -330,8 +341,6 @@ make_backup () {
 download_file () {
 		DIR="$1"
 		FILE="$2"
-		GIT_REPO="Stubby-Installer-Asuswrt-Merlin"
-		GITHUB_DIR="https://raw.githubusercontent.com/Adamm00/$GIT_REPO/master"
 		STATUS="$(curl --retry 3 -sL -w '%{http_code}' "$GITHUB_DIR/$FILE" -o "$DIR/$FILE")"
 		if [ "$STATUS" -eq "200" ]; then
 			printf '%b%s%b downloaded successfully\n' "$COLOR_GREEN" "$FILE" "$COLOR_WHITE"
@@ -346,7 +355,13 @@ stubby_yml_update () {
 		make_backup /opt/etc/stubby stubby.yml
 		download_file /opt/etc/stubby stubby.yml
 		chmod 644 /opt/etc/stubby/stubby.yml >/dev/null 2>&1
-}
+		if [ "$(uname -m)" = "aarch64" ]; then
+			echo >> /opt/etc/stubby/stubby.yml
+			echo "tls_min_version: GETDNS_TLS1_3" >> /opt/etc/stubby/stubby.yml
+			echo "tls_ciphersuites: \"TLS_AES_128_GCM_SHA256:TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256\"" >> /opt/etc/stubby/stubby.yml
+		fi
+}			
+
 
 S61stubby_update () {
 		if [ -d "/opt/etc/init.d" ]; then
@@ -472,7 +487,7 @@ install_stubby () {
 				opkg install stubby getdns && echo "Stubby successfully installed" || { echo "An error occurred installing stubby"; exit 1; }
 			fi
 		fi
-		
+
 		if Chk_Entware haveged; then
 			echo "Existing haveged package found"
 			opkg install haveged && echo "Haveged successfully updated" || { echo "An error occurred updating Haveged"; exit 1; }
@@ -497,6 +512,17 @@ install_stubby () {
 		fi
 
 		exit_message
+}
+
+update_installer () {
+	if [ "$localmd5" = "$remotemd5" ]; then
+		download_file /jffs/scripts install_stubby.sh
+		printf "\nUpdate Compete! %s\n" "$remotemd5"
+	else
+		printf "\ninstall_stubby.sh is already the latest version. %s\n" "$localmd5"
+	fi
+
+	exit_message
 }
 
 clear

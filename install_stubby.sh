@@ -470,22 +470,15 @@ install_stubby () {
 			exit 1
 		fi
 
-		if Chk_Entware stubby && [ "$1" != "update" ]; then
-			echo "Existing stubby package found"
-			if [ "$(uname -m)" != "aarch64" ]; then
-				opkg install stubby getdns && echo "Stubby successfully updated" || { echo "An error occurred updating Stubby"; exit 1; }
-			fi
+		if [ "$(uname -m)" = "aarch64" ]; then
+			download_file /tmp getdns-hnd-latest.ipk
+			download_file /tmp stubby-hnd-latest.ipk
+			opkg install /tmp/getdns-hnd-latest.ipk --force-downgrade && echo "Patched getdns successfully installed" || { echo "An error occurred installing patched Getdns"; exit 1; }
+			opkg install /tmp/stubby-hnd-latest.ipk --force-downgrade && echo "Patched stubby successfully installed" || { echo "An error occurred installing patched Stubby"; exit 1; }
+			rm /tmp/getdns-hnd-latest.ipk
+			rm /tmp/stubby-hnd-latest.ipk
 		else
-			if [ "$(uname -m)" = "aarch64" ]; then
-				download_file /tmp getdns-hnd-latest.ipk
-				download_file /tmp stubby-hnd-latest.ipk
-				opkg install /tmp/getdns-hnd-latest.ipk --force-downgrade && echo "Patched getdns successfully installed" || { echo "An error occurred installing patched Getdns"; exit 1; }
-				opkg install /tmp/stubby-hnd-latest.ipk --force-downgrade && echo "Patched stubby successfully installed" || { echo "An error occurred installing patched Stubby"; exit 1; }
-				rm /tmp/getdns-hnd-latest.ipk
-				rm /tmp/stubby-hnd-latest.ipk
-			else
-				opkg install stubby getdns && echo "Stubby successfully installed" || { echo "An error occurred installing stubby"; exit 1; }
-			fi
+			opkg install stubby getdns && echo "Stubby successfully updated" || { echo "An error occurred updating Stubby"; exit 1; }
 		fi
 
 		if Chk_Entware haveged; then

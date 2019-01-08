@@ -3,7 +3,7 @@
 # Script: install_stubby.sh
 # Version 1.0.1
 # Author: Xentrk
-# Date: 06-January-2019
+# Date: 08-January-2019
 #
 # Description:
 #  Install the stubby DNS over TLS resolver package from entware on Asuswrt-Merlin firmware.
@@ -356,7 +356,7 @@ stubby_yml_update () {
 		download_file /opt/etc/stubby stubby.yml
 		chmod 644 /opt/etc/stubby/stubby.yml >/dev/null 2>&1
 		if [ "$(uname -m)" = "aarch64" ]; then
-			echo >> /opt/etc/stubby/stubby.yml
+			printf "\n\n# Tweaks for statically linked binaries\n" >> /opt/etc/stubby/stubby.yml
 			echo "tls_min_version: GETDNS_TLS1_3" >> /opt/etc/stubby/stubby.yml
 			echo "tls_ciphersuites: \"TLS_AES_128_GCM_SHA256:TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256\"" >> /opt/etc/stubby/stubby.yml
 		fi

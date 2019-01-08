@@ -64,7 +64,7 @@ welcome_message () {
 			printf '\n'
 			printf '%b1%b = Begin Stubby Installation Process\n' "${COLOR_GREEN}" "${COLOR_WHITE}"
 			printf '%b2%b = Remove Existing Stubby Installation\n' "${COLOR_GREEN}" "${COLOR_WHITE}"
-			if [ "$localmd5" = "$remotemd5" ]; then
+			if [ "$localmd5" != "$remotemd5" ]; then
 				printf '%b3%b = Update install_stubby.sh\n' "${COLOR_GREEN}" "${COLOR_WHITE}"
 			fi
 			printf '\n%be%b = Exit Script\n' "${COLOR_GREEN}" "${COLOR_WHITE}"
@@ -515,7 +515,7 @@ install_stubby () {
 }
 
 update_installer () {
-	if [ "$localmd5" = "$remotemd5" ]; then
+	if [ "$localmd5" != "$remotemd5" ]; then
 		download_file /jffs/scripts install_stubby.sh
 		printf "\nUpdate Compete! %s\n" "$remotemd5"
 	else

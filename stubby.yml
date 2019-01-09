@@ -34,5 +34,5 @@ upstream_recursive_servers:
   - address_data: 2606:4700:4700::1111
     tls_auth_name: "cloudflare-dns.com"
 # Cloudflare Secondary IPv6
-#   - address_data: 2606:4700:4700::1001
-#     tls_auth_name: "cloudflare-dns.com"
+#  - address_data: 2606:4700:4700::1001
+#    tls_auth_name: "cloudflare-dns.com"

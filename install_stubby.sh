@@ -19,7 +19,7 @@ export PATH=/sbin:/bin:/usr/sbin:/usr/bin$PATH
 logger -t "($(basename "$0"))" "$$ Starting Script Execution"
 VERSION=1.0.1
 GIT_REPO="Stubby-Installer-Asuswrt-Merlin"
-GITHUB_DIR="https://raw.githubusercontent.com/Adamm00/$GIT_REPO/master"
+GITHUB_DIR="https://raw.githubusercontent.com/Xentrk/$GIT_REPO/master"
 localmd5="$(md5sum "$0" | awk '{print $1}')"
 remotemd5="$(curl -fsL --retry 3 "${GITHUB_DIR}/install_stubby.sh" | md5sum | awk '{print $1}')"
 

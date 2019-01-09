@@ -135,8 +135,8 @@ remove_existing_installation () {
 		Chk_Entware stubby
 		if [ "$READY" -eq "0" ]; then
 			echo "Existing stubby package found. Removing Stubby"
-			opkg remove stubby && echo "Stubby successfully removed" || echo "Error occurred when removing Stubby"
-			opkg remove getdns && echo "GetDNS successfully removed" || echo "Error occurred when removing GetDNS"
+			if opkg remove stubby; then echo "Stubby successfully removed"; else echo "Error occurred when removing Stubby"; fi
+			if opkg remove getdns; then echo "GetDNS successfully removed"; else echo "Error occurred when removing GetDNS"; fi
 		else
 			echo "Unable to remove Stubby. Entware is not mounted"
 		fi
@@ -243,7 +243,7 @@ Chk_Entware () {
 		while [ "$TRIES" -lt "$MAX_TRIES" ]; do
 			if [ -f "/opt/bin/opkg" ]; then
 				if [ -n "$ENTWARE_UTILITY" ]; then            # Specific Entware utility installed?
-					if [ -n "$(opkg list-installed $ENTWARE_UTILITY)" ]; then
+					if [ -n "$(opkg list-installed "$ENTWARE_UTILITY")" ]; then
 						READY="0"                                 # Specific Entware utility found
 					else
 						# Xentrk revision needed to bypass false positive that stubby is installed if /opt/var/cache/stubby
@@ -316,7 +316,12 @@ check_dnsmasq_parms () {
 create_required_directories () {
 		for DIR in "/opt/var/cache/stubby" "/opt/var/log" "/opt/etc/stubby"; do
 			if [ ! -d "$DIR" ]; then
-				mkdir -p "$DIR" >/dev/null 2>&1 && printf "Created project directory %b%s%b\n" "${COLOR_GREEN}" "${DIR}" "${COLOR_WHITE}" || { printf "Error creating directory %b%s%b. Exiting $(basename "$0")\n" "${COLOR_GREEN}" "${DIR}" "${COLOR_WHITE}"; exit 1; }
+				if mkdir -p "$DIR" >/dev/null 2>&1; then
+					printf "Created project directory %b%s%b\n" "${COLOR_GREEN}" "${DIR}" "${COLOR_WHITE}"
+				else
+					printf "Error creating directory %b%s%b. Exiting $(basename "$0")\n" "${COLOR_GREEN}" "${DIR}" "${COLOR_WHITE}"
+					exit 1
+				fi
 			fi
 		done
 }
@@ -356,9 +361,9 @@ stubby_yml_update () {
 		download_file /opt/etc/stubby stubby.yml
 		chmod 644 /opt/etc/stubby/stubby.yml >/dev/null 2>&1
 		if [ "$(uname -m)" = "aarch64" ]; then
-			printf "\n\n# Tweaks for statically linked binaries\n" >> /opt/etc/stubby/stubby.yml
-			echo "tls_min_version: GETDNS_TLS1_3" >> /opt/etc/stubby/stubby.yml
-			echo "tls_ciphersuites: \"TLS_AES_128_GCM_SHA256:TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256\"" >> /opt/etc/stubby/stubby.yml
+			{ printf "\n\n# Tweaks for statically linked binaries\n"
+			echo "tls_min_version: GETDNS_TLS1_3"
+			echo "tls_ciphersuites: \"TLS_AES_128_GCM_SHA256:TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256\""; } >> /opt/etc/stubby/stubby.yml
 		fi
 }			
 
@@ -463,7 +468,12 @@ exit_message () {
 install_stubby () {
 		echo
 		if Chk_Entware; then
-			opkg update >/dev/null 2>&1 && echo "Entware packagelist successfully updated" || { echo "An error occurred updating Entware packagelist"; exit 1; }
+			if opkg update >/dev/null 2>&1; then 
+				echo "Entware packagelist successfully updated"; 
+			else 
+				echo "An error occurred updating Entware packagelist"
+				exit 1
+			fi
 		else
 			echo "You must first install Entware before proceeding"
 			printf "Exiting %s\n" "$(basename "$0")"
@@ -473,19 +483,44 @@ install_stubby () {
 		if [ "$(uname -m)" = "aarch64" ]; then
 			download_file /tmp getdns-hnd-latest.ipk
 			download_file /tmp stubby-hnd-latest.ipk
-			opkg install /tmp/getdns-hnd-latest.ipk --force-downgrade && echo "Patched getdns successfully installed" || { echo "An error occurred installing patched Getdns"; exit 1; }
-			opkg install /tmp/stubby-hnd-latest.ipk --force-downgrade && echo "Patched stubby successfully installed" || { echo "An error occurred installing patched Stubby"; exit 1; }
+			if opkg install /tmp/getdns-hnd-latest.ipk --force-downgrade; then 
+				echo "Patched getdns successfully installed"
+			else
+				echo "An error occurred installing patched Getdns"
+				exit 1
+			fi
+			if opkg install /tmp/stubby-hnd-latest.ipk --force-downgrade; then
+				echo "Patched stubby successfully installed" 
+			else
+				echo "An error occurred installing patched Stubby"
+				exit 1
+			fi
 			rm /tmp/getdns-hnd-latest.ipk
 			rm /tmp/stubby-hnd-latest.ipk
 		else
-			opkg install stubby getdns && echo "Stubby successfully updated" || { echo "An error occurred updating Stubby"; exit 1; }
+			if opkg install stubby getdns; then
+				echo "Stubby successfully updated"
+			else
+				echo "An error occurred updating Stubby"
+				exit 1
+			fi
 		fi
 
 		if Chk_Entware haveged; then
 			echo "Existing haveged package found"
-			opkg install haveged && echo "Haveged successfully updated" || { echo "An error occurred updating Haveged"; exit 1; }
+			if opkg install haveged; then 
+				echo "Haveged successfully updated"
+			else
+				echo "An error occurred updating Haveged"
+				exit 1
+			fi
 		else
-			opkg install haveged && echo "Haveged successfully installed" || { echo "An error occurred installing Haveged"; exit 1; }
+			if opkg install haveged; then
+				echo "Haveged successfully installed" 
+			else
+				echo "An error occurred installing Haveged"; 
+				exit 1
+			fi
 		fi
 
 		check_dnsmasq_parms

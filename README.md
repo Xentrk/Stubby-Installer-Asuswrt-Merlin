@@ -219,7 +219,7 @@ The **install_stubby.sh** script turns off the DNSSEC setting on the firmware to
 
 * [Adamm](https://www.snbforums.com/members/adamm.19554/) also forked the original installer script and added support for the RT-AX88U and GT-AC5300 HND routers. Adamm performed code improvements and implemented the performance improvements listed below.
 
-* Odkrys compiled Stubby for HND routers RT-AC86U, RT-AX88U, GT-AC5300 and provided performance improvement suggestionns: TLS 1.3 / Cipher List / haveged
+* Odkrys compiled Stubby for HND routers RT-AC86U, RT-AX88U, GT-AC5300 and provided performance improvement suggestions: TLS 1.3 / Cipher List / haveged
 
 All updates made by [Jack Yaz](https://www.snbforums.com/members/jack-yaz.53009/) and [Adamm](https://www.snbforums.com/members/adamm.19554/) are now incorporated into the original installer script.
 

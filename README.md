@@ -26,7 +26,7 @@ The Stubby installer script **install_stubby.sh** will
 2. A USB drive with [entware](https://github.com/RMerl/asuswrt-merlin/wiki/Entware) installed.  Entware can be installed using [amtm - the SNBForum Asuswrt-Merlin Terminal Menu](https://www.snbforums.com/threads/amtm-the-snbforum-asuswrt-merlin-terminal-menu.42415/)
 
 ## Supported Models
-All Asus models that are [supported by Asuswrt-Merlin](https://asuswrt.lostrealm.ca/about), *with the exception of the AC86U*, should be supported by this script. I have received confirmation that it works on the following models:
+All Asus models that are [supported by Asuswrt-Merlin](https://asuswrt.lostrealm.ca/about). I have received confirmation that it works on the following models:
 
 * RT-AC66U_B1
 * RT-AC68U
@@ -35,6 +35,9 @@ All Asus models that are [supported by Asuswrt-Merlin](https://asuswrt.lostrealm
 * RT-AC3100
 * RT-AC3200
 * RT-AC5300
+* RT-AC86U
+* RT-AX88U
+* GT-AC5300
 
 ## Installation
 Copy and paste the command below into an SSH session.
@@ -59,7 +62,7 @@ Run the following commands from an SSH session to verify that stubby is working 
     tcp        0      0 127.0.0.1:5453          0.0.0.0:*               LISTEN      21283/stubby
     udp        0      0 127.0.0.1:5453          0.0.0.0:*                           21283/stubby
 
-**netstat -lnpt | grep -P '^Active|^Proto|/stubby'**
+**netstat -lnpt | grep -E '^Active|^Proto|/stubby'**
 
     Active Internet connections (only servers)
     Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name
@@ -157,8 +160,7 @@ Quad9 blocks the website http://isitblocked.org. If Quad9 is working properly, a
 
 ## Known Issues
 1. The [Cloudflare Help Page](https://1.1.1.1/help) test page will not work when the secondary IPv6 **2606:4700:4700::1001** is specified in **/opt/etc/stubby/stubby.yml**.
-2. Two of the testers experienced issues with the router not being able to access the WAN due to lack of NTP early in the boot reboot process. The models are the RT-AC68U_B1 and RT-AC3100/CA.  The fix is to add the entry ```server=/pool.ntp.org/1.1.1.1``` to **/jffs/configs/dnsmasq.conf.add**.  I also experienced the issue on my AC88U after several months in production with no issues. 
-3. Stubby logging is currently simplistic or non-existent and simply writes to stdout. The Stubby team is working on making this better!
+2. Stubby logging is currently simplistic or non-existent and simply writes to stdout. The Stubby team is working on making this better!
 
 
 ## Starting, Stopping and Killing Stubby

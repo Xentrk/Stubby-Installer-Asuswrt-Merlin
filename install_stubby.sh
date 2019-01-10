@@ -2,17 +2,24 @@
 ####################################################################################################
 # Script: install_stubby.sh
 # Version 1.0.1
-# Author: Xentrk
-# Date: 08-January-2019
+# Original Author: Xentrk
+# Date: 10-January-2019
 #
 # Description:
 #  Install the stubby DNS over TLS resolver package from entware on Asuswrt-Merlin firmware.
 #  See https://github.com/Xentrk/Stubby-Installer-Asuswrt-Merlin for a description of system changes
 #
 # Acknowledgement:
-#  Chk_Entware function provided by @Martineau
+#  Chk_Entware function provided by @Martineau. Mods made by Adamm
 #  Test team: bbunge, skeal, M@rco, Jack Yaz
-#  Assistance: John9527
+#  Assistance: John9527 implemented Stubby on his Fork and provided lessons learned and an example of
+#              stubby.yml used in the Fork.
+#  Contributors: Adamm & Jack Yaz both forked and updated the original installer to provide support
+#                for HND routers. Adamm also implemented the performance improvements listed below,
+#                and performed code enhancements.
+#
+#                Odkrys compiled Stubby for HND routers RT-AC86U, RT-AX88U, GT-AC5300 and provided
+#                performance improvement suggestionns: TLS 1.3 / Cipher List / haveged
 #
 ####################################################################################################
 export PATH=/sbin:/bin:/usr/sbin:/usr/bin$PATH
@@ -365,7 +372,7 @@ stubby_yml_update () {
 			echo "tls_min_version: GETDNS_TLS1_3"
 			echo "tls_ciphersuites: \"TLS_AES_128_GCM_SHA256:TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256\""; } >> /opt/etc/stubby/stubby.yml
 		fi
-}			
+}
 
 
 S61stubby_update () {
@@ -468,9 +475,9 @@ exit_message () {
 install_stubby () {
 		echo
 		if Chk_Entware; then
-			if opkg update >/dev/null 2>&1; then 
-				echo "Entware packagelist successfully updated"; 
-			else 
+			if opkg update >/dev/null 2>&1; then
+				echo "Entware package list successfully updated";
+			else
 				echo "An error occurred updating Entware packagelist"
 				exit 1
 			fi
@@ -483,14 +490,14 @@ install_stubby () {
 		if [ "$(uname -m)" = "aarch64" ]; then
 			download_file /tmp getdns-hnd-latest.ipk
 			download_file /tmp stubby-hnd-latest.ipk
-			if opkg install /tmp/getdns-hnd-latest.ipk --force-downgrade; then 
+			if opkg install /tmp/getdns-hnd-latest.ipk --force-downgrade; then
 				echo "Patched getdns successfully installed"
 			else
 				echo "An error occurred installing patched Getdns"
 				exit 1
 			fi
 			if opkg install /tmp/stubby-hnd-latest.ipk --force-downgrade; then
-				echo "Patched stubby successfully installed" 
+				echo "Patched stubby successfully installed"
 			else
 				echo "An error occurred installing patched Stubby"
 				exit 1
@@ -508,7 +515,7 @@ install_stubby () {
 
 		if Chk_Entware haveged; then
 			echo "Existing haveged package found"
-			if opkg install haveged; then 
+			if opkg install haveged; then
 				echo "Haveged successfully updated"
 			else
 				echo "An error occurred updating Haveged"
@@ -516,9 +523,9 @@ install_stubby () {
 			fi
 		else
 			if opkg install haveged; then
-				echo "Haveged successfully installed" 
+				echo "Haveged successfully installed"
 			else
-				echo "An error occurred installing Haveged"; 
+				echo "An error occurred installing Haveged";
 				exit 1
 			fi
 		fi
@@ -545,7 +552,7 @@ install_stubby () {
 update_installer () {
 	if [ "$localmd5" != "$remotemd5" ]; then
 		download_file /jffs/scripts install_stubby.sh
-		printf "\nUpdate Compete! %s\n" "$remotemd5"
+		printf "\nUpdate Complete! %s\n" "$remotemd5"
 	else
 		printf "\ninstall_stubby.sh is already the latest version. %s\n" "$localmd5"
 	fi

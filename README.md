@@ -215,6 +215,14 @@ The **install_stubby.sh** script turns off the DNSSEC setting on the firmware to
 
 * Thank you to [snbforums.com](https://www.snbforums.com/) members [Jack Yaz](https://www.snbforums.com/members/jack-yaz.53009/), [bbunge](https://www.snbforums.com/members/bbunge.30783/),  [skeal](https://www.snbforums.com/members/skeal.47960/) and [M@rco](https://www.snbforums.com/members/m-rco.56284/) who volunteered their time performing testing and providing feedback.
 
+* [Jack Yaz](https://www.snbforums.com/members/jack-yaz.53009/) forked the original installer to provide support for RT-AC86U routers.  
+
+* [Adamm](https://www.snbforums.com/members/adamm.19554/) also forked the original installer script and added support for the RT-AX88Y and GT-AC5300 HND routers. Adamm performed code improvements and implemented the performance improvements listed below.
+
+* Odkrys compiled Stubby for HND routers RT-AC86U, RT-AX88U, GT-AC5300 and provided performance improvement suggestionns: TLS 1.3 / Cipher List / haveged
+
+All updates made by [Jack Yaz](https://www.snbforums.com/members/jack-yaz.53009/) and [Adamm](https://www.snbforums.com/members/adamm.19554/) are now incorporated into the original installer script.
+
 ## Support
 
 Support for the project is available on [snbforums.com](https://www.snbforums.com/threads/stubby-installer-asuswrt-merlin.49469/)

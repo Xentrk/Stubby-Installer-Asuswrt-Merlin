@@ -1,4 +1,13 @@
 #!/bin/sh
+
+# Wait for NTP before starting
+ntptimer=0
+while [ "$(nvram get ntp_ready)" = "0" ] && [ "$ntptimer" -lt "300" ]; do
+	ntptimer=$((ntptimer+1))
+	sleep 1
+done
+if [ "$ntptimer" -ge "300" ]; then logger -st S61stubby "[*] NTP Failed To Start After 5 Minutes - Please Fix Immediately!"; echo; exit 1; fi
+
 logger -t S61stubby "Starting Stubby DNS over TLS $0"
 
 # set environment PATH to system binaries

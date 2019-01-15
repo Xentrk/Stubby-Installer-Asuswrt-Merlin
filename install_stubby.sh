@@ -69,7 +69,11 @@ welcome_message () {
 			printf '| for helpful tips.                                                   |\n'
 			printf '|_____________________________________________________________________|\n'
 			printf '\n'
-			printf '%b1%b = Begin Stubby Installation Process\n' "${COLOR_GREEN}" "${COLOR_WHITE}"
+			if pidof stubby >/dev/null 2>&1; then
+				printf '%b1%b = Update Stubby Configuration\n' "${COLOR_GREEN}" "${COLOR_WHITE}"
+			else
+				printf '%b1%b = Begin Stubby Installation Process\n' "${COLOR_GREEN}" "${COLOR_WHITE}"
+			fi
 			printf '%b2%b = Remove Existing Stubby Installation\n' "${COLOR_GREEN}" "${COLOR_WHITE}"
 			if [ "$localmd5" != "$remotemd5" ]; then
 				printf '%b3%b = Update install_stubby.sh\n' "${COLOR_GREEN}" "${COLOR_WHITE}"

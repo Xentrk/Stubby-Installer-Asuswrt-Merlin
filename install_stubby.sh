@@ -24,7 +24,7 @@
 ####################################################################################################
 export PATH=/sbin:/bin:/usr/sbin:/usr/bin$PATH
 logger -t "($(basename "$0"))" "$$ Starting Script Execution"
-VERSION=1.0.1
+VERSION="1.0.1"
 GIT_REPO="Stubby-Installer-Asuswrt-Merlin"
 GITHUB_DIR="https://raw.githubusercontent.com/Xentrk/$GIT_REPO/master"
 localmd5="$(md5sum "$0" | awk '{print $1}')"
@@ -108,8 +108,8 @@ validate_removal () {
 			printf '%bn%b = Cancel\n' "${COLOR_GREEN}" "${COLOR_WHITE}"
 			printf '%be%b = Exit Script\n' "${COLOR_GREEN}" "${COLOR_WHITE}"
 			printf '\n%bOption ==>%b ' "${COLOR_GREEN}" "${COLOR_WHITE}"
-			read -r "menu2"
-			case "$menu2" in
+			read -r "menu3"
+			case "$menu3" in
 				y)
 					remove_existing_installation
 					break
@@ -123,7 +123,7 @@ validate_removal () {
 					break
 				;;
 				*)
-					printf '%bInvalid Option%b %s%b Please enter a valid option\n' "$COLOR_RED" "$COLOR_GREEN" "$menu2" "$COLOR_WHITE"
+					printf '%bInvalid Option%b %s%b Please enter a valid option\n' "$COLOR_RED" "$COLOR_GREEN" "$menu3" "$COLOR_WHITE"
 				;;
 			esac
 		done
@@ -151,18 +151,11 @@ remove_existing_installation () {
 
 		# Remove entries from /jffs/configs/dnsmasq.conf.add
 		if [ -s "/jffs/configs/dnsmasq.conf.add" ]; then  # file exists
-			if grep -q 'server=127.0.0.1#5453' "/jffs/configs/dnsmasq.conf.add"; then  # see if line exists
-				sed -i '\~server=127.0.0.1#5453~d' "/jffs/configs/dnsmasq.conf.add" >/dev/null 2>&1
-			fi
-			if grep -q 'server=0::1#5453' "/jffs/configs/dnsmasq.conf.add"; then  # see if line exists
-				sed -i '\~server=0::1#5453~d' "/jffs/configs/dnsmasq.conf.add" >/dev/null 2>&1
-			fi
-			if grep -q 'no-resolv' "/jffs/configs/dnsmasq.conf.add"; then  # see if line exists
-				sed -i '\~no-resolv~d' "/jffs/configs/dnsmasq.conf.add" >/dev/null 2>&1
-			fi
-			if grep -q 'server=/pool.ntp.org/1.1.1.1' "/jffs/configs/dnsmasq.conf.add"; then  # see if line exists
-				sed -i '\~server=/pool.ntp.org/1.1.1.1~d' "/jffs/configs/dnsmasq.conf.add" >/dev/null 2>&1
-			fi
+			for DNSMASQ_PARM in "no-resolv" "server=127.0.0.1#5453" "server=0::1#5453" "server=/pool.ntp.org/1.1.1.1" "proxy-dnssec"; do
+				if grep -q "$DNSMASQ_PARM" "/jffs/configs/dnsmasq.conf.add"; then  # see if line exists
+					sed -i "\~$DNSMASQ_PARM~d" "/jffs/configs/dnsmasq.conf.add"
+				fi
+			done
 		fi
 
 		# Purge stubby directories
@@ -220,6 +213,9 @@ remove_existing_installation () {
 		nvram set wan0_xdns="$DNS1"
 		nvram set wan0_dns1_x="$DNS1"
 		nvram commit
+
+		# Remove /opt symlink
+		rm -rf "/opt/bin/install_stubby"
 
 		# reboot router to complete uninstall of Stubby
 		echo "Uninstall of Stubby completed. DNS has been set to Cloudflare 1.1.1.1"
@@ -451,8 +447,39 @@ update_wan_and_resolv_settings () {
 		nvram set wan_dns2_x=""
 		nvram set wan0_dns2_x=""
 
-		# Turn off DNSSEC setting in firmware
+		# Choose DNSSEC setting
 		nvram set dnssec_enable="0"
+		DNSMASQ_PARM="proxy-dnssec"
+		while true; do
+			printf "\n\nWould you like to cache DNSSEC Authenticated Data? (proxy-dnssec)\n"
+			echo "NOTE: This may cause issues with alternative DNS providers such as Quad9"
+			echo "[1]  --> Yes"
+			echo "[2]  --> No"
+			echo
+			printf "[1-2]: "
+			read -r "menu2"
+			echo
+			case "$menu2" in
+				1)
+					if grep -q "$DNSMASQ_PARM" "/jffs/configs/dnsmasq.conf.add"; then
+						printf '%b%s%b found in /jffs/configs/dnsmasq.conf.add\n' "${COLOR_GREEN}" "$DNSMASQ_PARM" "${COLOR_WHITE}"
+					else
+						printf 'Adding %b%s%b to /jffs/configs/dnsmasq.conf.add\n' "${COLOR_GREEN}" "$DNSMASQ_PARM" "${COLOR_WHITE}"
+						printf '%s\n' "$DNSMASQ_PARM" >> /jffs/configs/dnsmasq.conf.add
+					fi
+					break
+				;;
+				2)
+					if grep -q "$DNSMASQ_PARM" "/jffs/configs/dnsmasq.conf.add"; then
+						sed -i "\~$DNSMASQ_PARM~d" "/jffs/configs/dnsmasq.conf.add"
+					fi
+					break
+				;;
+				*)
+					echo "[*] $menu2 Isn't An Option!"
+				;;
+			esac
+		done
 
 		# Commit nvram values
 		nvram commit
@@ -535,6 +562,10 @@ install_stubby () {
 		stubby_yml_update
 		S61stubby_update
 		update_wan_and_resolv_settings
+
+		if [ -d "/opt/bin" ] && [ ! -L "/opt/bin/install_stubby" ]; then
+			ln -s /jffs/scripts/install_stubby.sh /opt/bin/install_stubby
+		fi
 
 		service restart_dnsmasq >/dev/null 2>&1
 		/opt/etc/init.d/S61stubby restart

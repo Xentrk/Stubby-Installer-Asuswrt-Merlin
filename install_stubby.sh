@@ -324,9 +324,9 @@ create_required_directories () {
 		for DIR in "/opt/var/cache/stubby" "/opt/var/log" "/opt/etc/stubby"; do
 			if [ ! -d "$DIR" ]; then
 				if mkdir -p "$DIR" >/dev/null 2>&1; then
-					printf "Created project directory %b%s%b\n" "${COLOR_GREEN}" "${DIR}" "${COLOR_WHITE}"
+					printf "Created project directory %b%s%b\\n" "${COLOR_GREEN}" "${DIR}" "${COLOR_WHITE}"
 				else
-					printf "Error creating directory %b%s%b. Exiting $(basename "$0")\n" "${COLOR_GREEN}" "${DIR}" "${COLOR_WHITE}"
+					printf "Error creating directory %b%s%b. Exiting $(basename "$0")\\n" "${COLOR_GREEN}" "${DIR}" "${COLOR_WHITE}"
 					exit 1
 				fi
 			fi
@@ -368,7 +368,7 @@ stubby_yml_update () {
 		download_file /opt/etc/stubby stubby.yml
 		chmod 644 /opt/etc/stubby/stubby.yml >/dev/null 2>&1
 		if [ "$(uname -m)" = "aarch64" ]; then
-			{ printf "\n\n# Tweaks for statically linked binaries\n"
+			{ printf '\n\n# Tweaks for statically linked binaries\n'
 			echo "tls_min_version: GETDNS_TLS1_3"
 			echo "tls_ciphersuites: \"TLS_AES_128_GCM_SHA256:TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256\""; } >> /opt/etc/stubby/stubby.yml
 		fi
@@ -455,7 +455,7 @@ update_wan_and_resolv_settings () {
 		nvram set dnssec_enable="0"
 		DNSMASQ_PARM="proxy-dnssec"
 		while true; do
-			printf "\n\nWould you like to cache DNSSEC Authenticated Data? (proxy-dnssec)\n"
+			printf '\n\nWould you like to cache DNSSEC Authenticated Data? (proxy-dnssec)\n'
 			echo "NOTE: This may cause issues with alternative DNS providers such as Quad9"
 			echo "[1]  --> Yes"
 			echo "[2]  --> No"
@@ -475,7 +475,7 @@ update_wan_and_resolv_settings () {
 				;;
 				2)
 					if grep -q "$DNSMASQ_PARM" "/jffs/configs/dnsmasq.conf.add"; then
-						sed -i "\~$DNSMASQ_PARM~d" "/jffs/configs/dnsmasq.conf.add"
+						sed -i "\\~$DNSMASQ_PARM~d" "/jffs/configs/dnsmasq.conf.add"
 					fi
 					break
 				;;
@@ -492,7 +492,7 @@ update_wan_and_resolv_settings () {
 }
 
 exit_message () {
-		printf '\n   %bhttps://github.com/Xentrk/Stubby-Installer-Asuswrt-Merlin%b\n' "$COLOR_GREEN" "$COLOR_WHITE\n"
+		printf '\n   %bhttps://github.com/Xentrk/Stubby-Installer-Asuswrt-Merlin%b\n' "$COLOR_GREEN" "$COLOR_WHITE\\n"
 		printf '                      Have a Grateful Day!\n\n'
 		printf '           ____        _         _                           \n'
 		printf '          |__  |      | |       | |                          \n'
@@ -514,7 +514,7 @@ install_stubby () {
 			fi
 		else
 			echo "You must first install Entware before proceeding"
-			printf "Exiting %s\n" "$(basename "$0")"
+			printf 'Exiting %s\n' "$(basename "$0")"
 			exit 1
 		fi
 
@@ -587,9 +587,9 @@ install_stubby () {
 update_installer () {
 	if [ "$localmd5" != "$remotemd5" ]; then
 		download_file /jffs/scripts install_stubby.sh
-		printf "\nUpdate Complete! %s\n" "$remotemd5"
+		printf '\nUpdate Complete! %s\n' "$remotemd5"
 	else
-		printf "\ninstall_stubby.sh is already the latest version. %s\n" "$localmd5"
+		printf '\ninstall_stubby.sh is already the latest version. %s\n' "$localmd5"
 	fi
 
 	exit_message

@@ -188,6 +188,7 @@ The **install_stubby.sh** script turns off the DNSSEC setting on the firmware to
   * https://rootcanary.org/test.html
   * http://dnssec.vs.uni-due.de/
   * http://en.conn.internet.nl/connection/
+  * http://0skar.cz/dns/en/
 
 2. DNS Nameserver Spoofability Test
   * https://www.grc.com/dns/dns.htm (scroll down and click on "Initiate Standard DNS Spoofability Test")

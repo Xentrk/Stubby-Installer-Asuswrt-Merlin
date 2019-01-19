@@ -150,8 +150,6 @@ Use the [Cloudflare Help Page](https://1.1.1.1/help) to validate you are connect
     
 Similariliy, the [Cloudflare Browsing Experience Security Check](https://www.cloudflare.com/ssl/encrypted-sni/) page tests whether your DNS queries and answers are encrypted, whether your DNS resolver uses DNSSEC, which version of TLS is used to connect to the page, and whether your browser supports encrypted Server Name Indication (SNI). 
 
-The [Cloudflare Browsing Experience Security Check Page](https://www.cloudflare.com/ssl/encrypted-sni/)  automatically tests whether your DNS queries and answers are encrypted, whether your DNS resolver uses DNSSEC, which version of TLS is used to connect to the page, and whether your browser supports encrypted Server Name Indication (SNI).
-
 ## Validation with Quad9
 Quad9 blocks the website http://isitblocked.org. If Quad9 is working properly, an **nslookup isitblocked.org** will fail:
 

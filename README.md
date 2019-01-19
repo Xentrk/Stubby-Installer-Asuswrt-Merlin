@@ -147,6 +147,8 @@ Use the [Cloudflare Help Page](https://1.1.1.1/help) to validate you are connect
     Connected to 1.1.1.1         Yes
     Using DNS over HTTPS (DoH)   No
     Using DNS over TLS (DoT)     Yes
+    
+Similariliy, the [Cloudflare Browsing Experience Security Check](https://www.cloudflare.com/ssl/encrypted-sni/) page tests whether your DNS queries and answers are encrypted, whether your DNS resolver uses DNSSEC, which version of TLS is used to connect to the page, and whether your browser supports encrypted Server Name Indication (SNI). 
 
 The [Cloudflare Browsing Experience Security Check Page](https://www.cloudflare.com/ssl/encrypted-sni/)  automatically tests whether your DNS queries and answers are encrypted, whether your DNS resolver uses DNSSEC, which version of TLS is used to connect to the page, and whether your browser supports encrypted Server Name Indication (SNI).
 
@@ -182,25 +184,30 @@ Add the commands to **/jffs/scripts/firewall-start** in order for the rules to b
 ## DNSSEC
 The **install_stubby.sh** script turns off the DNSSEC setting on the firmware to avoid conflicts with DNSSEC built into Stubby. Stubby uses **getdns** to manage DNSSEC. **getdns** uses a form of built-in trust-anchor management modeled on [RFC7958](https://tools.ietf.org/html/rfc7958), named [Zero configuration DNSSEC](https://getdnsapi.net/releases/getdns-1-2-0/).  If you turn on the firmware DNSSEC, the [Cloudflare Help Page](https://1.1.1.1/help) test page will not work. Early in my testing, I had root anchor files in the **appdata_dir** directory **/opt/var/cache/stubby**. Later in my testing, no root anchor files appeared in the **appdata_dir** directory. I created an [issue](https://github.com/getdnsapi/stubby/issues/136) with the Stubby support team. However, I did not receive a reply from my updates.  Since the DNSSEC test sites worked, I closed the issue.
 
-## DNSSEC, DNS Spoof, DNS Leak and WebRTC Leak Test Web Sites
-1. DNSSEC Test
+## DNS-over-TLS, DNSSEC, DNS Spoof, DNS Leak and WebRTC Leak Test Web Sites
+1. DNS-over-TLS Test
+
+   * [Cloudflare Help Page](https://1.1.1.1/help)
+   * [Cloudflare Browsing Experience Security Check](https://www.cloudflare.com/ssl/encrypted-sni/)
+   
+2. DNSSEC Test
 
   * https://rootcanary.org/test.html
   * http://dnssec.vs.uni-due.de/
   * http://en.conn.internet.nl/connection/
   * http://0skar.cz/dns/en/
 
-2. DNS Nameserver Spoofability Test
+3. DNS Nameserver Spoofability Test
   * https://www.grc.com/dns/dns.htm (scroll down and click on "Initiate Standard DNS Spoofability Test")
   *	https://www.dns-oarc.net/oarc/services/dnsentropy
 
-3. DNS Leak Test
+4. DNS Leak Test
 
   * https://www.dnsleaktest.com/ (use Extended test)
   *	https://ipleak.net/
   * https://www.perfect-privacy.com/dns-leaktest/
 
-4. WebRTC Leak Test
+5. WebRTC Leak Test
 
   * https://browserleaks.com/webrtc
   * https://ip8.com/webrtc-test

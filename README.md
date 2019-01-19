@@ -187,8 +187,8 @@ The **install_stubby.sh** script turns off the DNSSEC setting on the firmware to
 ## DNS-over-TLS, DNSSEC, DNS Spoof, DNS Leak and WebRTC Leak Test Web Sites
 1. DNS-over-TLS Test
 
-   * [Cloudflare Help Page](https://1.1.1.1/help)
-   * [Cloudflare Browsing Experience Security Check](https://www.cloudflare.com/ssl/encrypted-sni/)
+  * [Cloudflare Help Page](https://1.1.1.1/help)
+  * [Cloudflare Browsing Experience Security Check](https://www.cloudflare.com/ssl/encrypted-sni/)
    
 2. DNSSEC Test
 

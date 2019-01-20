@@ -460,6 +460,8 @@ update_wan_and_resolv_settings () {
 		nvram set wan0_dns2_x=""
 
 		if [ "$(nvram get ipv6_service)" != "disabled" ]; then
+			nvram set ipv6_dnsenable="0"
+			nvram set ipv61_dnsenable="0"
 			echo "server=${RTR_IP}" >> /tmp/resolv.dnsmasq
 			nvram set ipv6_dns1="$RTR_IP"
 			nvram set ipv6_dns2=""

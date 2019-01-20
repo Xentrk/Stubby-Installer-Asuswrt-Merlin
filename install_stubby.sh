@@ -522,6 +522,11 @@ exit_message () {
 }
 
 install_stubby () {
+		if [ -d /jffs/dnscrypt ]; then
+			echo "Warning! DNSCrypt installation detected"
+			printf "Please remove this script to continue installing Stubby\n\n"
+			exit 1
+		fi
 		echo
 		if Chk_Entware; then
 			if opkg update >/dev/null 2>&1; then
@@ -614,11 +619,6 @@ update_installer () {
 }
 
 clear
-if [ -d /jffs/dnscrypt ]; then
-	echo "Warning! DNSCrypt installation detected"
-	printf "Please remove this script to continue installing Stubby\n\n"
-	exit 1
-fi
 welcome_message "$@"
 
 logger -t "($(basename "$0"))" "$$ Ending Script Execution"

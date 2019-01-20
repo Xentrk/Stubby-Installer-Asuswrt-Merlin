@@ -522,7 +522,7 @@ exit_message () {
 }
 
 install_stubby () {
-		if [ -d /jffs/dnscrypt ]; then
+		if [ -d "/jffs/dnscrypt" ] || [ -f "/opt/sbin/dnscrypt-proxy" ]; then
 			echo "Warning! DNSCrypt installation detected"
 			printf 'Please remove this script to continue installing Stubby\n\n'
 			exit 1

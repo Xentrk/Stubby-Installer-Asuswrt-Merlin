@@ -157,7 +157,7 @@ remove_existing_installation () {
 		if [ -s "/jffs/configs/dnsmasq.conf.add" ]; then  # file exists
 			for DNSMASQ_PARM in "no-resolv" "server=127.0.0.1#5453" "server=0::1#5453" "server=/pool.ntp.org/1.1.1.1" "proxy-dnssec"; do
 				if grep -q "$DNSMASQ_PARM" "/jffs/configs/dnsmasq.conf.add"; then  # see if line exists
-					sed -i "\~$DNSMASQ_PARM~d" "/jffs/configs/dnsmasq.conf.add"
+					sed -i "\\~$DNSMASQ_PARM~d" "/jffs/configs/dnsmasq.conf.add"
 				fi
 			done
 		fi

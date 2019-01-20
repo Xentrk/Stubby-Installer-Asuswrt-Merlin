@@ -216,6 +216,13 @@ remove_existing_installation () {
 		nvram set wan_dns1_x="$DNS1"
 		nvram set wan0_xdns="$DNS1"
 		nvram set wan0_dns1_x="$DNS1"
+
+		if [ "$(nvram get ipv6_service)" != "disabled" ]; then
+			IPV6_DNS1="2606:4700:4700::1111"
+			nvram set ipv6_dns1="$IPV6_DNS1"
+			nvram set ipv61_dns1="$IPV6_DNS1"
+		fi
+
 		nvram commit
 
 		# Remove /opt symlink
@@ -435,6 +442,7 @@ update_wan_and_resolv_settings () {
 		DNS1="$LAN_IP"
 		NAMESERVER="$LAN_IP"
 		SERVER="$LAN_IP"
+		RTR_IP="$(nvram get ipv6_rtr_addr)"
 
 		# Set firmare nameserver and server entries
 		echo "nameserver $NAMESERVER" > /tmp/resolv.conf
@@ -450,6 +458,16 @@ update_wan_and_resolv_settings () {
 		# Set DNS2 to null
 		nvram set wan_dns2_x=""
 		nvram set wan0_dns2_x=""
+
+		if [ "$(nvram get ipv6_service)" != "disabled" ]; then
+			echo "server=${RTR_IP}" >> /tmp/resolv.dnsmasq
+			nvram set ipv6_dns1="$RTR_IP"
+			nvram set ipv6_dns2=""
+			nvram set ipv6_dns3=""
+			nvram set ipv61_dns1="$RTR_IP"
+			nvram set ipv61_dns2=""
+			nvram set ipv61_dns3=""
+		fi
 
 		# Choose DNSSEC setting
 		nvram set dnssec_enable="0"
@@ -596,6 +614,11 @@ update_installer () {
 }
 
 clear
+if [ -d /jffs/dnscrypt ]; then
+	echo "Warning! DNSCrypt installation detected"
+	printf "Please remove this script to continue installing Stubby\n\n"
+	exit 1
+fi
 welcome_message "$@"
 
 logger -t "($(basename "$0"))" "$$ Ending Script Execution"

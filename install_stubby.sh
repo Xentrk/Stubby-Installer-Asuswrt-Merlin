@@ -226,12 +226,14 @@ remove_existing_installation () {
 		nvram commit
 
 		# Remove /opt symlink
-		rm -rf "/opt/bin/install_stubby"
+		rm -rf "/opt/bin/install_stubby" "/jffs/scripts/install_stubby.sh"
 
 		# reboot router to complete uninstall of Stubby
 		echo "Uninstall of Stubby completed. DNS has been set to Cloudflare 1.1.1.1"
 		echo "The router will now reboot to finalize the removal of Stubby"
 		echo "After the reboot, review the DNS settings on the WAN GUI and adjust if necessary"
+		echo "Press Enter To Continue"
+		read
 		reboot
 }
 

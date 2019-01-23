@@ -1,7 +1,7 @@
 #!/bin/sh
 ####################################################################################################
 # Script: install_stubby.sh
-# Version 1.0.1
+# Version 1.0.2
 # Original Author: Xentrk
 # Date: 10-January-2019
 #
@@ -137,7 +137,7 @@ remove_existing_installation () {
 		echo "Starting removal of Stubby"
 
 		# Kill stubby process
-		pidof stubby | while read -r spid && [ -n "$spid" ]; do
+		pidof stubby | while read -r "spid" && [ -n "$spid" ]; do
 			kill "$spid"
 		done
 
@@ -233,7 +233,7 @@ remove_existing_installation () {
 		echo "The router will now reboot to finalize the removal of Stubby"
 		echo "After the reboot, review the DNS settings on the WAN GUI and adjust if necessary"
 		echo "Press Enter To Continue"
-		read
+		read -r
 		reboot
 }
 

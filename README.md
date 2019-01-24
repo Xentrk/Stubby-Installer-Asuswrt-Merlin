@@ -66,19 +66,19 @@ Run the following commands from an SSH session to verify that stubby is working 
 21283 admin    5560 S    stubby -g -v 5 -C /opt/etc/stubby/stubby.yml 2>/opt/var/log/stubby.log
 ```
 
-#### /opt/etc/init.d/S61stubby check
+### /opt/etc/init.d/S61stubby check
 
 ```
 Checking stubby...              alive.
 ```
 
-#### netstat -lnptu | grep stubby
+### netstat -lnptu | grep stubby
 ```
     tcp        0      0 127.0.0.1:5453          0.0.0.0:*               LISTEN      21283/stubby
     udp        0      0 127.0.0.1:5453          0.0.0.0:*                           21283/stubby
 ```
 
-#### netstat -lnpt | grep -E '^Active|^Proto|/stubby'
+### netstat -lnpt | grep -E '^Active|^Proto|/stubby'
 
 ```
     Active Internet connections (only servers)
@@ -86,7 +86,7 @@ Checking stubby...              alive.
     tcp        0      0 127.0.0.1:5453          0.0.0.0:*               LISTEN      24290/stubby
 ```
 
-#### drill github.com (requires entware package drill)
+### drill github.com (requires entware package drill)
 
 ```
     ;; ->>HEADER<<- opcode: QUERY, rcode: NOERROR, id: 41290
@@ -109,7 +109,7 @@ Checking stubby...              alive.
     ;; MSG SIZE  rcvd: 91
 ```
 
-#### nslookup github.com
+### nslookup github.com
 
 ```
     Server:    127.0.0.1
@@ -120,7 +120,7 @@ Checking stubby...              alive.
     Address 2: 192.30.253.112 lb-192-30-253-112-iad.github.com
 ```
 
-#### getdns_query -s @127.0.0.1 github.com
+### getdns_query -s @127.0.0.1 github.com
 
 ```
     <snip>
@@ -128,9 +128,9 @@ Checking stubby...              alive.
     }
 ```
 
-#### stubby -l
+### stubby -l
 
-```
+```Shell
     [10:13:13.838111] STUBBY: Read config from file /opt/etc/stubby/stubby.yml
     [10:13:13.844362] STUBBY: DNSSEC Validation is OFF
     [10:13:13.844413] STUBBY: Transport list is:
@@ -146,9 +146,9 @@ Checking stubby...              alive.
 Press **Ctrl-C** to return to the command prompt.
 ```
 
-#### echo | openssl s_client -verify on -CAfile /rom/etc/ssl/certs/ca-certificates.crt -connect 1.1.1.1:853
+### echo | openssl s_client -verify on -CAfile /rom/etc/ssl/certs/ca-certificates.crt -connect 1.1.1.1:853
 
-```
+```Shell
     CONNECTED(00000003)
     depth=2 C = US, O = DigiCert Inc, OU = www.digicert.com, CN = DigiCert Global Root CA
     verify return:1
@@ -170,9 +170,9 @@ Press **Ctrl-C** to return to the command prompt.
     <snip>
 ```
 
-#### Use the [Cloudflare Help Page](https://1.1.1.1/help) to validate you are connected to 1.1.1.1 and **DNS over TLS** is working.  If working properly, the page will display a **Yes** as seen in the example below
+### Use the [Cloudflare Help Page](https://1.1.1.1/help) to validate you are connected to 1.1.1.1 and **DNS over TLS** is working.  If working properly, the page will display a **Yes** as seen in the example below
 
-```
+```Shell
     Connected to 1.1.1.1         Yes
     Using DNS over HTTPS (DoH)   No
     Using DNS over TLS (DoT)     Yes
@@ -183,7 +183,8 @@ Similariliy, the [Cloudflare Browsing Experience Security Check](https://www.clo
 ## Validation with Quad9
 
 Quad9 blocks the website [http://isitblocked.org](http://isitblocked.org). If Quad9 is working properly, an **nslookup isitblocked.org** will fail:
-```
+
+```Shell
     Server:    127.0.0.1
     Address 1: 127.0.0.1 localhost.localdomain
 
@@ -211,7 +212,7 @@ To configure an OpenVPN Client to use Stubby DNS, set **Accept DNS Configuration
 
 A client device with DNS configured will override the DNS configured on the router. To override client DNS settings and force all LAN clients to use Stubby, enter the following commands in an SSH session.
 
-```
+```Shell
     iptables -t nat -A PREROUTING -i br0 -p udp --dport 53 -j DNAT --to "$(nvram get lan_ipaddr)"
     iptables -t nat -A PREROUTING -i br0 -p tcp --dport 53 -j DNAT --to "$(nvram get lan_ipaddr)"
 ```
@@ -264,7 +265,6 @@ The **install_stubby.sh** script turns off the DNSSEC setting on the firmware to
 *   Thank you to [snbforums.com](https://www.snbforums.com/) members [Jack Yaz](https://www.snbforums.com/members/jack-yaz.53009/), [bbunge](https://www.snbforums.com/members/bbunge.30783/),  [skeal](https://www.snbforums.com/members/skeal.47960/) and [M@rco](https://www.snbforums.com/members/m-rco.56284/) who volunteered their time performing testing and providing feedback.
 
 *   [Jack Yaz](https://www.snbforums.com/members/jack-yaz.53009/) forked the original installer to provide support for RT-AC86U routers.  
-
 *   [Adamm](https://www.snbforums.com/members/adamm.19554/) also forked the original installer script and added support for the RT-AX88U and GT-AC5300 HND routers. Adamm performed code improvements and implemented the performance improvements listed below.
 
 *   Odkrys compiled Stubby for HND routers RT-AC86U, RT-AX88U, GT-AC5300 and provided performance improvement suggestions: TLS 1.3 / Cipher List / haveged

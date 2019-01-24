@@ -51,6 +51,7 @@ Copy and paste the command below into an SSH session.
 ```Shell
 /usr/sbin/curl --retry 3 "https://raw.githubusercontent.com/Xentrk/Stubby-Installer-Asuswrt-Merlin/master/install_stubby.sh" -o "/jffs/scripts/install_stubby.sh" && chmod 755 /jffs/scripts/install_stubby.sh && sh /jffs/scripts/install_stubby.sh
 ```
+
 ## Stubby Configuration
 
 See the [Stubby Configuration Guide](https://dnsprivacy.org/wiki/display/DP/Configuring+Stubby) for a description of the configuration file options. For information on how I derived at the settings used in this project, see my blog post [DNS over TLS with DNSMASQ and Stubby on Asuswrt-Merlin](https://x3mtek.com/dns-over-tls-with-dnsmasq-and-stubby-on-asuswrt-merlin/).  
@@ -59,8 +60,7 @@ See the [Stubby Configuration Guide](https://dnsprivacy.org/wiki/display/DP/Conf
 
 Run the following commands from an SSH session to verify that stubby is working properly:
 
-
-#### ps | grep stubby | grep -v grep
+### ps | grep stubby | grep -v grep
 
 ```
 21283 admin    5560 S    stubby -g -v 5 -C /opt/etc/stubby/stubby.yml 2>/opt/var/log/stubby.log
@@ -127,6 +127,7 @@ Checking stubby...              alive.
     "status": GETDNS_RESPSTATUS_GOOD
     }
 ```
+
 #### stubby -l
 
 ```
@@ -169,7 +170,7 @@ Press **Ctrl-C** to return to the command prompt.
     <snip>
 ```
 
-#### Use the [Cloudflare Help Page](https://1.1.1.1/help) to validate you are connected to 1.1.1.1 and **DNS over TLS** is working.  If working properly, the page will display a **Yes** as seen in the example below:
+#### Use the [Cloudflare Help Page](https://1.1.1.1/help) to validate you are connected to 1.1.1.1 and **DNS over TLS** is working.  If working properly, the page will display a **Yes** as seen in the example below
 
 ```
     Connected to 1.1.1.1         Yes
@@ -188,17 +189,17 @@ Quad9 blocks the website [http://isitblocked.org](http://isitblocked.org). If Qu
 
     nslookup: can't resolve 'isitblocked.org'
 ```
+
 ## Known Issues
 
 1.  The [Cloudflare Help Page](https://1.1.1.1/help) test page will not work when the secondary IPv6 **2606:4700:4700::1001** is specified in **/opt/etc/stubby/stubby.yml**.
 2.  Stubby logging is currently simplistic or non-existent and simply writes to stdout. The Stubby team is working on making this better!
 
-
 ## Starting, Stopping and Killing Stubby
 
 To **(start|stop|restart|check|kill|reconfigure)** stubby, type the command below where **option** is one of the options listed in the parenthesis.
 
-```
+```Shell
     /opt/etc/init.d/S61stubby option
 ```
 
@@ -208,11 +209,13 @@ To configure an OpenVPN Client to use Stubby DNS, set **Accept DNS Configuration
 
 ## Blocking Client DNS requests
 
-A client device with DNS configured will override the DNS configured on the router. To override client DNS settings and force all LAN clients to use Stubby, enter the following commands in an SSH session.  
+A client device with DNS configured will override the DNS configured on the router. To override client DNS settings and force all LAN clients to use Stubby, enter the following commands in an SSH session.
+
 ```
     iptables -t nat -A PREROUTING -i br0 -p udp --dport 53 -j DNAT --to "$(nvram get lan_ipaddr)"
     iptables -t nat -A PREROUTING -i br0 -p tcp --dport 53 -j DNAT --to "$(nvram get lan_ipaddr)"
 ```
+
 Add the commands to **/jffs/scripts/firewall-start** in order for the rules to be applied upon a restart.
 
 ## DNSSEC
@@ -234,6 +237,7 @@ The **install_stubby.sh** script turns off the DNSSEC setting on the firmware to
 *   [http://0skar.cz/dns/en/](http://0skar.cz/dns/en/)
 
 3.  DNS Nameserver Spoofability Test
+
 *   [https://www.grc.com/dns/dns.htm](https://www.grc.com/dns/dns.htm) (scroll down and click on "Initiate Standard DNS Spoofability Test")
 *   [https://www.dns-oarc.net/oarc/services/dnsentropy](https://www.dns-oarc.net/oarc/services/dnsentropy)
 

@@ -585,6 +585,7 @@ install_stubby () {
 				exit 1
 			fi
 		fi
+		/opt/etc/init.d/S02haveged restart
 
 		check_dnsmasq_parms
 		create_required_directories

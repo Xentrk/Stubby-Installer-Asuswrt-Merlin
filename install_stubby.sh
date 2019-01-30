@@ -1,7 +1,7 @@
 #!/bin/sh
 ####################################################################################################
 # Script: install_stubby.sh
-# Version 1.0.2
+# Version 1.0.3
 # Original Author: Xentrk
 # Date: 10-January-2019
 #
@@ -24,7 +24,7 @@
 ####################################################################################################
 export PATH=/sbin:/bin:/usr/sbin:/usr/bin$PATH
 logger -t "($(basename "$0"))" "$$ Starting Script Execution"
-VERSION="1.0.1"
+VERSION="1.0.3"
 GIT_REPO="Stubby-Installer-Asuswrt-Merlin"
 GITHUB_DIR="https://raw.githubusercontent.com/Xentrk/$GIT_REPO/master"
 localmd5="$(md5sum "$0" | awk '{print $1}')"
@@ -547,21 +547,19 @@ install_stubby () {
 
 		if [ "$(uname -m)" = "aarch64" ]; then
 			download_file /tmp getdns-hnd-latest.ipk
-			download_file /tmp stubby-hnd-latest.ipk
 			if opkg install /tmp/getdns-hnd-latest.ipk --force-downgrade; then
 				echo "Patched getdns successfully installed"
 			else
 				echo "An error occurred installing patched Getdns"
 				exit 1
 			fi
-			if opkg install /tmp/stubby-hnd-latest.ipk --force-downgrade; then
+			if opkg install stubby; then
 				echo "Patched stubby successfully installed"
 			else
 				echo "An error occurred installing patched Stubby"
 				exit 1
 			fi
 			rm /tmp/getdns-hnd-latest.ipk
-			rm /tmp/stubby-hnd-latest.ipk
 		else
 			if opkg install stubby getdns; then
 				echo "Stubby successfully updated"

@@ -1,9 +1,8 @@
 #!/bin/sh
 ####################################################################################################
 # Script: install_stubby.sh
-# Version 1.0.3
 # Original Author: Xentrk
-# Date: 10-January-2019
+# Last Updated Date: 2-February-2019
 #
 # Description:
 #  Install the stubby DNS over TLS resolver package from entware on Asuswrt-Merlin firmware.
@@ -24,7 +23,7 @@
 ####################################################################################################
 export PATH=/sbin:/bin:/usr/sbin:/usr/bin$PATH
 logger -t "($(basename "$0"))" "$$ Starting Script Execution"
-VERSION="1.0.3"
+VERSION="1.0.4"
 GIT_REPO="Stubby-Installer-Asuswrt-Merlin"
 GITHUB_DIR="https://raw.githubusercontent.com/Xentrk/$GIT_REPO/master"
 localmd5="$(md5sum "$0" | awk '{print $1}')"
@@ -54,14 +53,13 @@ welcome_message () {
 			printf '|                                                                     |\n'
 			printf '| Requirements: jffs partition and USB drive with entware installed   |\n'
 			printf '|                                                                     |\n'
-			printf '| The use of Stubby on Asuswrt-Merlin is experimental.                |\n'
 			printf '| The install script will:                                            |\n'
 			printf '|   1. install the stubby entware package                             |\n'
 			printf '|   2. override how the firmware manages DNS                          |\n'
 			printf '|   3. disable the firmware DNSSEC setting                            |\n'
 			printf '|   4. default to Cloudflare DNS 1.1.1.1. You can change to other     |\n'
 			printf '|      supported DNS over TLS providers by modifying                  |\n'
-			printf '|      /opt/var/stubby/stubby.yml                                     |\n'
+			printf '|      /opt/etc/stubby/stubby.yml                                     |\n'
 			printf '|                                                                     |\n'
 			printf '| You can also use this script to uninstall Stubby to back out the    |\n'
 			printf '| changes made during the installation. See the project repository at |\n'
@@ -478,7 +476,6 @@ update_wan_and_resolv_settings () {
 		DNSMASQ_PARM="proxy-dnssec"
 		while true; do
 			printf '\n\nWould you like to cache DNSSEC Authenticated Data? (proxy-dnssec)\n'
-			echo "NOTE: This may cause issues with alternative DNS providers such as Quad9"
 			echo "[1]  --> Yes"
 			echo "[2]  --> No"
 			echo

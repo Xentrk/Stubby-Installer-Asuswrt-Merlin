@@ -146,6 +146,7 @@ remove_existing_installation () {
 			echo "Existing stubby package found. Removing Stubby"
 			if opkg remove stubby; then echo "Stubby successfully removed"; else echo "Error occurred when removing Stubby"; fi
 			if opkg remove getdns; then echo "GetDNS successfully removed"; else echo "Error occurred when removing GetDNS"; fi
+			if opkg remove haveged; then echo "haveged successfully removed"; else echo "Error occurred when removing haveged"; fi
 		else
 			echo "Unable to remove Stubby. Entware is not mounted"
 		fi

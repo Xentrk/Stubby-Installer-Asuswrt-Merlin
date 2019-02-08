@@ -2,7 +2,7 @@
 ####################################################################################################
 # Script: install_stubby.sh
 # Original Author: Xentrk
-# Last Updated Date: 2-February-2019
+# Last Updated Date: 8-February-2019
 #
 # Description:
 #  Install the stubby DNS over TLS resolver package from entware on Asuswrt-Merlin firmware.
@@ -23,7 +23,7 @@
 ####################################################################################################
 export PATH=/sbin:/bin:/usr/sbin:/usr/bin$PATH
 logger -t "($(basename "$0"))" "$$ Starting Script Execution"
-VERSION="1.0.4"
+VERSION="1.0.5"
 GIT_REPO="Stubby-Installer-Asuswrt-Merlin"
 GITHUB_DIR="https://raw.githubusercontent.com/Xentrk/$GIT_REPO/master"
 localmd5="$(md5sum "$0" | awk '{print $1}')"
@@ -177,15 +177,9 @@ remove_existing_installation () {
 			fi
 		done
 
-		# /opt/var/log/stubby log file
+		# Remove /opt/var/log/stubby.log file
 		if [ -f "/opt/var/log/stubby.log" ]; then  # file exists
 			rm "/opt/var/log/stubby.log"
-		fi
-
-		# /opt/var/log message to user
-		if [ -d "/opt/var/log" ]; then
-			printf '\nDirectory %b/opt/var/log%b found. Skipping deletion of directory as it may be used by other applications\n' "$COLOR_GREEN" "$COLOR_WHITE"
-			printf 'You can manually delete %b/opt/var/log%b if not used by other applications\n' "$COLOR_GREEN" "$COLOR_WHITE"
 		fi
 
 		# Remove /jffs/configs/resolv.dnsmasq
@@ -534,7 +528,7 @@ install_stubby () {
 			if opkg update >/dev/null 2>&1; then
 				echo "Entware package list successfully updated";
 			else
-				echo "An error occurred updating Entware packagelist"
+				echo "An error occurred updating Entware package list"
 				exit 1
 			fi
 		else

@@ -211,19 +211,6 @@ To **(start|stop|restart|check|kill|reconfigure)** stubby, type the command belo
 
 To configure an OpenVPN Client to use Stubby DNS, set **Accept DNS Configuration = Disabled** on the **VPN->VPN Client** page. Select the **Apply** button to save the setting.
 
-## Blocking Client DNS requests
-
-A client device with DNS configured will override the DNS configured on the router. To override client DNS settings and force all LAN clients to use Stubby, copy the lines in the code snippet below and place inside a script file located in **/jffs/scripts** called **Redirect_DNS.sh**.  Make the file **Redirect_DNS.sh** executable using the command **chmod 755 /jffs/scripts/Redirect_DNS.sh**.  Then, inside of **/jffs/scripts/firewall-start**, call the script using the command **sh /jffs/scripts/Redirect_DNS.sh** to allow the rules to be applied upon a restart or other firewall event.
-
-```Shell
-    #!/bin/sh
-    iptables -t nat -D PREROUTING -i br0 -p udp --dport 53 -j DNAT --to "$(nvram get lan_ipaddr)" > /dev/null 2>&1
-    iptables -t nat -D PREROUTING -i br0 -p tcp --dport 53 -j DNAT --to "$(nvram get lan_ipaddr)" > /dev/null 2>&1
-
-    iptables -t nat -A PREROUTING -i br0 -p udp --dport 53 -j DNAT --to "$(nvram get lan_ipaddr)"
-    iptables -t nat -A PREROUTING -i br0 -p tcp --dport 53 -j DNAT --to "$(nvram get lan_ipaddr)"
-```
-
 ## DNSSEC
 
 The **install_stubby.sh** script turns off the DNSSEC setting on the firmware to avoid conflicts with DNSSEC built into Stubby. Stubby uses **getdns** to manage DNSSEC. **getdns** uses a form of built-in trust-anchor management modeled on [RFC7958](https://tools.ietf.org/html/rfc7958), named [Zero configuration DNSSEC](https://getdnsapi.net/releases/getdns-1-2-0/).  If you turn on the firmware DNSSEC, the [Cloudflare Help Page](https://1.1.1.1/help) test page will not work. Early in my testing, I had root anchor files in the **appdata_dir** directory **/opt/var/cache/stubby**. Later in my testing, no root anchor files appeared in the **appdata_dir** directory. I created an [issue](https://github.com/getdnsapi/stubby/issues/136) with the Stubby support team. However, I did not receive a reply from my updates.  Since the DNSSEC test sites worked, I closed the issue.

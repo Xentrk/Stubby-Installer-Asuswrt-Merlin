@@ -2,7 +2,7 @@
 ####################################################################################################
 # Script: install_stubby.sh
 # Original Author: Xentrk
-# Last Updated Date: 8-February-2019
+# Last Updated Date: 9-February-2019
 #
 # Description:
 #  Install the stubby DNS over TLS resolver package from entware on Asuswrt-Merlin firmware.
@@ -23,7 +23,7 @@
 ####################################################################################################
 export PATH=/sbin:/bin:/usr/sbin:/usr/bin$PATH
 logger -t "($(basename "$0"))" "$$ Starting Script Execution"
-VERSION="1.0.5"
+VERSION="1.0.6"
 GIT_REPO="Stubby-Installer-Asuswrt-Merlin"
 GITHUB_DIR="https://raw.githubusercontent.com/Xentrk/$GIT_REPO/master"
 localmd5="$(md5sum "$0" | awk '{print $1}')"
@@ -499,6 +499,38 @@ update_wan_and_resolv_settings () {
 			esac
 		done
 
+		# Choose IPTables Setting
+		if [ ! -f "/jffs/scripts/nat-start" ]; then
+			echo "#!/bin/sh" > /jffs/scripts/nat-start
+			echo >> /jffs/scripts/nat-start
+		elif [ -f "/jffs/scripts/nat-start" ] && ! head -1 /jffs/scripts/nat-start | grep -qE "^#!/bin/sh"; then
+			sed -i '1s~^~#!/bin/sh\n~' /jffs/scripts/nat-start
+		fi
+		chmod 755 /jffs/scripts/nat-start
+		while true; do
+			printf '\n\nWould you like to force all client DNS requests through Stubby\n'
+			echo "[1]  --> Yes"
+			echo "[2]  --> No"
+			echo
+			printf "[1-2]: "
+			read -r "menu2"
+			echo
+			case "$menu2" in
+				1)
+						sed -i '\~ Stubby Installer~d' /jffs/scripts/nat-start
+						echo "sh /jffs/scripts/install_stubby.sh iptables # Stubby Installer" >> /jffs/scripts/nat-start
+						break
+				;;
+				2)
+						sed -i '\~ Stubby Installer~d' /jffs/scripts/nat-start
+						break
+				;;
+				*)
+					echo "[*] $menu2 Isn't An Option!"
+				;;
+			esac
+		done
+
 		# Commit nvram values
 		nvram commit
 
@@ -591,6 +623,7 @@ install_stubby () {
 
 		service restart_dnsmasq >/dev/null 2>&1
 		/opt/etc/init.d/S61stubby restart
+		service restart_firewall >/dev/null 2>&1
 
 		if pidof stubby >/dev/null 2>&1; then
 			echo "Installation of Stubby completed"
@@ -614,6 +647,13 @@ update_installer () {
 }
 
 clear
-welcome_message "$@"
+if [ "$1" = "iptables" ]; then
+	iptables -t nat -D PREROUTING -i br0 -p udp --dport 53 -j DNAT --to "$(nvram get lan_ipaddr)" 2>/dev/null
+	iptables -t nat -D PREROUTING -i br0 -p tcp --dport 53 -j DNAT --to "$(nvram get lan_ipaddr)" 2>/dev/null
+	iptables -t nat -A PREROUTING -i br0 -p udp --dport 53 -j DNAT --to "$(nvram get lan_ipaddr)" 2>/dev/null
+	iptables -t nat -A PREROUTING -i br0 -p tcp --dport 53 -j DNAT --to "$(nvram get lan_ipaddr)" 2>/dev/null
+else
+	welcome_message "$@"
+fi
 
 logger -t "($(basename "$0"))" "$$ Ending Script Execution"

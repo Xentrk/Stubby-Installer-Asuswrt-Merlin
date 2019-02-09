@@ -214,7 +214,6 @@ To configure an OpenVPN Client to use Stubby DNS, set **Accept DNS Configuration
 ## Blocking Client DNS requests
 
 A client device with DNS configured will override the DNS configured on the router. To override client DNS settings and force all LAN clients to use Stubby, copy the lines in the code snippet below and place inside a script file located in **/jffs/scripts** called **Redirect_DNS.sh**.  Make the file **Redirect_DNS.sh** executable using the command **chmod 755 /jffs/scripts/Redirect_DNS.sh**.  Then, inside of **/jffs/scripts/firewall-start**, call the script using the command **sh /jffs/scripts/Redirect_DNS.sh** to allow the rules to be applied upon a restart or other firewall event.
- .
 
 ```Shell
     #!/bin/sh

@@ -192,6 +192,11 @@ remove_existing_installation () {
 			/opt/bin/find /opt/etc/init.d -type f -name S61stubby\* -delete
 		fi
 
+		#remove /jffs/scripts/nat-start
+		if grep -qF "Stubby Installer" /jffs/scripts/nat-start; then
+			sed -i '\~ Stubby Installer~d' /jffs/scripts/nat-start
+		fi
+
 		# remove /jffs/scripts/openvpn-event
 		if [ -s "/jffs/scripts/openvpn-event" ]; then  # file exists
 			if grep -q "cp /jffs/configs/resolv.dnsmasq /tmp/resolv.dnsmasq" "/jffs/scripts/openvpn-event"; then  # see if line exists

@@ -523,7 +523,11 @@ update_wan_and_resolv_settings () {
 			case "$menu2" in
 				1)
 						sed -i '\~ Stubby Installer~d' /jffs/scripts/nat-start
-						echo "sh /jffs/scripts/install_stubby.sh iptables # Stubby Installer" >> /jffs/scripts/nat-start
+						if [ "$(nvram get dnsfilter_enable_x)" != "1" ]; then
+							echo "sh /jffs/scripts/install_stubby.sh iptables # Stubby Installer" >> /jffs/scripts/nat-start
+						else
+							echo "This setting is incompatible with DNSFilter"
+						fi
 						break
 				;;
 				2)

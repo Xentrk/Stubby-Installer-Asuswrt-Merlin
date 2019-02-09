@@ -23,7 +23,7 @@
 ####################################################################################################
 export PATH=/sbin:/bin:/usr/sbin:/usr/bin$PATH
 logger -t "($(basename "$0"))" "$$ Starting Script Execution"
-VERSION="1.0.6"
+VERSION="1.0.7"
 GIT_REPO="Stubby-Installer-Asuswrt-Merlin"
 GITHUB_DIR="https://raw.githubusercontent.com/Xentrk/$GIT_REPO/master"
 localmd5="$(md5sum "$0" | awk '{print $1}')"
@@ -260,22 +260,6 @@ Chk_Entware () {
 					if [ -n "$(opkg list-installed "$ENTWARE_UTILITY")" ]; then
 						READY="0"                                 # Specific Entware utility found
 					else
-						# Xentrk revision needed to bypass false positive that stubby is installed if /opt/var/cache/stubby
-						# and /opt/etc/stubby exists. When stubby is removed via the command line, the entware directory
-						# is not deleted.
-
-						# check for stubby folders with no files
-						for DIR in /opt/var/cache/stubby /opt/etc/stubby; do
-							if [ -d "$DIR" ]; then
-								if ! is_dir_empty "$DIR"; then
-									if ! rmdir "$DIR" >/dev/null 2>&1; then
-										printf '\nError trying to remove %b%s%b\n' "$COLOR_GREEN" "$DIR" "$COLOR_WHITE"
-									else
-										printf '\norphaned %b%s%b folder removed\n' "$COLOR_GREEN"  "$DIR" "$COLOR_WHITE"
-									fi
-								fi
-							fi
-						done
 						# Not all Entware utilities exists as a stand-alone package e.g. 'find' is in package 'findutils'
 						if [ -d /opt ] && [ -n "$(find /opt/ -name "$ENTWARE_UTILITY")" ]; then
 							READY="0"                               # Specific Entware utility found
@@ -586,10 +570,26 @@ install_stubby () {
 				echo "An error occurred installing patched Getdns"
 				exit 1
 			fi
+			# Xentrk revision needed to bypass false positive that stubby is installed if /opt/var/cache/stubby
+			# and /opt/etc/stubby exists. When stubby is removed via the command line, the entware directory
+			# is not deleted.
+
+			# check for stubby folders with no files
+			for DIR in /opt/var/cache/stubby /opt/etc/stubby; do
+				if [ -d "$DIR" ]; then
+					if ! is_dir_empty "$DIR"; then
+						if ! rmdir "$DIR" >/dev/null 2>&1; then
+							printf '\nError trying to remove %b%s%b\n' "$COLOR_GREEN" "$DIR" "$COLOR_WHITE"
+						else
+							printf '\norphaned %b%s%b folder removed\n' "$COLOR_GREEN"  "$DIR" "$COLOR_WHITE"
+						fi
+					fi
+				fi
+			done
 			if opkg install stubby; then
-				echo "Patched stubby successfully installed"
+				echo "Stubby successfully installed"
 			else
-				echo "An error occurred installing patched Stubby"
+				echo "An error occurred installing Stubby"
 				exit 1
 			fi
 			rm /tmp/getdns-hnd-latest.ipk

@@ -13,6 +13,7 @@ logger -t S61stubby "$1 Stubby DNS over TLS $0"
 # set environment PATH to system binaries
 export PATH=/sbin:/bin:/usr/sbin:/usr/bin:$PATH
 
+export TZ=$(cat /etc/TZ)
 ENABLED=yes
 PROCS=stubby
 ARGS="-g -v 5 -C /opt/etc/stubby/stubby.yml 2>/opt/var/log/stubby.log"

@@ -2,7 +2,7 @@
 ####################################################################################################
 # Script: install_stubby.sh
 # Original Author: Xentrk
-# Last Updated Date: 10-February-2019
+# Last Updated Date: 12-February-2019
 #
 # Description:
 #  Install the stubby DNS over TLS resolver package from entware on Asuswrt-Merlin firmware.
@@ -23,7 +23,7 @@
 ####################################################################################################
 export PATH=/sbin:/bin:/usr/sbin:/usr/bin$PATH
 logger -t "($(basename "$0"))" "$$ Starting Script Execution ($(if [ -n "$1" ]; then echo "$1"; else echo "menu"; fi))"
-VERSION="1.0.7"
+VERSION="1.0.8"
 GIT_REPO="Stubby-Installer-Asuswrt-Merlin"
 GITHUB_DIR="https://raw.githubusercontent.com/Xentrk/$GIT_REPO/master"
 localmd5="$(md5sum "$0" | awk '{print $1}')"
@@ -617,6 +617,9 @@ install_stubby () {
 				echo "An error occurred installing Haveged";
 				exit 1
 			fi
+		fi
+		if ! grep -qF 'export TZ=$(cat /etc/TZ)' /opt/etc/init.d/S02haveged; then
+			sed -i '3i export TZ=$(cat /etc/TZ)' /opt/etc/init.d/S02haveged
 		fi
 		/opt/etc/init.d/S02haveged restart
 

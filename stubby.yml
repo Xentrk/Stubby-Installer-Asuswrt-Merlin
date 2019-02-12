@@ -1,5 +1,3 @@
-# stubby.yml configuration file created by Xentrk
-# version 1.0.0
 tls_ca_file: "/rom/etc/ssl/certs/ca-certificates.crt"
 resolution_type: GETDNS_RESOLUTION_STUB
 dns_transport_list:

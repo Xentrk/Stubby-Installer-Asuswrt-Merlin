@@ -618,8 +618,8 @@ install_stubby () {
 				exit 1
 			fi
 		fi
-		if ! grep -qF 'export TZ=$(cat /etc/TZ)' /opt/etc/init.d/S02haveged; then
-			sed -i '3i export TZ=$(cat /etc/TZ)' /opt/etc/init.d/S02haveged
+		if ! grep -qF "export TZ=\$(cat /etc/TZ)" /opt/etc/init.d/S02haveged; then
+			sed -i "3i export TZ=\$(cat /etc/TZ)" /opt/etc/init.d/S02haveged
 		fi
 		/opt/etc/init.d/S02haveged restart
 

@@ -2,20 +2,21 @@
 ####################################################################################################
 # Script: install_stubby.sh
 # Original Author: Xentrk
-# Last Updated Date: 12-February-2019
+# Maintainer: Adamm
+# Last Updated Date: 15-February-2019
 #
 # Description:
 #  Install the stubby DNS over TLS resolver package from entware on Asuswrt-Merlin firmware.
 #  See https://github.com/Xentrk/Stubby-Installer-Asuswrt-Merlin for a description of system changes
 #
 # Acknowledgement:
-#  Chk_Entware function provided by @Martineau. Mods made by Adamm
+#  Chk_Entware function provided by Martineau.
 #  Test team: bbunge, skeal, M@rco, Jack Yaz
 #  Assistance: John9527 implemented Stubby on his Fork and provided lessons learned and an example of
 #              stubby.yml used in the Fork.
 #  Contributors: Adamm & Jack Yaz both forked and updated the original installer to provide support
 #                for HND routers. Adamm also implemented the performance improvements listed below,
-#                and performed code enhancements.
+#                and preforms ongoing code maintainance.
 #
 #                Odkrys compiled Stubby for HND routers RT-AC86U, RT-AX88U, GT-AC5300 and provided
 #                performance improvement suggestionns: TLS 1.3 / Cipher List / haveged
@@ -23,7 +24,7 @@
 ####################################################################################################
 export PATH=/sbin:/bin:/usr/sbin:/usr/bin$PATH
 logger -t "($(basename "$0"))" "$$ Starting Script Execution ($(if [ -n "$1" ]; then echo "$1"; else echo "menu"; fi))"
-VERSION="1.0.8"
+VERSION="1.0.9"
 GIT_REPO="Stubby-Installer-Asuswrt-Merlin"
 GITHUB_DIR="https://raw.githubusercontent.com/Xentrk/$GIT_REPO/master"
 localmd5="$(md5sum "$0" | awk '{print $1}')"
@@ -36,6 +37,33 @@ COLOR_RED='\033[0;31m'
 COLOR_WHITE='\033[0m'
 COLOR_GREEN='\e[0;32m'
 
+Check_Lock () {
+		if [ -f "/tmp/stubby.lock" ] && [ -d "/proc/$(sed -n '2p' /tmp/stubby.lock)" ] && [ "$(sed -n '2p' /tmp/stubby.lock)" != "$$" ]; then
+			if [ "$(($(date +%s)-$(sed -n '3p' /tmp/stubby.lock)))" -gt "1800" ]; then
+				Kill_Lock
+			else
+				logger -st Stubby "[*] Lock File Detected ($(sed -n '1p' /tmp/stubby.lock)) (pid=$(sed -n '2p' /tmp/stubby.lock)) - Exiting (cpid=$$)"
+				echo; exit 1
+			fi
+		fi
+		if [ -n "$1" ]; then
+			echo "$1" > /tmp/stubby.lock
+		else
+			echo "menu" > /tmp/stubby.lock
+		fi
+		echo "$$" >> /tmp/stubby.lock
+		date +%s >> /tmp/stubby.lock
+}
+
+Kill_Lock () {
+		if [ -f "/tmp/stubby.lock" ] && [ -d "/proc/$(sed -n '2p' /tmp/stubby.lock)" ]; then
+			logger -st Stubby "[*] Killing Locked Processes ($(sed -n '1p' /tmp/stubby.lock)) (pid=$(sed -n '2p' /tmp/stubby.lock))"
+			logger -st Stubby "[*] $(ps | awk -v pid="$(sed -n '2p' /tmp/stubby.lock)" '$1 == pid')"
+			kill "$(sed -n '2p' /tmp/stubby.lock)"
+			rm -rf /tmp/stubby.lock
+			echo
+		fi
+}
 
 welcome_message () {
 		while true; do
@@ -539,6 +567,7 @@ exit_message () {
 		printf '    \ \/ / |_  | %b %b \  __|/ _ \| |/ /   /  _//    \| %b %b \ \n' "\`" "\`" "\`" "\`"
 		printf '     /  /  __| | | | |  |_ | __/|   <   (  (_ | [] || | | |  \n'
 		printf '    /_/\_\|___ |_|_|_|\___|\___||_|\_\[] \___\\\____/|_|_|_| \n\n\n'
+		rm -rf /tmp/stubby.lock
 		exit 0
 }
 
@@ -659,11 +688,14 @@ update_installer () {
 }
 
 clear
+Check_Lock "$1"
 if [ "$1" = "iptables" ]; then
+	sleep 20
 	iptables -t nat -D PREROUTING -i br0 -p udp --dport 53 -j DNAT --to "$(nvram get lan_ipaddr)" 2>/dev/null
 	iptables -t nat -D PREROUTING -i br0 -p tcp --dport 53 -j DNAT --to "$(nvram get lan_ipaddr)" 2>/dev/null
-	iptables -t nat -A PREROUTING -i br0 -p udp --dport 53 -j DNAT --to "$(nvram get lan_ipaddr)" 2>/dev/null
-	iptables -t nat -A PREROUTING -i br0 -p tcp --dport 53 -j DNAT --to "$(nvram get lan_ipaddr)" 2>/dev/null
+	iptables -t nat -A PREROUTING -i br0 -p udp --dport 53 -j DNAT --to "$(nvram get lan_ipaddr)"
+	iptables -t nat -A PREROUTING -i br0 -p tcp --dport 53 -j DNAT --to "$(nvram get lan_ipaddr)"
 else
 	welcome_message "$@"
 fi
+rm -rf /tmp/stubby.lock

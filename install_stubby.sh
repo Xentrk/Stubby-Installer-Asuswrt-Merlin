@@ -251,6 +251,8 @@ remove_existing_installation () {
 			nvram set ipv6_dnsenable="1"
 		fi
 
+		nvram set dnsfilter_enable_x="0"
+
 		nvram commit
 
 		# Remove /opt symlink

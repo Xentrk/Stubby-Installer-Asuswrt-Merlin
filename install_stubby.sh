@@ -3,7 +3,7 @@
 # Script: install_stubby.sh
 # Original Author: Xentrk
 # Maintainer: Adamm
-# Last Updated Date: 15-February-2019
+# Last Updated Date: 21-March-2019
 #
 # Description:
 #  Install the stubby DNS over TLS resolver package from entware on Asuswrt-Merlin firmware.
@@ -24,7 +24,7 @@
 ####################################################################################################
 export PATH=/sbin:/bin:/usr/sbin:/usr/bin$PATH
 logger -t "($(basename "$0"))" "$$ Starting Script Execution ($(if [ -n "$1" ]; then echo "$1"; else echo "menu"; fi))"
-VERSION="1.0.9"
+VERSION="1.1.0"
 GIT_REPO="Stubby-Installer-Asuswrt-Merlin"
 GITHUB_DIR="https://raw.githubusercontent.com/Xentrk/$GIT_REPO/master"
 localmd5="$(md5sum "$0" | awk '{print $1}')"
@@ -242,11 +242,13 @@ remove_existing_installation () {
 		nvram set wan_dns1_x="$DNS1"
 		nvram set wan0_xdns="$DNS1"
 		nvram set wan0_dns1_x="$DNS1"
+		nvram set wan0_dnsenable_x="1"
 
 		if [ "$(nvram get ipv6_service)" != "disabled" ]; then
 			IPV6_DNS1="2606:4700:4700::1111"
 			nvram set ipv6_dns1="$IPV6_DNS1"
 			nvram set ipv61_dns1="$IPV6_DNS1"
+			nvram set ipv6_dnsenable="1"
 		fi
 
 		nvram commit
@@ -255,7 +257,7 @@ remove_existing_installation () {
 		rm -rf "/opt/bin/install_stubby" "/jffs/scripts/install_stubby.sh"
 
 		# reboot router to complete uninstall of Stubby
-		echo "Uninstall of Stubby completed. DNS has been set to Cloudflare 1.1.1.1"
+		echo "Uninstall of Stubby completed. DNS has been set to your ISP's default"
 		echo "The router will now reboot to finalize the removal of Stubby"
 		echo "After the reboot, review the DNS settings on the WAN GUI and adjust if necessary"
 		echo "Press Enter To Continue"
@@ -517,15 +519,8 @@ update_wan_and_resolv_settings () {
 		done
 
 		# Choose IPTables Setting
-		if [ ! -f "/jffs/scripts/nat-start" ]; then
-			echo "#!/bin/sh" > /jffs/scripts/nat-start
-			echo >> /jffs/scripts/nat-start
-		elif [ -f "/jffs/scripts/nat-start" ] && ! head -1 /jffs/scripts/nat-start | grep -qE "^#!/bin/sh"; then
-			sed -i '1s~^~#!/bin/sh\n~' /jffs/scripts/nat-start
-		fi
-		chmod 755 /jffs/scripts/nat-start
 		while true; do
-			printf '\n\nWould you like to force all client DNS requests through Stubby\n'
+			printf '\n\nWould you like to force all client DNS requests through Stubby (DNSFilter)\n'
 			echo "[1]  --> Yes"
 			echo "[2]  --> No"
 			echo
@@ -534,16 +529,21 @@ update_wan_and_resolv_settings () {
 			echo
 			case "$menu2" in
 				1)
-						sed -i '\~ Stubby Installer~d' /jffs/scripts/nat-start
-						if [ "$(nvram get dnsfilter_enable_x)" != "1" ]; then
-							echo "sh /jffs/scripts/install_stubby.sh iptables # Stubby Installer" >> /jffs/scripts/nat-start
-						else
-							echo "This setting is incompatible with DNSFilter"
-						fi
+						nvram set dnsfilter_custom1=""
+						nvram set dnsfilter_custom2=""
+						nvram set dnsfilter_custom3=""
+						nvram set dnsfilter_enable_x="1"
+						nvram set dnsfilter_mode="11"
+						nvram set dnsfilter_rulelist=""
+						nvram set dnsfilter_rulelist1=""
+						nvram set dnsfilter_rulelist2=""
+						nvram set dnsfilter_rulelist3=""
+						nvram set dnsfilter_rulelist4=""
+						nvram set dnsfilter_rulelist5=""
 						break
 				;;
 				2)
-						sed -i '\~ Stubby Installer~d' /jffs/scripts/nat-start
+						nvram set dnsfilter_enable_x="0"
 						break
 				;;
 				*)
@@ -554,6 +554,17 @@ update_wan_and_resolv_settings () {
 
 		# Commit nvram values
 		nvram commit
+
+		# IPv6 Prefix Check
+		if [ ! -f "/jffs/scripts/nat-start" ]; then
+			echo "#!/bin/sh" > /jffs/scripts/nat-start
+			echo >> /jffs/scripts/nat-start
+		elif [ -f "/jffs/scripts/nat-start" ] && ! head -1 /jffs/scripts/nat-start | grep -qE "^#!/bin/sh"; then
+			sed -i '1s~^~#!/bin/sh\n~' /jffs/scripts/nat-start
+		fi
+		chmod 755 /jffs/scripts/nat-start
+		sed -i '\~ Stubby Installer~d' /jffs/scripts/nat-start
+		echo "sh /jffs/scripts/install_stubby.sh checkipv6 # Stubby Installer" >> /jffs/scripts/nat-start
 
 		check_openvpn_event "$SERVER"
 }
@@ -689,12 +700,17 @@ update_installer () {
 
 clear
 Check_Lock "$1"
-if [ "$1" = "iptables" ]; then
-	sleep 20
-	iptables -t nat -D PREROUTING -i br0 -p udp --dport 53 -j DNAT --to "$(nvram get lan_ipaddr)" 2>/dev/null
-	iptables -t nat -D PREROUTING -i br0 -p tcp --dport 53 -j DNAT --to "$(nvram get lan_ipaddr)" 2>/dev/null
-	iptables -t nat -A PREROUTING -i br0 -p udp --dport 53 -j DNAT --to "$(nvram get lan_ipaddr)"
-	iptables -t nat -A PREROUTING -i br0 -p tcp --dport 53 -j DNAT --to "$(nvram get lan_ipaddr)"
+if [ "$1" = "checkipv6" ]; then
+	if [ "$(nvram get ipv6_service)" != "disabled" ]; then
+		RTR_IP="$(nvram get ipv6_rtr_addr)"
+		nvram set ipv6_dns1="$RTR_IP"
+		nvram set ipv6_dns2=""
+		nvram set ipv6_dns3=""
+		nvram set ipv61_dns1="$RTR_IP"
+		nvram set ipv61_dns2=""
+		nvram set ipv61_dns3=""
+		nvram commit
+	fi
 else
 	welcome_message "$@"
 fi

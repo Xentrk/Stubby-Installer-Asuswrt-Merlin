@@ -3,7 +3,7 @@
 # Script: install_stubby.sh
 # Original Author: Xentrk
 # Maintainer: Adamm
-# Last Updated Date: 21-March-2019
+# Last Updated Date: 24-March-2019
 #
 # Description:
 #  Install the stubby DNS over TLS resolver package from entware on Asuswrt-Merlin firmware.
@@ -24,11 +24,9 @@
 ####################################################################################################
 export PATH=/sbin:/bin:/usr/sbin:/usr/bin$PATH
 logger -t "($(basename "$0"))" "$$ Starting Script Execution ($(if [ -n "$1" ]; then echo "$1"; else echo "menu"; fi))"
-VERSION="1.1.0"
+VERSION="1.1.1"
 GIT_REPO="Stubby-Installer-Asuswrt-Merlin"
 GITHUB_DIR="https://raw.githubusercontent.com/Xentrk/$GIT_REPO/master"
-localmd5="$(md5sum "$0" | awk '{print $1}')"
-remotemd5="$(curl -fsL --retry 3 "${GITHUB_DIR}/install_stubby.sh" | md5sum | awk '{print $1}')"
 
 # Uncomment the line below for debugging
 #set -x
@@ -93,20 +91,25 @@ welcome_message () {
 			printf '| changes made during the installation. See the project repository at |\n'
 			printf '| %bhttps://github.com/Xentrk/Stubby-Installer-Asuswrt-Merlin%b           |\n' "$COLOR_GREEN" "$COLOR_WHITE"
 			printf '| for helpful tips.                                                   |\n'
-			printf '|_____________________________________________________________________|\n'
-			printf '\n'
-			if pidof stubby >/dev/null 2>&1; then
-				printf '%b1%b = Update Stubby Configuration\n' "${COLOR_GREEN}" "${COLOR_WHITE}"
+			printf '|_____________________________________________________________________|\n\n'
+			if [ "$1" = "uninstall" ]; then
+				menu1="2"
 			else
-				printf '%b1%b = Begin Stubby Installation Process\n' "${COLOR_GREEN}" "${COLOR_WHITE}"
+				localmd5="$(md5sum "$0" | awk '{print $1}')"
+				remotemd5="$(curl -fsL --retry 3 "${GITHUB_DIR}/install_stubby.sh" | md5sum | awk '{print $1}')"
+				if pidof stubby >/dev/null 2>&1; then
+					printf '%b1%b = Update Stubby Configuration\n' "${COLOR_GREEN}" "${COLOR_WHITE}"
+				else
+					printf '%b1%b = Begin Stubby Installation Process\n' "${COLOR_GREEN}" "${COLOR_WHITE}"
+				fi
+				printf '%b2%b = Remove Existing Stubby Installation\n' "${COLOR_GREEN}" "${COLOR_WHITE}"
+				if [ "$localmd5" != "$remotemd5" ]; then
+					printf '%b3%b = Update install_stubby.sh\n' "${COLOR_GREEN}" "${COLOR_WHITE}"
+				fi
+				printf '\n%be%b = Exit Script\n' "${COLOR_GREEN}" "${COLOR_WHITE}"
+				printf '\n%bOption ==>%b ' "${COLOR_GREEN}" "${COLOR_WHITE}"
+				read -r "menu1"
 			fi
-			printf '%b2%b = Remove Existing Stubby Installation\n' "${COLOR_GREEN}" "${COLOR_WHITE}"
-			if [ "$localmd5" != "$remotemd5" ]; then
-				printf '%b3%b = Update install_stubby.sh\n' "${COLOR_GREEN}" "${COLOR_WHITE}"
-			fi
-			printf '\n%be%b = Exit Script\n' "${COLOR_GREEN}" "${COLOR_WHITE}"
-			printf '\n%bOption ==>%b ' "${COLOR_GREEN}" "${COLOR_WHITE}"
-			read -r "menu1"
 			case "$menu1" in
 				1)
 					install_stubby "$@"
@@ -390,11 +393,6 @@ stubby_yml_update () {
 		make_backup /opt/etc/stubby stubby.yml
 		download_file /opt/etc/stubby stubby.yml
 		chmod 644 /opt/etc/stubby/stubby.yml >/dev/null 2>&1
-		if [ "$(uname -m)" = "aarch64" ]; then
-			{ printf '\n\n# Tweaks for statically linked binaries\n'
-			echo "tls_min_version: GETDNS_TLS1_3"
-			echo "tls_ciphersuites: \"TLS_AES_128_GCM_SHA256:TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256\""; } >> /opt/etc/stubby/stubby.yml
-		fi
 }
 
 
@@ -604,62 +602,41 @@ install_stubby () {
 			exit 1
 		fi
 
-		if [ "$(uname -m)" = "aarch64" ]; then
-			download_file /tmp getdns-hnd-latest.ipk
-			if opkg install /tmp/getdns-hnd-latest.ipk --force-downgrade; then
-				echo "Patched getdns successfully installed"
-			else
-				echo "An error occurred installing patched Getdns"
-				exit 1
-			fi
-			# Xentrk revision needed to bypass false positive that stubby is installed if /opt/var/cache/stubby
-			# and /opt/etc/stubby exists. When stubby is removed via the command line, the entware directory
-			# is not deleted.
+		# Xentrk revision needed to bypass false positive that stubby is installed if /opt/var/cache/stubby
+		# and /opt/etc/stubby exists. When stubby is removed via the command line, the entware directory
+		# is not deleted.
 
-			# check for stubby folders with no files
-			for DIR in /opt/var/cache/stubby /opt/etc/stubby; do
-				if [ -d "$DIR" ]; then
-					if ! is_dir_empty "$DIR"; then
-						if ! rmdir "$DIR" >/dev/null 2>&1; then
-							printf '\nError trying to remove %b%s%b\n' "$COLOR_GREEN" "$DIR" "$COLOR_WHITE"
-						else
-							printf '\norphaned %b%s%b folder removed\n' "$COLOR_GREEN"  "$DIR" "$COLOR_WHITE"
-						fi
+		# check for stubby folders with no files
+		for DIR in /opt/var/cache/stubby /opt/etc/stubby; do
+			if [ -d "$DIR" ]; then
+				if ! is_dir_empty "$DIR"; then
+					if ! rmdir "$DIR" >/dev/null 2>&1; then
+						printf '\nError trying to remove %b%s%b\n' "$COLOR_GREEN" "$DIR" "$COLOR_WHITE"
+					else
+						printf '\norphaned %b%s%b folder removed\n' "$COLOR_GREEN"  "$DIR" "$COLOR_WHITE"
 					fi
 				fi
-			done
-			if opkg install stubby; then
-				echo "Stubby successfully installed"
-			else
-				echo "An error occurred installing Stubby"
-				exit 1
 			fi
-			rm /tmp/getdns-hnd-latest.ipk
+		done
+		if opkg install getdns --force-downgrade; then
+			echo "GetDNS successfully updated"
 		else
-			if opkg install stubby getdns; then
-				echo "Stubby successfully updated"
-			else
-				echo "An error occurred updating Stubby"
-				exit 1
-			fi
+			echo "An error occurred updating Stubby"
+			exit 1
+		fi
+		if opkg install stubby --force-downgrade; then
+			echo "Stubby successfully installed"
+		else
+			echo "An error occurred installing Stubby"
+			exit 1
+		fi
+		if opkg install haveged; then
+			echo "Haveged successfully updated"
+		else
+			echo "An error occurred updating Haveged"
+			exit 1
 		fi
 
-		if Chk_Entware haveged; then
-			echo "Existing haveged package found"
-			if opkg install haveged; then
-				echo "Haveged successfully updated"
-			else
-				echo "An error occurred updating Haveged"
-				exit 1
-			fi
-		else
-			if opkg install haveged; then
-				echo "Haveged successfully installed"
-			else
-				echo "An error occurred installing Haveged";
-				exit 1
-			fi
-		fi
 		if ! grep -qF "export TZ=\$(cat /etc/TZ)" /opt/etc/init.d/S02haveged; then
 			sed -i "3i export TZ=\$(cat /etc/TZ)" /opt/etc/init.d/S02haveged
 		fi

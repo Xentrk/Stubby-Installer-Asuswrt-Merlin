@@ -34,3 +34,6 @@ upstream_recursive_servers:
 # Cloudflare Secondary IPv6
   - address_data: 2606:4700:4700::1001
     tls_auth_name: "cloudflare-dns.com"
+
+tls_min_version: GETDNS_TLS1_3
+tls_ciphersuites: "TLS_AES_128_GCM_SHA256:TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256"

@@ -2,6 +2,8 @@
 
 Stubby DNS Privacy Daemon Install Script for [Asuswrt-Merlin](https://asuswrt.lostrealm.ca/) Firmware
 
+[![Build Status](https://travis-ci.com/Xentrk/Stubby-Installer-Asuswrt-Merlin.svg?branch=master)](https://travis-ci.com/Xentrk/Stubby-Installer-Asuswrt-Merlin)
+
 ## Description
 
 [Stubby](https://dnsprivacy.org/wiki/display/DP/DNS+Privacy+Daemon+-+Stubby) is an application that acts as a local DNS Privacy stub resolver using DNS-over-TLS. Stubby encrypts DNS queries sent from a client machine to a DNS Privacy resolver increasing end user privacy.

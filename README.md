@@ -3,6 +3,7 @@
 Stubby DNS Privacy Daemon Install Script for [Asuswrt-Merlin](https://asuswrt.lostrealm.ca/) Firmware
 
 [![Build Status](https://travis-ci.com/Xentrk/Stubby-Installer-Asuswrt-Merlin.svg?branch=master)](https://travis-ci.com/Xentrk/Stubby-Installer-Asuswrt-Merlin)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/f58010e6c3114bc1b194761f93d7bf3d)](https://www.codacy.com/app/Xentrk/Stubby-Installer-Asuswrt-Merlin?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Xentrk/Stubby-Installer-Asuswrt-Merlin&amp;utm_campaign=Badge_Grade)
 
 ## Description
 

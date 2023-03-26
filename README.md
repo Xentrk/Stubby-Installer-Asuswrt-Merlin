@@ -228,7 +228,7 @@ The **install_stubby.sh** script turns off the DNSSEC setting on the firmware to
 2.  DNSSEC Test
 
 *   [https://rootcanary.org/test.html](https://rootcanary.org/test.html)
-*   [http://dnssec.vs.uni-due.de/](http://dnssec.vs.uni-due.de/)
+*   [https://wander.science/projects/dns/dnssec-resolver-test/](https://wander.science/projects/dns/dnssec-resolver-test/)
 *   [http://en.conn.internet.nl/connection/](http://en.conn.internet.nl/connection/)
 *   [http://0skar.cz/dns/en/](http://0skar.cz/dns/en/)
 
